@@ -1,0 +1,66 @@
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.java-websocket\Java-WebSocket\1.3.0\db2658f013fb163de4a99274c2eb9e17efe535d2\Java-WebSocket-1.3.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\multidex-1.0.2.aar\21dd17c3374863ce48f3f0e66020706a\jars\classes.jar'(**.class)
+-injars 'C:\Program Files\Android\Android Studio\gradle\m2repository\org\jetbrains\kotlin\kotlin-stdlib-jre7\1.1.51\kotlin-stdlib-jre7-1.1.51.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\design-26.1.0.aar\cd94c36e1f4ee11dbe90b3285283eea8\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\appcompat-v7-26.1.0.aar\0931d18a276e4ab38786fba91504a8fa\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\constraint-layout-1.0.2.aar\91e956285d85dd533b00d158bec8fda4\jars\classes.jar'(**.class)
+-injars 'C:\Program Files\Android\Android Studio\gradle\m2repository\org\jetbrains\kotlin\kotlin-stdlib\1.1.51\kotlin-stdlib-1.1.51.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-26.1.0.aar\cf667b2ca27adeacd9d7ef44c049f373\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-26.1.0.aar\60c7608ce7e1059aff2e956be26ba0e3\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\recyclerview-v7-26.1.0.aar\8ea80803f61a31fb37439872ccaf3c31\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\transition-26.1.0.aar\00d3db5ea00a81024c1f2279f8dca1df\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-v4-26.1.0.aar\8f314d00b7bb977063adfa68d1b94928\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-media-compat-26.1.0.aar\053afaee9d212aebf092af8d6f4c057e\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-fragment-26.1.0.aar\3861d185b8b26a39e7d4263d1f88e937\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-core-utils-26.1.0.aar\42f5ed436196f7963ff64169833f4856\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-core-ui-26.1.0.aar\61e70db318b258655db91b31af899cb0\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-compat-26.1.0.aar\292e6e55f00dc114beee04fce2bfa0bc\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\com.android.support\support-annotations\26.1.0\814258103cf26a15fcc26ecce35f5b7d24b73f8\support-annotations-26.1.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\com.android.support.constraint\constraint-layout-solver\1.0.2\b9cd8fc6bd15cb915735d34535db30ece0c44603\constraint-layout-solver-1.0.2.jar'(**.class)
+-injars 'C:\Program Files\Android\Android Studio\gradle\m2repository\org\jetbrains\annotations\13.0\annotations-13.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\runtime-1.0.0.aar\afc7212cab7a9b8884d547e4044a9d6c\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\android.arch.lifecycle\common\1.0.0\e414a4cb28434e25c4f6aa71426eb20cf4874ae9\common-1.0.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\android.arch.core\common\1.0.0\a2d487452376193fc8c103dd2b9bd5f2b1b44563\common-1.0.0.jar'(**.class)
+-injars 'C:\Users\samsung\StudioProjects\TwilightClient2\app\build\intermediates\classes\debug'(**.class)
+-injars 'C:\Users\samsung\StudioProjects\TwilightClient2\app\build\tmp\kotlin-classes\debug'(**.class)
+-outjars 'C:\Users\samsung\StudioProjects\TwilightClient2\app\build\intermediates\multi-dex\debug\componentClasses.jar'
+
+-libraryjars 'C:\Users\samsung\AppData\Local\Android\sdk\build-tools\26.0.2\lib\shrinkedAndroid.jar'
+
+-forceprocessing
+-dontoptimize
+-dontobfuscate
+-dontusemixedcaseclassnames
+-dontpreverify
+-dontnote **
+-dontwarn **
+-printconfiguration 'C:\Users\samsung\StudioProjects\TwilightClient2\app\build\intermediates\multi-dex\debug\components.flags'
+
+
+# Referenced at C:\Users\samsung\StudioProjects\TwilightClient2\app\build\intermediates\manifests\full\debug\AndroidManifest.xml:16
+-keep class android.support.multidex.MultiDexApplication {
+    <init>(...);
+}
+
+-keep public class * extends android.app.Instrumentation {
+    <init>();
+}
+
+-keep public class * extends android.app.Application {
+    <init>();
+    void attachBaseContext(android.content.Context);
+}
+
+-keep public class * extends android.app.backup.BackupAgent {
+    <init>();
+}
+
+-keep public class * extends java.lang.annotation.Annotation {
+    <fields>;
+    <methods>;
+}
+
+-keep class com.android.tools.ir.** {
+    <fields>;
+    <methods>;
+}

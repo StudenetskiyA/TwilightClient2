@@ -1,0 +1,11 @@
+#Internal package file, do not edit.
+#Sat Jan 06 02:54:53 YEKT 2018
+1.base=C\:\\Users\\samsung\\StudioProjects\\TwilightClient2\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\5
+0.baseType=DIRECTORY
+1.baseType=DIRECTORY
+count=2
+1.set=DEX
+0.path=classes.dex
+0.set=DEX
+0.base=C\:\\Users\\samsung\\StudioProjects\\TwilightClient2\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\5
+1.path=classes2.dex
