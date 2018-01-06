@@ -52,7 +52,11 @@ class MainActivity : AppCompatActivity() {
 
         fab.setOnClickListener {
             try {
-                var msg = "IAMHERE("+"Боб"+","+"12345"+","+user.location?.latitude?.locationToInt()+","+ user.location?.longitude?.locationToInt()+")"
+                //user.location?.latitude?.locationToInt() not equal null.locationToInt()
+                // And I don't know why.
+                val lat : Int = if (user.location?.latitude!=null) user.location?.latitude.locationToInt() else 0
+                val lon : Int = if (user.location?.longitude!=null) user.location?.longitude.locationToInt() else 0
+                var msg = "IAMHERE("+"Боб"+","+"12345"+","+lat+","+ lon+")"
                 wsj.sendMessage(msg)
                 fab.hide()
             } catch (x: Exception) {
