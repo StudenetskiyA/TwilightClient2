@@ -11,4 +11,8 @@ data class User(
     var netLocation:String="",
     var location:Location?=null,
     var locationNet:Location?=null
-)
+){
+    fun getBestLocation():Location?{
+        if (location!=null) return location else return locationNet
+    }
+}

@@ -54,8 +54,8 @@ class MainActivity : AppCompatActivity() {
             try {
                 //user.location?.latitude?.locationToInt() not equal null.locationToInt()
                 // And I don't know why.
-                val lat : Int = if (user.location?.latitude!=null) user.location?.latitude.locationToInt() else 0
-                val lon : Int = if (user.location?.longitude!=null) user.location?.longitude.locationToInt() else 0
+                val lat : Int = if (user.getBestLocation()?.latitude!=null) user.getBestLocation()?.latitude.locationToInt() else 0
+                val lon : Int = if (user.getBestLocation()?.longitude!=null) user.getBestLocation()?.longitude.locationToInt() else 0
                 var msg = "IAMHERE("+"Боб"+","+"12345"+","+lat+","+ lon+")"
                 wsj.sendMessage(msg)
                 fab.hide()
