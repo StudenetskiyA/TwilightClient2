@@ -1,6 +1,8 @@
 package com.shi.dayre.twilightclient2
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.Settings
 import android.support.design.widget.Snackbar
@@ -14,6 +16,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 
+val CONNECT_EVERY_SECOND:Long = 10
+val APP_PREFERENCES = "mysettings"
+val APP_PREFERENCES_USERNAME = "Боб"
+
 var user=User()
 var location: com.shi.dayre.twilightclient2.LocationProvider?=null
 val commandHandler = CommandFromServerHandler()
@@ -21,6 +27,8 @@ val address = "ws://192.168.1.198:8080/BHServer/serverendpoint"
 var wsj:WebSocket?=null
 
 class MainActivity : AppCompatActivity() {
+    lateinit var mSettings:SharedPreferences
+    lateinit var editor :SharedPreferences.Editor
     val mTimer = Timer()
     val mMyTimerTask =  onTimerTick(this)
 
@@ -48,6 +56,14 @@ class MainActivity : AppCompatActivity() {
         location =  com.shi.dayre.twilightclient2.LocationProvider(this,this)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        //Load settings
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
+        editor = mSettings.edit()
+            if (mSettings.contains(APP_PREFERENCES_USERNAME))
+            Log.i("WebClient","login = "+ mSettings.getString(APP_PREFERENCES_USERNAME, "noname"))
+        else Log.i("WebClient","login not exist.")
+
         wsj = WebSocket(address, commandHandler, this)
 
         wsj?.connectWebSocket()
@@ -55,6 +71,8 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener {
             try {
                 sendLocationToServer()
+                editor.putString(APP_PREFERENCES_USERNAME, "Боб");
+                editor.apply()
                 fab.hide()
             } catch (x: Exception) {
                 println("Cloud not connect to server.")
@@ -85,7 +103,8 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         location!!.start()
-        mTimer.schedule(mMyTimerTask, 1000, 5000);
+        if (mTimer != null) mTimer.cancel()
+        mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND*1000);
     }
 
     fun sendLocationToServer(){
