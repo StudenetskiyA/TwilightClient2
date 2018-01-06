@@ -29,9 +29,9 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
             return;
         }
         //For 10 second, minimum 10 meter
-        locationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+        locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 (1000 * 10).toLong(), 10f, locationListener)
-        locationManager!!.requestLocationUpdates(
+        locationManager?.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER, (1000 * 10).toLong(), 10f,
                 locationListener)
     }
@@ -41,19 +41,26 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
             return
 
         Log.i("WebClient","Location updated")
-        if (checkNetEnabled()) {
-            user.locationNet = location
+        if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
+            user.location = location;
+        } else if (location.getProvider().equals(
+                LocationManager.NETWORK_PROVIDER)) {
+            user.locationNet = location;
         }
-        if (checkGPSEnabled()) {
-            user.location = location
-        }
+
+//        if (checkNetEnabled()) {
+//            user.locationNet = location
+//        }
+//        if (checkGPSEnabled()) {
+//            user.location = location
+//        }
         mView.refresh()
     }
-    private fun checkGPSEnabled():Boolean{
-        return locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    private fun checkGPSEnabled():Boolean?{
+        return locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
-    private fun checkNetEnabled():Boolean{
-        return locationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    private fun checkNetEnabled():Boolean?{
+        return locationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     val locationListener = object : LocationListener {
@@ -72,7 +79,7 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
                     ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            updateLocation(locationManager!!.getLastKnownLocation(provider))
+            updateLocation(locationManager?.getLastKnownLocation(provider))
         }
 
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
@@ -81,7 +88,7 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
                     ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            updateLocation(locationManager!!.getLastKnownLocation(provider))
+            updateLocation(locationManager?.getLastKnownLocation(provider))
         }
     }
 

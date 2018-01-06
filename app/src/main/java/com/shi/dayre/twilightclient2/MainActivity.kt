@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         fab.setOnClickListener {
             try {
-                var msg = "IAMHERE("+"Боб"+","+"12345"+","+user.location!!.latitude.locationToInt()+","+ user.location!!.longitude.locationToInt()+")"
+                var msg = "IAMHERE("+"Боб"+","+"12345"+","+user.location?.latitude?.locationToInt()+","+ user.location?.longitude?.locationToInt()+")"
                 wsj.sendMessage(msg)
                 fab.hide()
             } catch (x: Exception) {
