@@ -10,6 +10,8 @@ fun Location.format(): String {
     return if (this == null) "" else "lat = "+this.latitude.locationToInt()+","+ "lon = "+this.longitude.locationToInt()
 }
 
-fun Double.locationToInt():Int{
+fun Double?.locationToInt():Int{
+    if (this!=null)
     return (this*1000000).toInt()
+    else return 0
 }
