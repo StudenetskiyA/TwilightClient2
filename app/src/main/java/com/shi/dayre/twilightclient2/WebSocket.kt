@@ -12,6 +12,7 @@ import java.net.URISyntaxException
  */
 
 class WebSocket (val url:String, val commandHandler:CommandFromServerHandler,val mView:MainActivity){
+    private var connected:Boolean=false
     private var mWebSocketClient: WebSocketClient? = null
 
     internal fun connectWebSocket() {
@@ -28,6 +29,7 @@ class WebSocket (val url:String, val commandHandler:CommandFromServerHandler,val
         mWebSocketClient = object : WebSocketClient(uri, Draft_17()) {
             override fun onOpen(serverHandshake: ServerHandshake) {
                 Log.i("Websocket", "Opened")
+                connected=true
             }
 
             override fun onMessage(s: String) {
@@ -38,16 +40,18 @@ class WebSocket (val url:String, val commandHandler:CommandFromServerHandler,val
 
             override fun onClose(i: Int, s: String, b: Boolean) {
                 Log.i("Websocket", "Closed " + s)
+                connected=false
             }
 
             override fun onError(e: Exception) {
                 Log.e("Websocket", "Error " + e.message)
+                connected=false
             }
         }
         mWebSocketClient!!.connect()
     }
 
     fun sendMessage(txt: String) {
-        mWebSocketClient!!.send(txt)
+       if (connected) mWebSocketClient!!.send(txt)
     }
 }
