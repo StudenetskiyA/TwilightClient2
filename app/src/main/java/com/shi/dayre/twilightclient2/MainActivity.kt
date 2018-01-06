@@ -12,15 +12,17 @@ import android.view.View
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import java.util.*
 
 var user=User()
+var location: com.shi.dayre.twilightclient2.LocationProvider?=null
+val commandHandler = CommandFromServerHandler()
+val address = "ws://192.168.1.198:8080/BHServer/serverendpoint"
+var wsj:WebSocket?=null
 
 class MainActivity : AppCompatActivity() {
-    //private val address = "ws://localhost:8080/BHServer/serverendpoint"
-
-    var location: com.shi.dayre.twilightclient2.LocationProvider?=null
-    val commandHandler = CommandFromServerHandler()
-    val address = "ws://192.168.1.198:8080/BHServer/serverendpoint"
+    val mTimer = Timer()
+    val mMyTimerTask =  onTimerTick(this)
 
     fun refresh(){
         Thread(Runnable {
@@ -46,18 +48,13 @@ class MainActivity : AppCompatActivity() {
         location =  com.shi.dayre.twilightclient2.LocationProvider(this,this)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        wsj = WebSocket(address, commandHandler, this)
 
-        var wsj = WebSocket(address, commandHandler,this)
-        wsj.connectWebSocket()
+        wsj?.connectWebSocket()
 
         fab.setOnClickListener {
             try {
-                //user.location?.latitude?.locationToInt() not equal null.locationToInt()
-                // And I don't know why.
-                val lat : Int = if (user.getBestLocation()?.latitude!=null) user.getBestLocation()?.latitude.locationToInt() else 0
-                val lon : Int = if (user.getBestLocation()?.longitude!=null) user.getBestLocation()?.longitude.locationToInt() else 0
-                var msg = "IAMHERE("+"Боб"+","+"12345"+","+lat+","+ lon+")"
-                wsj.sendMessage(msg)
+                sendLocationToServer()
                 fab.hide()
             } catch (x: Exception) {
                 println("Cloud not connect to server.")
@@ -87,7 +84,23 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-       location!!.start()
+        location!!.start()
+        mTimer.schedule(mMyTimerTask, 1000, 5000);
+    }
+
+    fun sendLocationToServer(){
+        //user.location?.latitude?.locationToInt() not equal null.locationToInt()
+        // And I don't know why.
+        val lat : Int = if (user.getBestLocation()?.latitude!=null) user.getBestLocation()?.latitude.locationToInt() else 0
+        val lon : Int = if (user.getBestLocation()?.longitude!=null) user.getBestLocation()?.longitude.locationToInt() else 0
+        var msg = "IAMHERE("+"Боб"+","+"12345"+","+lat+","+ lon+")"
+        wsj?.sendMessage(msg)
+    }
+
+    class onTimerTick(val context:MainActivity):TimerTask(){
+        override fun run() {
+           context.sendLocationToServer()
+        }
     }
 
     fun onClickLocationSettings(view: View) {
@@ -96,5 +109,7 @@ class MainActivity : AppCompatActivity() {
                 Settings.ACTION_LOCATION_SOURCE_SETTINGS))
     }
 }
+
+
 
 
