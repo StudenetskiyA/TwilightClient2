@@ -14,6 +14,19 @@
         android:gravity="top|left"
         android:orientation="vertical">
 
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/newLogin"
+            android:singleLine="true"
+            android:hint="@string/new_login"/>
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/newPassword"
+            android:singleLine="true"
+            android:hint="@string/new_password"/>
+
         <TextView
             android:id="@+id/gpsCoordinate"
             android:gravity="left"
