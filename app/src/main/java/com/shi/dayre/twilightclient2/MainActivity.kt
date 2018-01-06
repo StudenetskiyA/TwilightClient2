@@ -16,36 +16,37 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 
-val CONNECT_EVERY_SECOND:Long = 10
+val CONNECT_EVERY_SECOND: Long = 10
 val APP_PREFERENCES = "mysettings"
-val APP_PREFERENCES_USERNAME = "Боб"
+val APP_PREFERENCES_USERNAME = "username"
+val APP_PREFERENCES_PASSWORD = "password"
 
-var user=User()
-var location: com.shi.dayre.twilightclient2.LocationProvider?=null
+var user = User()
+var location: com.shi.dayre.twilightclient2.LocationProvider? = null
 val commandHandler = CommandFromServerHandler()
 val address = "ws://192.168.1.198:8080/BHServer/serverendpoint"
-var wsj:WebSocket?=null
+var wsj: WebSocket? = null
 
 class MainActivity : AppCompatActivity() {
-    lateinit var mSettings:SharedPreferences
-    lateinit var editor :SharedPreferences.Editor
-    val mTimer = Timer()
-    val mMyTimerTask =  onTimerTick(this)
+    lateinit var mSettings: SharedPreferences
+    lateinit var editor: SharedPreferences.Editor
+    var mTimer = Timer()
+    var mMyTimerTask = onTimerTick(this)
 
-    fun refresh(){
+    fun refresh() {
         Thread(Runnable {
             // try to touch View of UI thread
             this.runOnUiThread(java.lang.Runnable {
-                Log.i("WebClient","View updated")
+                Log.i("WebClient", "View updated")
                 textFromServer.text = user.userText
-                if (user.location!=null)
-                gpsCoordinate.setText(user.location!!.format())
+                if (user.location != null)
+                    gpsCoordinate.setText(user.location!!.format())
                 else
-                    gpsCoordinate.text=this.resources.getText(R.string.gps_disable)
-                if (user.locationNet!=null)
+                    gpsCoordinate.text = this.resources.getText(R.string.gps_disable)
+                if (user.locationNet != null)
                     netCoordinate.setText(user.locationNet!!.format())
                 else
-                    netCoordinate.text=this.resources.getText(R.string.net_disable)
+                    netCoordinate.text = this.resources.getText(R.string.net_disable)
             })
         }).start()
 
@@ -53,16 +54,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        location =  com.shi.dayre.twilightclient2.LocationProvider(this,this)
+        location = com.shi.dayre.twilightclient2.LocationProvider(this, this)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
         //Load settings
         mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
         editor = mSettings.edit()
-            if (mSettings.contains(APP_PREFERENCES_USERNAME))
-            Log.i("WebClient","login = "+ mSettings.getString(APP_PREFERENCES_USERNAME, "noname"))
-        else Log.i("WebClient","login not exist.")
+        if (mSettings.contains(APP_PREFERENCES_USERNAME))
+            user.login = mSettings.getString(APP_PREFERENCES_USERNAME, "null")
+        if (mSettings.contains(APP_PREFERENCES_PASSWORD))
+            user.password = mSettings.getString(APP_PREFERENCES_PASSWORD, "null")
+        if (user.login != null)
+            newLogin.setText(user.login)
+        if (user.password != null)
+            newPassword.setText(user.password)
 
         wsj = WebSocket(address, commandHandler, this)
 
@@ -70,9 +76,13 @@ class MainActivity : AppCompatActivity() {
 
         fab.setOnClickListener {
             try {
-                sendLocationToServer()
-                editor.putString(APP_PREFERENCES_USERNAME, "Боб");
+                user.login = newLogin.text.toString()
+                user.password = newPassword.text.toString()
+                editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString());
+                editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
                 editor.apply()
+
+                sendLocationToServer()
                 fab.hide()
             } catch (x: Exception) {
                 println("Cloud not connect to server.")
@@ -104,21 +114,27 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         location!!.start()
         if (mTimer != null) mTimer.cancel()
-        mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND*1000);
+        mTimer = Timer()
+        mMyTimerTask = onTimerTick(this)
+        mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
     }
 
-    fun sendLocationToServer(){
+    fun sendLocationToServer() {
         //user.location?.latitude?.locationToInt() not equal null.locationToInt()
         // And I don't know why.
-        val lat : Int = if (user.getBestLocation()?.latitude!=null) user.getBestLocation()?.latitude.locationToInt() else 0
-        val lon : Int = if (user.getBestLocation()?.longitude!=null) user.getBestLocation()?.longitude.locationToInt() else 0
-        var msg = "IAMHERE("+"Боб"+","+"12345"+","+lat+","+ lon+")"
-        wsj?.sendMessage(msg)
+        val lat: Int = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude.locationToInt() else 0
+        val lon: Int = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude.locationToInt() else 0
+
+        //Remove this check after app connect only after loging
+        if (user.login!=null && !user.login.equals("null")&& user.password!=null && !user.password.equals("null")) {
+            var msg = "USER(" + user.login + "," + user.password + "," + lat + "," + lon + ")"
+            wsj?.sendMessage(msg)
+        }
     }
 
-    class onTimerTick(val context:MainActivity):TimerTask(){
+    class onTimerTick(val context: MainActivity) : TimerTask() {
         override fun run() {
-           context.sendLocationToServer()
+            context.sendLocationToServer()
         }
     }
 
