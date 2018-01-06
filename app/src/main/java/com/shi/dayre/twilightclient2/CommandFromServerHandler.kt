@@ -12,7 +12,17 @@ class CommandFromServerHandler (){
             Log.i("WebClient","Proceed command "+fromServer)
             user.userText=user.userText+"\n"+fromServer
             if (fromServer.equals("Password correct.")) user.logined=true
-            //fromSite?.setText(fromSite?.text.toString()+"/n"+fromServer)
+
+            if (fromServer.startsWith("ZONE(")){
+                if (!user.zoneText.equals(fromServer.getTextBetween().get(0))){
+                    //Change zone
+                    //TODO Play sound
+                    Log.i("WebClient","NEW ZONE ALARM!")
+                    user.justChangedZone=true
+                    user.zoneText=fromServer.getTextBetween().get(0)
+                }
+
+            }
         }
     }
 }

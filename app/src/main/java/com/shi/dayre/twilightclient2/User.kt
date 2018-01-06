@@ -13,7 +13,10 @@ data class User(
         var locationNet: Location? = null,
         var login: String? = null,
         var password: String? = null,
-        var logined:Boolean = false
+        var logined:Boolean = false,
+        var justLogined:Boolean=true,
+        var zoneText:String = "free_zone",
+        var justChangedZone:Boolean = false
 ) {
     fun getBestLocation(): Location? {
         if (location != null) return location else return locationNet

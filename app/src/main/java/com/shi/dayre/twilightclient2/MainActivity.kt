@@ -42,6 +42,14 @@ class MainActivity : AppCompatActivity() {
                 if (user.logined) {
                     newLogin.visibility = View.GONE
                     newPassword.visibility = View.GONE
+                    if (user.justLogined) {
+                        if (mTimer != null) mTimer.cancel()
+                        mTimer = Timer()
+                        mMyTimerTask = onTimerTick(this)
+                        mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
+                        fab.hide()
+                        user.justLogined=false
+                    }
                 }
                 if (user.location != null)
                     gpsCoordinate.setText(user.location!!.format())
@@ -85,12 +93,8 @@ class MainActivity : AppCompatActivity() {
                 editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString());
                 editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
                 editor.apply()
-                if (mTimer != null) mTimer.cancel()
-                mTimer = Timer()
-                mMyTimerTask = onTimerTick(this)
-                mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
-                //sendLocationToServer()
-                fab.hide()
+                var msg = "USER(" + user.login + "," + user.password + ",0,0)"
+                wsj?.sendMessage(msg)
             } catch (x: Exception) {
                 println("Cloud not connect to server.")
             }
