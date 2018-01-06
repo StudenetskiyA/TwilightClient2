@@ -39,6 +39,10 @@ class MainActivity : AppCompatActivity() {
             this.runOnUiThread(java.lang.Runnable {
                 Log.i("WebClient", "View updated")
                 textFromServer.text = user.userText
+                if (user.logined) {
+                    newLogin.visibility = View.GONE
+                    newPassword.visibility = View.GONE
+                }
                 if (user.location != null)
                     gpsCoordinate.setText(user.location!!.format())
                 else
@@ -81,8 +85,11 @@ class MainActivity : AppCompatActivity() {
                 editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString());
                 editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
                 editor.apply()
-
-                sendLocationToServer()
+                if (mTimer != null) mTimer.cancel()
+                mTimer = Timer()
+                mMyTimerTask = onTimerTick(this)
+                mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
+                //sendLocationToServer()
                 fab.hide()
             } catch (x: Exception) {
                 println("Cloud not connect to server.")
@@ -113,10 +120,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         location!!.start()
-        if (mTimer != null) mTimer.cancel()
-        mTimer = Timer()
-        mMyTimerTask = onTimerTick(this)
-        mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
     }
 
     fun sendLocationToServer() {

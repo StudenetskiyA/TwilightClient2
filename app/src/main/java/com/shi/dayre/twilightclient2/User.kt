@@ -12,7 +12,8 @@ data class User(
         var location: Location? = null,
         var locationNet: Location? = null,
         var login: String? = null,
-        var password: String? = null
+        var password: String? = null,
+        var logined:Boolean = false
 ) {
     fun getBestLocation(): Location? {
         if (location != null) return location else return locationNet

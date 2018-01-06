@@ -11,6 +11,7 @@ class CommandFromServerHandler (){
         if (fromServer != null) {
             Log.i("WebClient","Proceed command "+fromServer)
             user.userText=user.userText+"\n"+fromServer
+            if (fromServer.equals("Password correct.")) user.logined=true
             //fromSite?.setText(fromSite?.text.toString()+"/n"+fromServer)
         }
     }

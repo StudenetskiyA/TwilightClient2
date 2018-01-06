@@ -3,4 +3,6 @@
     <string name="action_settings">Settings</string>
     <string name="gps_disable">GPS выключен.</string>
     <string name="net_disable">Координаты сети недоступны.</string>
+    <string name="new_login">Логин</string>
+    <string name="new_password">Пароль</string>
 </resources>
