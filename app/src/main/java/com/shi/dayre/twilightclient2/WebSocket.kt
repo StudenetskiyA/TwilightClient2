@@ -19,9 +19,8 @@ class WebSocket (val url:String, val commandHandler:CommandFromServerHandler,val
         val uri: URI
         try {
             uri = URI(url)
-
         } catch (e: URISyntaxException) {
-            e.printStackTrace()
+            Log.i("Websocket", "Server offline.")
             return
         }
 
@@ -48,10 +47,10 @@ class WebSocket (val url:String, val commandHandler:CommandFromServerHandler,val
                 connected=false
             }
         }
-        mWebSocketClient!!.connect()
+        mWebSocketClient?.connect()
     }
 
     fun sendMessage(txt: String) {
-       if (connected) mWebSocketClient!!.send(txt)
+       if (connected) mWebSocketClient?.send(txt)
     }
 }

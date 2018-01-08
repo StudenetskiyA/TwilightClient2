@@ -6,4 +6,5 @@
     <string name="new_login">Логин</string>
     <string name="new_password">Пароль</string>
     <string name="enterToNewZone">Вы вошли в новую зону.</string>
+    <string name="new_server">Адрес сервера и его порт</string>
 </resources>

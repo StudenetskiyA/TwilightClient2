@@ -17,6 +17,12 @@
         <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/newServer"
+            android:singleLine="true"
+            android:hint="@string/new_server"/>
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/newLogin"
             android:singleLine="true"
             android:hint="@string/new_login"/>

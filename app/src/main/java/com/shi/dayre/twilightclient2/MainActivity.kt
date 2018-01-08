@@ -20,12 +20,11 @@ val CONNECT_EVERY_SECOND: Long = 10
 val APP_PREFERENCES = "mysettings"
 val APP_PREFERENCES_USERNAME = "username"
 val APP_PREFERENCES_PASSWORD = "password"
-
+val APP_PREFERENCES_SERVER = "server"
+val DEFAULT_SERVER = "ws://192.168.1.198:8080/BHServer/serverendpoint"
 var user = User()
 var location: com.shi.dayre.twilightclient2.LocationProvider? = null
 
-//val address = "ws://192.168.1.198:8080/BHServer/serverendpoint"
-val address = "ws://192.168.43.49:8080/BHServer/serverendpoint"
 var wsj: WebSocket? = null
 
 class MainActivity : AppCompatActivity() {
@@ -44,6 +43,7 @@ class MainActivity : AppCompatActivity() {
                 if (user.logined) {
                     newLogin.visibility = View.GONE
                     newPassword.visibility = View.GONE
+                    newServer.visibility = View.GONE
                     if (user.justLogined) {
                         if (mTimer != null) mTimer.cancel()
                         mTimer = Timer()
@@ -55,12 +55,14 @@ class MainActivity : AppCompatActivity() {
                 }
                 if (user.location != null)
                     gpsCoordinate.setText(user.location!!.format())
-                else
+                else {
                     gpsCoordinate.text = this.resources.getText(R.string.gps_disable)
+                }
                 if (user.locationNet != null)
                     netCoordinate.setText(user.locationNet!!.format())
-                else
+                else {
                     netCoordinate.text = this.resources.getText(R.string.net_disable)
+                }
             })
         }).start()
 
@@ -79,12 +81,17 @@ class MainActivity : AppCompatActivity() {
             user.login = mSettings.getString(APP_PREFERENCES_USERNAME, "null")
         if (mSettings.contains(APP_PREFERENCES_PASSWORD))
             user.password = mSettings.getString(APP_PREFERENCES_PASSWORD, "null")
+        if (mSettings.contains(APP_PREFERENCES_SERVER))
+            user.server = mSettings.getString(APP_PREFERENCES_SERVER, "null")
+        else user.server = DEFAULT_SERVER
+        newServer.setText(user.server)
         if (user.login != null)
             newLogin.setText(user.login)
         if (user.password != null)
             newPassword.setText(user.password)
 
-        wsj = WebSocket(address, commandHandler, this)
+
+        wsj = WebSocket(user.server, commandHandler, this)
 
         wsj?.connectWebSocket()
 
@@ -94,10 +101,11 @@ class MainActivity : AppCompatActivity() {
                 user.password = newPassword.text.toString()
                 editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString());
                 editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
+                editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString());
                 editor.apply()
                 var msg = "USER(" + user.login + "," + user.password + ",0,0)"
                 wsj?.sendMessage(msg)
-               // msg = "ADDNEWZONE(" + user.login + "," + user.password + ",'Имя зоны',0,0,0,'nt','fd','h',0,'f')"
+               // msg = "ADDNEWZONE(" + user.login + "," + user.password + ",Имя зоны,0,0,0,nt,fd,h,0,f)"
                // wsj?.sendMessage(msg)
 
             } catch (x: Exception) {
