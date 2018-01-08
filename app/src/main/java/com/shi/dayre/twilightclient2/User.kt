@@ -17,7 +17,8 @@ data class User(
         var server:String = DEFAULT_SERVER,
         var logined:Boolean = false,
         var justLogined:Boolean=true,
-        var zoneText:String = "free_zone",
+        var superusered:Boolean=false,
+        var zoneText:String = "",
         var justChangedZone:Boolean = false
 ) {
     fun getBestLocation(): Location? {

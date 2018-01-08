@@ -7,4 +7,13 @@
     <string name="new_password">Пароль</string>
     <string name="enterToNewZone">Вы вошли в новую зону.</string>
     <string name="new_server">Адрес сервера и его порт</string>
+    <string name="new_zone_name">Название новой зоны.</string>
+    <string name="new_zone_textforhuman">Текст для людей.</string>
+    <string name="new_zone_textforlight">Текст для светлых.</string>
+    <string name="new_zone_textfordark">Текст для темных.</string>
+    <string name="new_zone_latitude">Широта(7 цифр).</string>
+    <string name="new_zone_longitude">Долгота(7 цифр).</string>
+    <string name="new_zone_priority">Приоритет зоны.</string>
+    <string name="new_zone_achievement">Ачивка.</string>
+    <string name="new_zone_radius">Радиус зоны в метрах.</string>
 </resources>

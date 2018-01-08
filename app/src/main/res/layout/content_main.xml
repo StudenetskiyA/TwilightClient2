@@ -15,49 +15,173 @@
         android:orientation="vertical">
 
         <EditText
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/newServer"
-            android:singleLine="true"
-            android:hint="@string/new_server"/>
-        <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/new_server"
+            android:singleLine="true" />
+
+        <EditText
             android:id="@+id/newLogin"
-            android:singleLine="true"
-            android:hint="@string/new_login"/>
-        <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/new_login"
+            android:singleLine="true" />
+
+        <EditText
             android:id="@+id/newPassword"
-            android:singleLine="true"
-            android:hint="@string/new_password"/>
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/new_password"
+            android:singleLine="true" />
 
         <TextView
             android:id="@+id/gpsCoordinate"
-            android:gravity="left"
-            android:layout_marginLeft="5dp"
-            android:layout_height="fill_parent"
             android:layout_width="fill_parent"
-            android:maxLines="1"
-            />
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="5dp"
+            android:gravity="left"
+            android:maxLines="1" />
+
         <TextView
             android:id="@+id/netCoordinate"
-            android:gravity="left"
-            android:layout_marginLeft="5dp"
-            android:layout_height="fill_parent"
             android:layout_width="fill_parent"
-            android:maxLines="1"
-            />
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="5dp"
+            android:gravity="left"
+            android:maxLines="1" />
+
         <TextView
             android:id="@+id/textFromServer"
-            android:gravity="left"
-            android:layout_marginLeft="5dp"
-            android:layout_height="fill_parent"
             android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="5dp"
+            android:gravity="left"
+            android:maxLines="1" />
+
+        <LinearLayout
+            android:id="@+id/superuserbar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:orientation="vertical"
+            android:visibility="gone"
+            >
+            <LinearLayout
+                android:id="@+id/superuserbuttonbar"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top|left"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/addNewZone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:gravity="left"
+                    android:text="add new zone" />
+
+                <Button
+                    android:id="@+id/deleteZone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:gravity="left"
+                    android:text="delete zone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/addnewzonebar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="top|left"
+                android:orientation="vertical"
+                android:visibility="gone"
+                >
+                <EditText
+                    android:id="@+id/newZoneName"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_zone_name"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"/>
+                <EditText
+                    android:id="@+id/newZoneTextForHuman"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_zone_textforhuman"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"/>
+                <EditText
+                    android:id="@+id/newZoneTextForLight"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_zone_textforlight"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"/>
+                <EditText
+                    android:id="@+id/newZoneTextForDark"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_zone_textfordark"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"/>
+                <EditText
+                    android:id="@+id/newZoneLatitude"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_zone_latitude"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/newZoneLongitude"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_zone_longitude"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/newZoneRadius"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_zone_radius"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/newZonePriority"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_zone_priority"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"
+                    android:inputType="number"/>
+                <EditText
+                    android:id="@+id/newZoneAchievement"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_zone_achievement"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/currentStatus"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="5dp"
+            android:gravity="left"
             android:maxLines="20"
-            android:text="Hello World!"
-            />
+            android:textSize="32dp" />
 
     </LinearLayout>
 

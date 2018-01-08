@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
             this.runOnUiThread(java.lang.Runnable {
                 Log.i("WebClient", "View updated")
                 textFromServer.text = user.userText
+                currentStatus.text = user.zoneText
                 if (user.logined) {
                     newLogin.visibility = View.GONE
                     newPassword.visibility = View.GONE
@@ -53,6 +54,10 @@ class MainActivity : AppCompatActivity() {
                         user.justLogined=false
                     }
                 }
+                if (user.superusered) {
+                    superuserbar.visibility=View.VISIBLE
+                }
+
                 if (user.location != null)
                     gpsCoordinate.setText(user.location!!.format())
                 else {
@@ -95,25 +100,37 @@ class MainActivity : AppCompatActivity() {
 
         wsj?.connectWebSocket()
 
-        fab.setOnClickListener {
-            try {
-                user.login = newLogin.text.toString()
-                user.password = newPassword.text.toString()
-                editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString());
-                editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
-                editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString());
-                editor.apply()
-                var msg = "USER(" + user.login + "," + user.password + ",0,0)"
-                wsj?.sendMessage(msg)
-               // msg = "ADDNEWZONE(" + user.login + "," + user.password + ",Имя зоны,0,0,0,nt,fd,h,0,f)"
-               // wsj?.sendMessage(msg)
-
-            } catch (x: Exception) {
-                println("Cloud not connect to server.")
+        addNewZone.setOnClickListener {
+            if (addnewzonebar.visibility == View.GONE) {
+                addnewzonebar.visibility = View.VISIBLE
+                //TODO Add current coordinates?
             }
-//            view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show()
+            else addnewzonebar.visibility = View.GONE
+            //TODO Change fab image
+            fab.show()
+        }
+        fab.setOnClickListener {
+            if (addnewzonebar.visibility == View.VISIBLE){
+                var msg = "ADDNEWZONE(" + user.login + "," + user.password + ","+
+                        newZoneName.text+","+newZoneLatitude.text+","+newZoneLongitude.text+","+newZoneRadius.text+","+
+                        newZoneTextForHuman.text+","+newZoneTextForLight.text+","+newZoneTextForDark.text+","+
+                        newZonePriority.text+","+newZoneAchievement.text+")"
+                wsj?.sendMessage(msg)
+            }
+            else {
+                try {
+                    user.login = newLogin.text.toString()
+                    user.password = newPassword.text.toString()
+                    editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString());
+                    editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
+                    editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString());
+                    editor.apply()
+                    var msg = "USER(" + user.login + "," + user.password + ",0,0)"
+                    wsj?.sendMessage(msg)
+                } catch (x: Exception) {
+                    println("Cloud not connect to server.")
+                }
+            }
         }
         refresh()
     }

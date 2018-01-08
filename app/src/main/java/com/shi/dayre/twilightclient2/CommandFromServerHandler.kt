@@ -11,10 +11,12 @@ class CommandFromServerHandler (val context : Context){
     fun  processCommand(fromServer: String?) {
         if (fromServer != null) {
             Log.i("WebClient","Proceed command "+fromServer)
-            user.userText=user.userText+"\n"+fromServer
+
             if (fromServer.equals("Password correct.")) user.logined=true
 
             if (fromServer.startsWith("ZONE(")){
+                //It may have confused with case you first start app in not-free-zone :
+                //You have two message in same time
                 if (!user.zoneText.equals(fromServer.getTextBetween().get(0)) && !fromServer.getTextBetween().get(0).equals("free_zone")){
                     //Change zone
                     Log.i("WebClient","NEW ZONE ALARM!")
@@ -22,6 +24,13 @@ class CommandFromServerHandler (val context : Context){
                     user.zoneText=fromServer.getTextBetween().get(0)
                     sendNotification(context,context.getString(R.string.enterToNewZone), user.zoneText)
                 }
+            }
+            else if (fromServer.startsWith("SUPERUSER(")){
+                Log.i("WebClient","SuperUser granted.")
+                user.superusered=true
+            }
+            else {
+                user.userText=fromServer
             }
         }
     }

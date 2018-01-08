@@ -18,7 +18,7 @@ fun Location.format(): String {
 
 fun Double?.locationToInt():Int{
     if (this!=null)
-    return (this*1000000).toInt()
+    return (this*100000).toInt()
     else return 0
 }
 
