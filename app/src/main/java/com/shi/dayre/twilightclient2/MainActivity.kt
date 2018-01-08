@@ -23,13 +23,15 @@ val APP_PREFERENCES_PASSWORD = "password"
 
 var user = User()
 var location: com.shi.dayre.twilightclient2.LocationProvider? = null
-val commandHandler = CommandFromServerHandler()
-val address = "ws://192.168.1.198:8080/BHServer/serverendpoint"
+
+//val address = "ws://192.168.1.198:8080/BHServer/serverendpoint"
+val address = "ws://192.168.43.49:8080/BHServer/serverendpoint"
 var wsj: WebSocket? = null
 
 class MainActivity : AppCompatActivity() {
     lateinit var mSettings: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
+    val commandHandler = CommandFromServerHandler(this)
     var mTimer = Timer()
     var mMyTimerTask = onTimerTick(this)
 
@@ -95,6 +97,9 @@ class MainActivity : AppCompatActivity() {
                 editor.apply()
                 var msg = "USER(" + user.login + "," + user.password + ",0,0)"
                 wsj?.sendMessage(msg)
+               // msg = "ADDNEWZONE(" + user.login + "," + user.password + ",'Имя зоны',0,0,0,'nt','fd','h',0,'f')"
+               // wsj?.sendMessage(msg)
+
             } catch (x: Exception) {
                 println("Cloud not connect to server.")
             }

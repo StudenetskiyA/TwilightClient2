@@ -5,6 +5,7 @@ import android.location.Location
 /**
  * Created by StudenetskiyA on 05.01.2018.
  */
+
 data class User(
         var userText: String = "",
         var gpsLocation: String = "",
