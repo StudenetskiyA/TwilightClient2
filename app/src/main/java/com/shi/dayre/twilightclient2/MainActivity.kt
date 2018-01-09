@@ -3,6 +3,8 @@ package com.shi.dayre.twilightclient2
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.provider.Settings
 import android.support.design.widget.Snackbar
@@ -11,10 +13,17 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import com.google.android.gms.maps.GoogleMap
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.MapFragment
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.*
+
 
 val CONNECT_EVERY_SECOND: Long = 10
 val APP_PREFERENCES = "mysettings"
@@ -24,15 +33,48 @@ val APP_PREFERENCES_SERVER = "server"
 val DEFAULT_SERVER = "ws://192.168.1.198:8080/BHServer/serverendpoint"
 var user = User()
 var location: com.shi.dayre.twilightclient2.LocationProvider? = null
-
 var wsj: WebSocket? = null
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var mSettings: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
     val commandHandler = CommandFromServerHandler(this)
     var mTimer = Timer()
     var mMyTimerTask = onTimerTick(this)
+    var gMap: GoogleMap? = null
+
+    override fun onMapReady(map: GoogleMap) {
+        Log.i("WebClient", "onMapReady")
+        gMap = map
+        map.setMapType(GoogleMap.MAP_TYPE_HYBRID)
+        // map.setMyLocationEnabled(true);
+        // map.setTrafficEnabled(true);
+        map.setIndoorEnabled(true)
+        map.setBuildingsEnabled(true)
+        map.getUiSettings().setZoomControlsEnabled(true)
+    }
+
+    private fun addMarker(name:String,snip:String,icon:Int) {
+        if (gMap != null) {
+            Thread(Runnable {
+                // try to touch View of UI thread
+                this.runOnUiThread(java.lang.Runnable {
+                    val lat: Double = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude.locationToDouble() else 0.0
+                    val lon: Double = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude.locationToDouble() else 0.0
+                    Log.i("Webclient", "Try to add point on map:" + lat + "," + lon)
+
+                    var marker: MarkerOptions = MarkerOptions()
+                            .position(LatLng(lat, lon))
+                            .title(name)
+                            .snippet(snip)
+                            .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(resources,icon)))
+
+                    gMap?.addMarker(marker)
+                    gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lon), 13f))
+                })
+            }).start()
+        }
+    }
 
     fun refresh() {
         Thread(Runnable {
@@ -51,11 +93,11 @@ class MainActivity : AppCompatActivity() {
                         mMyTimerTask = onTimerTick(this)
                         mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
                         fab.hide()
-                        user.justLogined=false
+                        user.justLogined = false
                     }
                 }
                 if (user.superusered) {
-                    superuserbar.visibility=View.VISIBLE
+                    superuserbar.visibility = View.VISIBLE
                 }
 
                 if (user.location != null)
@@ -95,29 +137,28 @@ class MainActivity : AppCompatActivity() {
         if (user.password != null)
             newPassword.setText(user.password)
 
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.searchmap) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
         wsj = WebSocket(user.server, commandHandler, this)
-
         wsj?.connectWebSocket()
 
         addNewZone.setOnClickListener {
             if (addnewzonebar.visibility == View.GONE) {
                 addnewzonebar.visibility = View.VISIBLE
                 //TODO Add current coordinates?
-            }
-            else addnewzonebar.visibility = View.GONE
+            } else addnewzonebar.visibility = View.GONE
             //TODO Change fab image
             fab.show()
         }
         fab.setOnClickListener {
-            if (addnewzonebar.visibility == View.VISIBLE){
-                var msg = "ADDNEWZONE(" + user.login + "," + user.password + ","+
-                        newZoneName.text+","+newZoneLatitude.text+","+newZoneLongitude.text+","+newZoneRadius.text+","+
-                        newZoneTextForHuman.text+","+newZoneTextForLight.text+","+newZoneTextForDark.text+","+
-                        newZonePriority.text+","+newZoneAchievement.text+")"
+            if (addnewzonebar.visibility == View.VISIBLE) {
+                var msg = "ADDNEWZONE(" + user.login + "," + user.password + "," +
+                        newZoneName.text + "," + newZoneLatitude.text + "," + newZoneLongitude.text + "," + newZoneRadius.text + "," +
+                        newZoneTextForHuman.text + "," + newZoneTextForLight.text + "," + newZoneTextForDark.text + "," +
+                        newZonePriority.text + "," + newZoneAchievement.text + ")"
                 wsj?.sendMessage(msg)
-            }
-            else {
+            } else {
                 try {
                     user.login = newLogin.text.toString()
                     user.password = newPassword.text.toString()
@@ -163,9 +204,10 @@ class MainActivity : AppCompatActivity() {
         val lon: Int = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude.locationToInt() else 0
 
         //Remove this check after app connect only after loging
-        if (user.login!=null && !user.login.equals("null")&& user.password!=null && !user.password.equals("null")) {
+        if (user.login != null && !user.login.equals("null") && user.password != null && !user.password.equals("null")) {
             var msg = "USER(" + user.login + "," + user.password + "," + lat + "," + lon + ")"
             wsj?.sendMessage(msg)
+            addMarker("Вы","это вы",R.drawable.human)
         }
     }
 

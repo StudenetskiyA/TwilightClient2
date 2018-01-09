@@ -22,6 +22,12 @@ fun Double?.locationToInt():Int{
     else return 0
 }
 
+fun Double?.locationToDouble():Double{
+    if (this!=null)
+        return this
+    else return 0.0
+}
+
 fun String.getTextBetween(): ArrayList<String> {
     var fromText = this
     val rtrn = ArrayList<String>()
