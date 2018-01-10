@@ -7,11 +7,11 @@ import android.location.Location
 
 //Created by StudenetskiyA on 27.01.2017.
 
-class CommandFromServerHandler (val context : Context){
-    @Throws(UnsupportedEncodingException::class)
-    fun  processCommand(fromServer: String?) {
+class CommandFromServerHandler(val context : Context) : Thread()  {
+    var fromServer:String =""
+     override fun run() {
         if (fromServer != null) {
-            Log.i("WebClient","Proceed command "+fromServer)
+            Log.i("WebClient.Proceed","Proceed command "+fromServer)
 
             if (fromServer.equals("Password correct.")) user.logined=true
 
@@ -31,6 +31,13 @@ class CommandFromServerHandler (val context : Context){
                         fromServer.getTextBetween().get(0), fromServer.getTextBetween().get(1).toDouble(),
                         fromServer.getTextBetween().get(2).toDouble(), fromServer.getTextBetween().get(3).toPowerside(),
                         fromServer.getTextBetween().get(4)
+                ))
+            }
+            else if (fromServer.startsWith("SEARCHZONE(")){
+                user.searchZoneResult.add(SearchZoneResult(
+                        fromServer.getTextBetween().get(0), fromServer.getTextBetween().get(1).toDouble(),
+                        fromServer.getTextBetween().get(2).toDouble(), fromServer.getTextBetween().get(3).toDouble(),
+                        fromServer.getTextBetween().get(4).toInt(),fromServer.getTextBetween().get(5)
                 ))
             }
             else if (fromServer.startsWith("SUPERUSER(")){

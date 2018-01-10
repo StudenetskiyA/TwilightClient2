@@ -20,7 +20,8 @@ data class User(
         var superusered:Boolean=false,
         var zoneText:String = "",
         var justChangedZone:Boolean = false,
-        var searchUserResult:ArrayList<SearchUserResult> = ArrayList()
+        var searchUserResult:ArrayList<SearchUserResult> = ArrayList(),
+        var searchZoneResult:ArrayList<SearchZoneResult> = ArrayList()
 ) {
     fun getBestLocation(): Location? {
         if (location != null) return location else return locationNet

@@ -76,12 +76,12 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/searchUserButton"
+                    android:id="@+id/searchAllButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:gravity="left"
-                    android:text="Search" />
+                    android:text="Map" />
                 <Button
                     android:id="@+id/addNewZoneButton"
                     android:layout_width="wrap_content"
@@ -114,7 +114,8 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/new_search_name"
                     android:singleLine="true"
-                    android:textSize="@dimen/editable_font"/>
+                    android:textSize="@dimen/editable_font"
+                    android:text=""/>
                 <TextView
                     android:id="@+id/searchLastconnect"
                     android:layout_width="fill_parent"
@@ -132,7 +133,8 @@
                         android:id="@+id/searchmap"
                         android:name="com.google.android.gms.maps.SupportMapFragment"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        >
                     </fragment>
                 </LinearLayout>
             </LinearLayout>

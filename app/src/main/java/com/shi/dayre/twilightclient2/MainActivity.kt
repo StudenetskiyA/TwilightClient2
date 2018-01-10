@@ -4,10 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
+import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
@@ -19,14 +18,15 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
+import com.shi.dayre.twilightclient2.PowerSide.*
 import kotlin.collections.ArrayList
 
 
 val CONNECT_EVERY_SECOND: Long = 10
+val METERINCYRCLE = 10
 val APP_PREFERENCES = "mysettings"
 val APP_PREFERENCES_USERNAME = "username"
 val APP_PREFERENCES_PASSWORD = "password"
@@ -34,7 +34,9 @@ val APP_PREFERENCES_SERVER = "server"
 val DEFAULT_SERVER = "ws://192.168.1.198:8080/BHServer/serverendpoint"
 var user = User()
 var location: com.shi.dayre.twilightclient2.LocationProvider? = null
+
 var wsj: WebSocket? = null
+val syncLock = java.lang.Object()
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var mSettings: SharedPreferences
@@ -52,28 +54,29 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         // map.setTrafficEnabled(true);
         map.setIndoorEnabled(true)
         map.setBuildingsEnabled(true)
+        if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.longitude,
+                    user.getBestLocation()!!.longitude), 10f))
         map.getUiSettings().setZoomControlsEnabled(true)
+        map.getUiSettings().setMapToolbarEnabled(false)
+        map.setPadding(0, 0, 0, 0);
     }
-
-    private fun addMarker(name:String,lat:Double,lon:Double,snip:String,icon:Int) {
+ fun addCircle(map:GoogleMap?,lat:Double,lon:Double,radius:Double,color:Int){
+     map?.addCircle(CircleOptions()
+             .center(LatLng(lat, lon))
+             .radius(radius)
+             .strokeColor(color)
+            )
+ }
+    private fun addMarker(name: String, lat: Double, lon: Double, snip: String, icon: Int) {
         if (gMap != null) {
-            Thread(Runnable {
-                // try to touch View of UI thread
-                this.runOnUiThread(java.lang.Runnable {
-                   // val lat: Double = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude.locationToDouble() else 0.0
-                   // val lon: Double = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude.locationToDouble() else 0.0
-                    Log.i("Webclient", "Try to add point on map:" + lat + "," + lon)
-
-                    var marker: MarkerOptions = MarkerOptions()
-                            .position(LatLng(lat, lon))
-                            .title(name)
-                            .snippet(snip)
-                            .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(resources,icon)))
-
-                    gMap?.addMarker(marker)
-                    gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lon), 13f))
-                })
-            }).start()
+            Log.i("Webclient", "Try to add point on map:" + lat + "," + lon)
+            var marker: MarkerOptions = MarkerOptions()
+                    .position(LatLng(lat, lon))
+                    .title(name)
+                    .snippet(snip)
+                    .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(resources, icon)))
+            gMap?.addMarker(marker)
         }
     }
 
@@ -81,7 +84,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         Thread(Runnable {
             // try to touch View of UI thread
             this.runOnUiThread(java.lang.Runnable {
-                Log.i("WebClient", "View updated")
+                Log.i("Socket", "View updated")
                 textFromServer.text = user.userText
                 currentStatus.text = user.zoneText
                 if (user.logined) {
@@ -101,10 +104,34 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     superuserbar.visibility = View.VISIBLE
                 }
                 //MapBar refresh if needs
-                if (!user.searchUserResult.isEmpty() && mapbar.visibility==View.VISIBLE) {
-                    for (find:SearchUserResult in user.searchUserResult) {
-                        //TODO Last connected
-                        addMarker(find.name, find.latitude.toDouble(),find.longitude.toDouble(),"", R.drawable.human)
+                if (!user.searchUserResult.isEmpty() && mapbar.visibility == View.VISIBLE) {
+                    val founded = user.searchUserResult.iterator()
+                    var find: SearchUserResult
+                    while (founded.hasNext()) {
+                        find = founded.next()
+                        val draw = if (find.powerSide == Light) R.drawable.light
+                        else if (find.powerSide == Dark) R.drawable.dark
+                        else R.drawable.human
+
+                        searchLastconnect.text = getString(R.string.searchUserLastConnected) + find.lastConnected
+                        addMarker(find.name, find.latitude.toDouble(), find.longitude.toDouble(), "", draw)
+                    }
+                    //And zones
+                    val foundedZ = user.searchZoneResult.iterator()
+                    var findZ: SearchZoneResult
+                    while (foundedZ.hasNext()) {
+                        findZ = foundedZ.next()
+                        val draw = if (findZ.priority == 0) R.drawable.zone1
+                        else if (findZ.priority == 1) R.drawable.zone2
+                        else R.drawable.zone3
+                        addMarker(findZ.name, findZ.latitude, findZ.longitude, findZ.textForHuman, draw)
+                        //TODO Draw circle
+                        val drawColor = if (findZ.priority == 0) Color.GREEN
+                        else if (findZ.priority == 1) Color.YELLOW
+                        else Color.RED
+
+                        Log.i("Socket.Radius",findZ.name+"="+findZ.radius.toDouble().toString())
+                        addCircle(gMap,findZ.latitude,findZ.longitude,findZ.radius.toDouble()*10000,drawColor)
                     }
                 }
 
@@ -118,9 +145,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 else {
                     netCoordinate.text = this.resources.getText(R.string.net_disable)
                 }
+                synchronized(syncLock) {
+                    syncLock.notify()
+                }
+                Log.i("Socket", "View updated ok")
             })
         }).start()
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -147,6 +177,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.searchmap) as SupportMapFragment
         mapFragment.getMapAsync(this)
+//        val zoomControls:View? = mapFragment.getView()?.findViewById(1)
+//        val params = zoomControls?.getLayoutParams() as RelativeLayout.LayoutParams
+////        // Align it to - parent BOTTOM|LEFT
+//        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+//        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
 
         wsj = WebSocket(user.server, commandHandler, this)
         wsj?.connectWebSocket()
@@ -163,16 +198,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             //TODO Change fab image
 
         }
-        searchUserButton.setOnClickListener {
+
+        searchAllButton.setOnClickListener {
             if (searchbar.visibility == View.GONE) {
                 searchbar.visibility = View.VISIBLE
                 fab.show()
+                gMap?.clear()
+                user.searchUserResult = ArrayList()
+                user.searchZoneResult= ArrayList()
+                var msg = "SEARCHALL(" + user.login + "," + user.password + ")"
+                wsj?.sendMessage(msg)
+                if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
+                    gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
+                            user.getBestLocation()!!.longitude), 12f))
             } else {
                 searchbar.visibility = View.GONE
+                gMap?.clear()
                 //TODO Change fab image
                 fab.hide()
             }
         }
+
         fab.setOnClickListener {
             //TODO Chage visibility to variable
             if (addnewzonebar.visibility == View.VISIBLE) {
@@ -181,16 +227,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         newZoneTextForHuman.text + "," + newZoneTextForLight.text + "," + newZoneTextForDark.text + "," +
                         newZonePriority.text + "," + newZoneAchievement.text + ")"
                 wsj?.sendMessage(msg)
-            }
-            else if (searchbar.visibility == View.VISIBLE) {
-                searchLastconnect.text=""
-                user.searchUserResult.clear()
-                searchName.setText("")
-                var msg = "SEARCHUSER(" + user.login + "," + user.password + "," +
-                        searchName.text + ")"
-                wsj?.sendMessage(msg)
-            }
-            else {
+            } else if (searchbar.visibility == View.VISIBLE) {
+                if (!searchName.text.equals("")) {
+                    searchLastconnect.text = ""
+                    user.searchUserResult.clear()
+                    gMap?.clear()
+                    var msg = "SEARCHUSER(" + user.login + "," + user.password + "," +
+                            searchName.text + ")"
+                    wsj?.sendMessage(msg)
+                    searchName.setText("")
+                }
+            } else {
                 try {
                     user.login = newLogin.text.toString()
                     user.password = newPassword.text.toString()
@@ -198,7 +245,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
                     editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString());
                     editor.apply()
-                    var msg = "USER(" + user.login + "," + user.password + ",0,0)"
+                    var msg = "USER(" + user.login + "," + user.password + "," + user.getBestLocation()?.longitude + "," +
+                            user.getBestLocation()?.longitude + ")"
                     wsj?.sendMessage(msg)
                 } catch (x: Exception) {
                     println("Cloud not connect to server.")

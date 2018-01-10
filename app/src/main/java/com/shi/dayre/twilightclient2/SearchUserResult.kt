@@ -7,4 +7,11 @@ import android.location.Location
  */
 class SearchUserResult(val name:String,val latitude:Double,val longitude:Double,val powerSide:PowerSide,val lastConnected:String) {
 
+    constructor(s:SearchUserResult) : this(s.name,s.latitude,s.longitude,s.powerSide,s.lastConnected) {
+
+    }
+}
+
+class SearchZoneResult(val name:String,val latitude:Double,val longitude:Double,val radius:Double,val priority:Int,val textForHuman:String) {
+
 }
