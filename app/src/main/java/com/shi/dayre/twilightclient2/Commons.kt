@@ -12,20 +12,30 @@ import android.media.RingtoneManager
  * Created by StudenetskiyA on 06.01.2018.
  */
 
+enum class PowerSide {
+    Human, Light, Dark;
+
+    fun toInt(): Int {
+        return if (this == Light)
+            1
+        else if (this == Dark)
+            2
+        else
+            0
+    }
+}
+
+fun String.toPowerside(): PowerSide {
+    return if (this.equals("0"))
+        PowerSide.Human
+    else if (this.equals("1"))
+        PowerSide.Light
+    else
+        PowerSide.Dark
+}
+
 fun Location.format(): String {
-    return if (this == null) "" else "lat = "+this.latitude.locationToInt()+","+ "lon = "+this.longitude.locationToInt()
-}
-
-fun Double?.locationToInt():Int{
-    if (this!=null)
-    return (this*100000).toInt()
-    else return 0
-}
-
-fun Double?.locationToDouble():Double{
-    if (this!=null)
-        return this
-    else return 0.0
+    return if (this == null) "" else "lat = "+this.latitude.toDouble()+","+ "lon = "+this.longitude.toDouble()
 }
 
 fun String.getTextBetween(): ArrayList<String> {

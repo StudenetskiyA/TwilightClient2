@@ -76,7 +76,14 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/addNewZone"
+                    android:id="@+id/searchUserButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:gravity="left"
+                    android:text="Search" />
+                <Button
+                    android:id="@+id/addNewZoneButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
@@ -84,12 +91,50 @@
                     android:text="add new zone" />
 
                 <Button
-                    android:id="@+id/deleteZone"
+                    android:id="@+id/deleteZoneButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:gravity="left"
                     android:text="delete zone" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/searchbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="top|left"
+                android:orientation="vertical"
+                android:visibility="gone"
+                >
+                <EditText
+                    android:id="@+id/searchName"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_search_name"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"/>
+                <TextView
+                    android:id="@+id/searchLastconnect"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font"/>
+                <LinearLayout
+                    android:id="@+id/mapbar"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top|left"
+                    android:orientation="vertical"
+                    >
+                    <fragment
+                        android:id="@+id/searchmap"
+                        android:name="com.google.android.gms.maps.SupportMapFragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                    </fragment>
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -168,20 +213,6 @@
                     android:singleLine="true"
                     android:textSize="@dimen/editable_font"/>
             </LinearLayout>
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/mapbar"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="top|left"
-            android:orientation="vertical"
-            >
-            <fragment
-                android:id="@+id/searchmap"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-            </fragment>
         </LinearLayout>
 
         <View

@@ -16,4 +16,5 @@
     <string name="new_zone_priority">Приоритет зоны.</string>
     <string name="new_zone_achievement">Ачивка.</string>
     <string name="new_zone_radius">Радиус зоны в метрах.</string>
+    <string name="new_search_name">Имя для поиска</string>
 </resources>

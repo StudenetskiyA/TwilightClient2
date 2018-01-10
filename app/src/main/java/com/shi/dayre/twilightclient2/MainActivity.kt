@@ -23,6 +23,7 @@ import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
+import kotlin.collections.ArrayList
 
 
 val CONNECT_EVERY_SECOND: Long = 10
@@ -54,13 +55,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         map.getUiSettings().setZoomControlsEnabled(true)
     }
 
-    private fun addMarker(name:String,snip:String,icon:Int) {
+    private fun addMarker(name:String,lat:Double,lon:Double,snip:String,icon:Int) {
         if (gMap != null) {
             Thread(Runnable {
                 // try to touch View of UI thread
                 this.runOnUiThread(java.lang.Runnable {
-                    val lat: Double = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude.locationToDouble() else 0.0
-                    val lon: Double = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude.locationToDouble() else 0.0
+                   // val lat: Double = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude.locationToDouble() else 0.0
+                   // val lon: Double = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude.locationToDouble() else 0.0
                     Log.i("Webclient", "Try to add point on map:" + lat + "," + lon)
 
                     var marker: MarkerOptions = MarkerOptions()
@@ -98,6 +99,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 if (user.superusered) {
                     superuserbar.visibility = View.VISIBLE
+                }
+                //MapBar refresh if needs
+                if (!user.searchUserResult.isEmpty() && mapbar.visibility==View.VISIBLE) {
+                    for (find:SearchUserResult in user.searchUserResult) {
+                        //TODO Last connected
+                        addMarker(find.name, find.latitude.toDouble(),find.longitude.toDouble(),"", R.drawable.human)
+                    }
                 }
 
                 if (user.location != null)
@@ -143,22 +151,46 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         wsj = WebSocket(user.server, commandHandler, this)
         wsj?.connectWebSocket()
 
-        addNewZone.setOnClickListener {
+        addNewZoneButton.setOnClickListener {
             if (addnewzonebar.visibility == View.GONE) {
                 addnewzonebar.visibility = View.VISIBLE
+                fab.show()
                 //TODO Add current coordinates?
-            } else addnewzonebar.visibility = View.GONE
+            } else {
+                addnewzonebar.visibility = View.GONE
+                fab.hide()
+            }
             //TODO Change fab image
-            fab.show()
+
+        }
+        searchUserButton.setOnClickListener {
+            if (searchbar.visibility == View.GONE) {
+                searchbar.visibility = View.VISIBLE
+                fab.show()
+            } else {
+                searchbar.visibility = View.GONE
+                //TODO Change fab image
+                fab.hide()
+            }
         }
         fab.setOnClickListener {
+            //TODO Chage visibility to variable
             if (addnewzonebar.visibility == View.VISIBLE) {
                 var msg = "ADDNEWZONE(" + user.login + "," + user.password + "," +
                         newZoneName.text + "," + newZoneLatitude.text + "," + newZoneLongitude.text + "," + newZoneRadius.text + "," +
                         newZoneTextForHuman.text + "," + newZoneTextForLight.text + "," + newZoneTextForDark.text + "," +
                         newZonePriority.text + "," + newZoneAchievement.text + ")"
                 wsj?.sendMessage(msg)
-            } else {
+            }
+            else if (searchbar.visibility == View.VISIBLE) {
+                searchLastconnect.text=""
+                user.searchUserResult.clear()
+                searchName.setText("")
+                var msg = "SEARCHUSER(" + user.login + "," + user.password + "," +
+                        searchName.text + ")"
+                wsj?.sendMessage(msg)
+            }
+            else {
                 try {
                     user.login = newLogin.text.toString()
                     user.password = newPassword.text.toString()
@@ -200,14 +232,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     fun sendLocationToServer() {
         //user.location?.latitude?.locationToInt() not equal null.locationToInt()
         // And I don't know why.
-        val lat: Int = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude.locationToInt() else 0
-        val lon: Int = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude.locationToInt() else 0
+        val lat: Double? = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude else 0.0
+        val lon: Double? = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude else 0.0
 
         //Remove this check after app connect only after loging
         if (user.login != null && !user.login.equals("null") && user.password != null && !user.password.equals("null")) {
             var msg = "USER(" + user.login + "," + user.password + "," + lat + "," + lon + ")"
             wsj?.sendMessage(msg)
-            addMarker("Вы","это вы",R.drawable.human)
         }
     }
 

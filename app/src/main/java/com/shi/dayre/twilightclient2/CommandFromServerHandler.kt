@@ -3,6 +3,7 @@ package com.shi.dayre.twilightclient2
 import android.util.Log
 import java.io.UnsupportedEncodingException
 import android.content.Context
+import android.location.Location
 
 //Created by StudenetskiyA on 27.01.2017.
 
@@ -24,6 +25,13 @@ class CommandFromServerHandler (val context : Context){
                     user.zoneText=fromServer.getTextBetween().get(0)
                     sendNotification(context,context.getString(R.string.enterToNewZone), user.zoneText)
                 }
+            }
+            else if (fromServer.startsWith("SEARCHUSER(")){
+                user.searchUserResult.add(SearchUserResult(
+                        fromServer.getTextBetween().get(0), fromServer.getTextBetween().get(1).toDouble(),
+                        fromServer.getTextBetween().get(2).toDouble(), fromServer.getTextBetween().get(3).toPowerside(),
+                        fromServer.getTextBetween().get(4)
+                ))
             }
             else if (fromServer.startsWith("SUPERUSER(")){
                 Log.i("WebClient","SuperUser granted.")
