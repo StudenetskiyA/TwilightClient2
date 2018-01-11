@@ -204,8 +204,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         fab.setOnClickListener {
+            hideSoftKeyboard(this)
             //TODO Change visibility to variable
             if (addnewzonebar.visibility == View.VISIBLE) {
+                if (newZoneTextForHuman.length()<2) newZoneTextForHuman.setText(" ")
+                if (newZoneTextForLight.length()<2) newZoneTextForLight.setText(" ")
+                if (newZoneTextForDark.length()<2) newZoneTextForDark.setText(" ")
+                if (newZoneAchievement.length()<2) newZoneAchievement.setText(" ")
                 var msg = "ADDNEWZONE(" + user.login + "," + user.password + "," +
                         newZoneName.text + "," + newZoneLatitude.text + "," + newZoneLongitude.text + "," + newZoneRadius.text + "," +
                         newZoneTextForHuman.text + "," + newZoneTextForLight.text + "," + newZoneTextForDark.text + "," +
@@ -254,6 +259,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     fab.hide()
                     user.login = newLogin.text.toString()
                     user.password = newPassword.text.toString()
+                    user.server = newServer.text.toString()
                     editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString());
                     editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
                     editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString());

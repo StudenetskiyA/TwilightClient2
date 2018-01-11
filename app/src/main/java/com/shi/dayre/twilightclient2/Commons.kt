@@ -16,6 +16,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import android.app.Activity
+import android.view.inputmethod.InputMethodManager
+
 
 /**
  * Created by StudenetskiyA on 06.01.2018.
@@ -42,6 +45,12 @@ fun addMarkerToMap(map: GoogleMap?, name: String, lat: Double, lon: Double, snip
     }
 }
 
+fun hideSoftKeyboard(activity: Activity) {
+    val inputMethodManager = activity.getSystemService(
+            Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager!!.hideSoftInputFromWindow(
+            activity.currentFocus!!.windowToken, 0)
+}
 enum class PowerSide {
     Human, Light, Dark;
 
