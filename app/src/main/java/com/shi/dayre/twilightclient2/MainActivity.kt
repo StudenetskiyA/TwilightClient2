@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.Toast
 import com.google.android.gms.maps.GoogleMap
 
@@ -39,6 +40,7 @@ var location: com.shi.dayre.twilightclient2.LocationProvider? = null
 
 var wsj: WebSocket? = null
 val syncLock = java.lang.Object()
+val listOfLayout = ArrayList<LinearLayout>()
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var mSettings: SharedPreferences
@@ -138,33 +140,52 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         addNewZoneButton.setOnClickListener {
             if (addnewzonebar.visibility == View.GONE) {
+                hideBar()
                 addnewzonebar.visibility = View.VISIBLE
-                searchbar.visibility = View.GONE
                 //TODO Change fab image
                 fab.show()
             } else {
-                addnewzonebar.visibility = View.GONE
+                hideBar()
                 fab.hide()
             }
         }
-
-        addCurseButton.setOnClickListener {
-            if (cursebar.visibility == View.GONE) {
-                cursebar.visibility = View.VISIBLE
-                searchbar.visibility = View.GONE
-                addnewzonebar.visibility = View.GONE
+        addUserButton.setOnClickListener {
+            if (adduserbar.visibility == View.GONE) {
+                hideBar()
+                adduserbar.visibility = View.VISIBLE
                 //TODO Change fab image
                 fab.show()
             } else {
-                cursebar.visibility = View.GONE
+                hideBar()
+                fab.hide()
+            }
+        }
+        deleteZoneButton.setOnClickListener {
+            if (deletezonebar.visibility == View.GONE) {
+                hideBar()
+                deletezonebar.visibility = View.VISIBLE
+                //TODO Change fab image
+                fab.show()
+            } else {
+                hideBar()
+                fab.hide()
+            }
+        }
+        addCurseButton.setOnClickListener {
+            if (cursebar.visibility == View.GONE) {
+                hideBar()
+                cursebar.visibility = View.VISIBLE
+                //TODO Change fab image
+                fab.show()
+            } else {
+                hideBar()
                 fab.hide()
             }
         }
         searchAllButton.setOnClickListener {
             if (searchbar.visibility == View.GONE) {
+                hideBar()
                 searchbar.visibility = View.VISIBLE
-                addnewzonebar.visibility = View.GONE
-                cursebar.visibility = View.GONE
                 //TODO Change fab image
                 fab.show()
                 gMap?.clear()
@@ -176,7 +197,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
                             user.getBestLocation()!!.longitude), 12f))
             } else {
-                searchbar.visibility = View.GONE
+                hideBar()
                 gMap?.clear()
                 fab.hide()
             }
@@ -203,11 +224,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                             curseUserName.text + ","+ curseCurseName.text+")"
                     wsj?.sendMessage(msg)
                 }
-            }
-            else if (searchbar.visibility == View.VISIBLE) {
-                if (!searchName.text.equals("")) {
+            } else if (adduserbar.visibility == View.VISIBLE) {
+                if (addUserName.text.length>2) {
+                    var msg = "ADDUSER(" + user.login + "," + user.password + "," +
+                            addUserName.text + "," + addUserPass.text+"," + addUserPowerside.text+"," + addUserSuperuser.text+")"
+                    wsj?.sendMessage(msg)
+                }
+            } else if (deletezonebar.visibility == View.VISIBLE) {
+                if (deleteZoneName.text.length>2) {
+                    var msg = "DELETEZONE(" + user.login + "," + user.password + "," +
+                            deleteZoneName.text +")"
+                    wsj?.sendMessage(msg)
+                }
+            } else if (searchbar.visibility == View.VISIBLE) {
+                if (searchName.text.length>1) {
                     searchLastconnect.text = ""
-                    user.searchUserResult.clear()
+                    user.searchUserResult = ArrayList()
+                    user.searchZoneResult = ArrayList()
                     gMap?.clear()
                     var msg = "SEARCHUSER(" + user.login + "," + user.password + "," +
                             searchName.text + ")"
@@ -264,12 +297,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             newPassword.setText(user.password)
     }
 
+    fun loadLayout() {
+        listOfLayout.add(addnewzonebar)
+        listOfLayout.add(searchbar)
+        listOfLayout.add(cursebar)
+        listOfLayout.add(adduserbar)
+        listOfLayout.add(deletezonebar)
+    }
+
+    fun hideBar(){
+        for (lay in listOfLayout){
+            lay.visibility=View.GONE
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         location = com.shi.dayre.twilightclient2.LocationProvider(this, this)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        loadLayout()
         loadSettings()
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.searchmap) as SupportMapFragment
@@ -285,15 +333,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+////        return when (item.itemId) {
+////           // R.id.action_settings -> true
+////           // else -> super.onOptionsItemSelected(item)
+////        }
+//    }
 
     override fun onResume() {
         super.onResume()
