@@ -14,9 +14,8 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:layout_height="@dimen/topLineSize"
+            android:background="@color/colorTopBackground" />
 
     </android.support.design.widget.AppBarLayout>
 
@@ -27,8 +26,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|right"
-        android:layout_marginTop="50dp"
         android:layout_marginRight="20dp"
-        app:srcCompat="@android:drawable/ic_input_get" />
+        android:layout_marginTop="160dp"
+        android:background="@color/colorMainBackground"
+        android:src="@drawable/ok"
+        app:backgroundTint="@android:color/holo_red_light"
+        app:srcCompat="@drawable/ok" />
 
 </android.support.design.widget.CoordinatorLayout>
