@@ -11,11 +11,15 @@
     <string name="new_zone_textforhuman">Текст для людей.</string>
     <string name="new_zone_textforlight">Текст для светлых.</string>
     <string name="new_zone_textfordark">Текст для темных.</string>
-    <string name="new_zone_latitude">Широта(7 цифр).</string>
-    <string name="new_zone_longitude">Долгота(7 цифр).</string>
+    <string name="new_zone_latitude">Широта(7 цифр, 0 для системной зоны).</string>
+    <string name="new_zone_longitude">Долгота(7 цифр, 0 для системной зоны).</string>
     <string name="new_zone_priority">Приоритет зоны.</string>
     <string name="new_zone_achievement">Ачивка.</string>
-    <string name="new_zone_radius">Радиус зоны в метрах/10000.</string>
+    <string name="new_zone_radius">Радиус зоны в метрах/10000(в 1 - 10 км).</string>
     <string name="new_search_name">Имя для поиска</string>
     <string name="searchUserLastConnected">Информация обновлена -</string>
+    <string name="serverNotResponse">Не удается соединиться с сервером.</string>
+    <string name="new_zone_system">0 для обычных зон, 1 для типов проклятий и свободной зоны.</string>
+    <string name="new_curse_user_name">Кого проклинаем?</string>
+    <string name="new_curse_curse_name">Название проклятия.</string>
 </resources>

@@ -1,4 +1,4 @@
 <resources>
-    <dimen name="fab_margin">32dp</dimen>
+    <dimen name="fab_margin">20dp</dimen>
     <dimen name="editable_font">10dp</dimen>
 </resources>

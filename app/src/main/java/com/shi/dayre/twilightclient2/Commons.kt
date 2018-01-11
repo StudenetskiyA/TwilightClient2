@@ -1,16 +1,46 @@
 package com.shi.dayre.twilightclient2
 
+import android.app.Application
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.location.Location
 import android.support.v4.app.NotificationCompat
 import android.media.RingtoneManager
+import android.util.Log
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 
 /**
  * Created by StudenetskiyA on 06.01.2018.
  */
+
+val METERINGRADUS = 10000
+
+fun addCircleToMap(map: GoogleMap?, lat:Double, lon:Double, radius:Double, color:Int){
+    map?.addCircle(CircleOptions()
+            .center(LatLng(lat, lon))
+            .radius(radius)
+            .strokeColor(color)
+    )
+}
+fun addMarkerToMap(map: GoogleMap?, name: String, lat: Double, lon: Double, snip: String, resource: Resources, icon: Int) {
+    if (map != null) {
+        Log.i("Webclient", "Try to add point on map:" + lat + "," + lon)
+        var marker: MarkerOptions = MarkerOptions()
+                .position(LatLng(lat, lon))
+                .title(name)
+                .snippet(snip)
+                .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(resource, icon)))
+        map.addMarker(marker)
+    }
+}
 
 enum class PowerSide {
     Human, Light, Dark;

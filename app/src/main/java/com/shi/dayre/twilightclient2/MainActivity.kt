@@ -3,7 +3,6 @@ package com.shi.dayre.twilightclient2
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
@@ -12,6 +11,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import com.google.android.gms.maps.GoogleMap
 
 import kotlinx.android.synthetic.main.activity_main.*
@@ -22,11 +22,13 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
 import com.shi.dayre.twilightclient2.PowerSide.*
+import xdroid.toaster.Toaster
+import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 
 val CONNECT_EVERY_SECOND: Long = 10
-val METERINCYRCLE = 10
+
 val APP_PREFERENCES = "mysettings"
 val APP_PREFERENCES_USERNAME = "username"
 val APP_PREFERENCES_PASSWORD = "password"
@@ -50,8 +52,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         Log.i("WebClient", "onMapReady")
         gMap = map
         map.setMapType(GoogleMap.MAP_TYPE_HYBRID)
-        // map.setMyLocationEnabled(true);
-        // map.setTrafficEnabled(true);
         map.setIndoorEnabled(true)
         map.setBuildingsEnabled(true)
         if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
@@ -59,25 +59,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     user.getBestLocation()!!.longitude), 10f))
         map.getUiSettings().setZoomControlsEnabled(true)
         map.getUiSettings().setMapToolbarEnabled(false)
-        map.setPadding(0, 0, 0, 0);
-    }
- fun addCircle(map:GoogleMap?,lat:Double,lon:Double,radius:Double,color:Int){
-     map?.addCircle(CircleOptions()
-             .center(LatLng(lat, lon))
-             .radius(radius)
-             .strokeColor(color)
-            )
- }
-    private fun addMarker(name: String, lat: Double, lon: Double, snip: String, icon: Int) {
-        if (gMap != null) {
-            Log.i("Webclient", "Try to add point on map:" + lat + "," + lon)
-            var marker: MarkerOptions = MarkerOptions()
-                    .position(LatLng(lat, lon))
-                    .title(name)
-                    .snippet(snip)
-                    .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(resources, icon)))
-            gMap?.addMarker(marker)
-        }
     }
 
     fun refresh() {
@@ -96,7 +77,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         mTimer = Timer()
                         mMyTimerTask = onTimerTick(this)
                         mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
-                        fab.hide()
                         user.justLogined = false
                     }
                 }
@@ -114,7 +94,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         else R.drawable.human
 
                         searchLastconnect.text = getString(R.string.searchUserLastConnected) + find.lastConnected
-                        addMarker(find.name, find.latitude.toDouble(), find.longitude.toDouble(), "", draw)
+                        addMarkerToMap(gMap, find.name, find.latitude.toDouble(), find.longitude.toDouble(), "", resources, draw)
                     }
                     //And zones
                     val foundedZ = user.searchZoneResult.iterator()
@@ -124,14 +104,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         val draw = if (findZ.priority == 0) R.drawable.zone1
                         else if (findZ.priority == 1) R.drawable.zone2
                         else R.drawable.zone3
-                        addMarker(findZ.name, findZ.latitude, findZ.longitude, findZ.textForHuman, draw)
+                        addMarkerToMap(gMap, findZ.name, findZ.latitude, findZ.longitude, findZ.textForHuman, resources, draw)
                         //TODO Draw circle
                         val drawColor = if (findZ.priority == 0) Color.GREEN
                         else if (findZ.priority == 1) Color.YELLOW
                         else Color.RED
 
-                        Log.i("Socket.Radius",findZ.name+"="+findZ.radius.toDouble().toString())
-                        addCircle(gMap,findZ.latitude,findZ.longitude,findZ.radius.toDouble()*10000,drawColor)
+                        Log.i("Socket.Radius", findZ.name + "=" + findZ.radius.toDouble().toString())
+                        addCircleToMap(gMap, findZ.latitude, findZ.longitude, findZ.radius.toDouble() * 10000, drawColor)
                     }
                 }
 
@@ -153,13 +133,121 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }).start()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        location = com.shi.dayre.twilightclient2.LocationProvider(this, this)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+    fun addListener() {
+        //TODO Make list of element and show/hide for list
 
-        //Load settings
+        addNewZoneButton.setOnClickListener {
+            if (addnewzonebar.visibility == View.GONE) {
+                addnewzonebar.visibility = View.VISIBLE
+                searchbar.visibility = View.GONE
+                //TODO Change fab image
+                fab.show()
+            } else {
+                addnewzonebar.visibility = View.GONE
+                fab.hide()
+            }
+        }
+
+        addCurseButton.setOnClickListener {
+            if (cursebar.visibility == View.GONE) {
+                cursebar.visibility = View.VISIBLE
+                searchbar.visibility = View.GONE
+                addnewzonebar.visibility = View.GONE
+                //TODO Change fab image
+                fab.show()
+            } else {
+                cursebar.visibility = View.GONE
+                fab.hide()
+            }
+        }
+        searchAllButton.setOnClickListener {
+            if (searchbar.visibility == View.GONE) {
+                searchbar.visibility = View.VISIBLE
+                addnewzonebar.visibility = View.GONE
+                cursebar.visibility = View.GONE
+                //TODO Change fab image
+                fab.show()
+                gMap?.clear()
+                user.searchUserResult = ArrayList()
+                user.searchZoneResult = ArrayList()
+                var msg = "SEARCHALL(" + user.login + "," + user.password + ")"
+                wsj?.sendMessage(msg)
+                if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
+                    gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
+                            user.getBestLocation()!!.longitude), 12f))
+            } else {
+                searchbar.visibility = View.GONE
+                gMap?.clear()
+                fab.hide()
+            }
+        }
+
+        fab.setOnClickListener {
+            //TODO Change visibility to variable
+            if (addnewzonebar.visibility == View.VISIBLE) {
+                var msg = "ADDNEWZONE(" + user.login + "," + user.password + "," +
+                        newZoneName.text + "," + newZoneLatitude.text + "," + newZoneLongitude.text + "," + newZoneRadius.text + "," +
+                        newZoneTextForHuman.text + "," + newZoneTextForLight.text + "," + newZoneTextForDark.text + "," +
+                        newZonePriority.text + "," + newZoneAchievement.text + ","+newZoneSystem.text+")"
+                wsj?.sendMessage(msg)
+                newZoneName.setText("")
+                newZoneLatitude.setText("")
+                newZoneLongitude.setText("")
+                newZoneTextForHuman.setText("")
+                newZoneTextForLight.setText("")
+                newZoneTextForDark.setText("")
+                newZoneAchievement.setText("")
+            } else if (cursebar.visibility == View.VISIBLE) {
+                if (!curseUserName.text.equals("")) {
+                    var msg = "MAKECURSE(" + user.login + "," + user.password + "," +
+                            curseUserName.text + ","+ curseCurseName.text+")"
+                    wsj?.sendMessage(msg)
+                }
+            }
+            else if (searchbar.visibility == View.VISIBLE) {
+                if (!searchName.text.equals("")) {
+                    searchLastconnect.text = ""
+                    user.searchUserResult.clear()
+                    gMap?.clear()
+                    var msg = "SEARCHUSER(" + user.login + "," + user.password + "," +
+                            searchName.text + ")"
+                    wsj?.sendMessage(msg)
+                    searchName.setText("")
+                }
+            } else {
+                try {
+                    var count=0
+                    //TODO Wait
+                    fab.hide()
+                    user.login = newLogin.text.toString()
+                    user.password = newPassword.text.toString()
+                    editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString());
+                    editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
+                    editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString());
+                    editor.apply()
+                    var msg = "USER(" + user.login + "," + user.password + "," + user.getBestLocation()?.longitude + "," +
+                            user.getBestLocation()?.longitude + ")"
+                    wsj = WebSocket(user.server, commandHandler, this)
+                    while (wsj?.connected==false) {
+                        wsj?.connectWebSocket()
+                        TimeUnit.SECONDS.sleep(1)
+                        count++
+                        Log.i("Socket","connection count = "+count)
+                        if (count > 10) {
+                            Toaster.toast(R.string.serverNotResponse);
+                            fab.show()
+                            break
+                        }
+                        wsj?.sendMessage(msg)
+                    }
+                } catch (x: Exception) {
+                    println("Cloud not connect to server.")
+                }
+            }
+        }
+    }
+
+    fun loadSettings() {
         mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
         editor = mSettings.edit()
         if (mSettings.contains(APP_PREFERENCES_USERNAME))
@@ -174,85 +262,20 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             newLogin.setText(user.login)
         if (user.password != null)
             newPassword.setText(user.password)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        location = com.shi.dayre.twilightclient2.LocationProvider(this, this)
+        setContentView(R.layout.activity_main)
+        setSupportActionBar(toolbar)
+
+        loadSettings()
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.searchmap) as SupportMapFragment
         mapFragment.getMapAsync(this)
-//        val zoomControls:View? = mapFragment.getView()?.findViewById(1)
-//        val params = zoomControls?.getLayoutParams() as RelativeLayout.LayoutParams
-////        // Align it to - parent BOTTOM|LEFT
-//        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
-//        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
 
-        wsj = WebSocket(user.server, commandHandler, this)
-        wsj?.connectWebSocket()
-
-        addNewZoneButton.setOnClickListener {
-            if (addnewzonebar.visibility == View.GONE) {
-                addnewzonebar.visibility = View.VISIBLE
-                fab.show()
-                //TODO Add current coordinates?
-            } else {
-                addnewzonebar.visibility = View.GONE
-                fab.hide()
-            }
-            //TODO Change fab image
-
-        }
-
-        searchAllButton.setOnClickListener {
-            if (searchbar.visibility == View.GONE) {
-                searchbar.visibility = View.VISIBLE
-                fab.show()
-                gMap?.clear()
-                user.searchUserResult = ArrayList()
-                user.searchZoneResult= ArrayList()
-                var msg = "SEARCHALL(" + user.login + "," + user.password + ")"
-                wsj?.sendMessage(msg)
-                if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
-                    gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
-                            user.getBestLocation()!!.longitude), 12f))
-            } else {
-                searchbar.visibility = View.GONE
-                gMap?.clear()
-                //TODO Change fab image
-                fab.hide()
-            }
-        }
-
-        fab.setOnClickListener {
-            //TODO Chage visibility to variable
-            if (addnewzonebar.visibility == View.VISIBLE) {
-                var msg = "ADDNEWZONE(" + user.login + "," + user.password + "," +
-                        newZoneName.text + "," + newZoneLatitude.text + "," + newZoneLongitude.text + "," + newZoneRadius.text + "," +
-                        newZoneTextForHuman.text + "," + newZoneTextForLight.text + "," + newZoneTextForDark.text + "," +
-                        newZonePriority.text + "," + newZoneAchievement.text + ")"
-                wsj?.sendMessage(msg)
-            } else if (searchbar.visibility == View.VISIBLE) {
-                if (!searchName.text.equals("")) {
-                    searchLastconnect.text = ""
-                    user.searchUserResult.clear()
-                    gMap?.clear()
-                    var msg = "SEARCHUSER(" + user.login + "," + user.password + "," +
-                            searchName.text + ")"
-                    wsj?.sendMessage(msg)
-                    searchName.setText("")
-                }
-            } else {
-                try {
-                    user.login = newLogin.text.toString()
-                    user.password = newPassword.text.toString()
-                    editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString());
-                    editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
-                    editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString());
-                    editor.apply()
-                    var msg = "USER(" + user.login + "," + user.password + "," + user.getBestLocation()?.longitude + "," +
-                            user.getBestLocation()?.longitude + ")"
-                    wsj?.sendMessage(msg)
-                } catch (x: Exception) {
-                    println("Cloud not connect to server.")
-                }
-            }
-        }
+        addListener()
         refresh()
     }
 
@@ -278,8 +301,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun sendLocationToServer() {
-        //user.location?.latitude?.locationToInt() not equal null.locationToInt()
-        // And I don't know why.
         val lat: Double? = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude else 0.0
         val lon: Double? = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude else 0.0
 
@@ -294,12 +315,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         override fun run() {
             context.sendLocationToServer()
         }
-    }
-
-    fun onClickLocationSettings(view: View) {
-        //Enable gps-sensor
-        startActivity(Intent(
-                Settings.ACTION_LOCATION_SOURCE_SETTINGS))
     }
 }
 

@@ -14,11 +14,11 @@ import java.net.URISyntaxException
  */
 
 class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, val mView: MainActivity) {
-    private var connected: Boolean = false
+    var connected: Boolean = false
     private var mWebSocketClient: WebSocketClient? = null
     var commandList = ArrayList<String>()
 
-    internal fun connectWebSocket() {
+     fun connectWebSocket() {
         val uri: URI
         try {
             uri = URI(url)
