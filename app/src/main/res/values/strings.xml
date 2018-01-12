@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Сумеречный компанион</string>
+    <string name="app_name">Сумеречный компаньон</string>
     <string name="action_settings">Settings</string>
     <string name="gps_disable">GPS выключен.</string>
     <string name="net_disable">Координаты сети недоступны.</string>

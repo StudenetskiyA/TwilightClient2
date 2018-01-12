@@ -18,6 +18,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import android.app.Activity
 import android.view.inputmethod.InputMethodManager
+import java.util.regex.Pattern
 
 
 /**
@@ -48,8 +49,8 @@ fun addMarkerToMap(map: GoogleMap?, name: String, lat: Double, lon: Double, snip
 fun hideSoftKeyboard(activity: Activity) {
     val inputMethodManager = activity.getSystemService(
             Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputMethodManager!!.hideSoftInputFromWindow(
-            activity.currentFocus!!.windowToken, 0)
+    inputMethodManager?.hideSoftInputFromWindow(
+            activity.currentFocus?.windowToken, 0)
 }
 enum class PowerSide {
     Human, Light, Dark;
@@ -82,7 +83,7 @@ fun String.getTextBetween(): ArrayList<String> {
     val rtrn = ArrayList<String>()
     val beforeText = "("
     fromText = fromText.substring(fromText.indexOf(beforeText) + 1, fromText.indexOf(")"))
-    val par = fromText.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+    val par = fromText.split(Pattern.quote(COMMA).toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
     for (i in par.indices) {
         println("Par : " + par[i])
         rtrn.add(par[i])

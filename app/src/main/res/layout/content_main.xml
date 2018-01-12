@@ -299,7 +299,7 @@
                     android:hint="@string/new_zone_latitude"
                     android:singleLine="true"
                     android:textSize="@dimen/editable_font"
-                    android:inputType="number"/>
+                    android:inputType="number|numberDecimal"/>
                 <EditText
                     android:id="@+id/newZoneLongitude"
                     android:layout_width="fill_parent"
@@ -307,7 +307,7 @@
                     android:hint="@string/new_zone_longitude"
                     android:singleLine="true"
                     android:textSize="@dimen/editable_font"
-                    android:inputType="number"/>
+                    android:inputType="number|numberDecimal"/>
                 <EditText
                     android:id="@+id/newZoneRadius"
                     android:layout_width="fill_parent"
@@ -315,7 +315,7 @@
                     android:hint="@string/new_zone_radius"
                     android:singleLine="true"
                     android:textSize="@dimen/editable_font"
-                    android:inputType="number"/>
+                    android:inputType="number|numberDecimal"/>
                 <EditText
                     android:id="@+id/newZonePriority"
                     android:layout_width="fill_parent"

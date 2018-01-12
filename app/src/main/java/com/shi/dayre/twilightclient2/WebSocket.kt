@@ -23,19 +23,19 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, v
         try {
             uri = URI(url)
         } catch (e: URISyntaxException) {
-            Log.i("Websocket", "Server offline.")
+            Log.i("TLC.connect", "Server offline.")
             return
         }
 
 
         mWebSocketClient = object : WebSocketClient(uri, Draft_17()) {
             override fun onOpen(serverHandshake: ServerHandshake) {
-                Log.i("Websocket", "Opened")
+                Log.i("TLC.connect", "Opened")
                 connected = true
             }
 
             override fun onMessage(s: String) {
-                Log.i("Socket.onMessage", s)
+                Log.i("TLC.connect.onMessage", s)
                 commandList.add(s)
                 synchronized(syncLock) {
                     if (commandList.size == 1) {
@@ -54,12 +54,12 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, v
             }
 
             override fun onClose(i: Int, s: String, b: Boolean) {
-                Log.i("Websocket", "Closed " + s)
+                Log.i("TLC.connect", "Closed " + s)
                 connected = false
             }
 
             override fun onError(e: Exception) {
-                Log.e("Websocket", "Error " + e.message)
+                Log.e("TLC.connect", "Error " + e.message)
                 connected = false
             }
         }
@@ -67,6 +67,7 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, v
     }
 
     fun sendMessage(txt: String) {
+        Log.i("TLC.connect", "Message to server " + txt)
         if (connected) mWebSocketClient?.send(txt)
     }
 }

@@ -28,21 +28,22 @@ import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 
-val CONNECT_EVERY_SECOND: Long = 10
-
+val CONNECT_EVERY_SECOND: Long = 30
+val COMMA = "|"
 val APP_PREFERENCES = "mysettings"
 val APP_PREFERENCES_USERNAME = "username"
 val APP_PREFERENCES_PASSWORD = "password"
 val APP_PREFERENCES_SERVER = "server"
-val DEFAULT_SERVER = "ws://192.168.1.198:8080/BHServer/serverendpoint"
+//val DEFAULT_SERVER = "ws://192.168.1.198:8080/BHServer/serverendpoint"
+val DEFAULT_SERVER = "ws://test1.uralgufk.ru:8080/BHServer/serverendpoint";
 var user = User()
-var location: com.shi.dayre.twilightclient2.LocationProvider? = null
 
 var wsj: WebSocket? = null
 val syncLock = java.lang.Object()
 val listOfLayout = ArrayList<LinearLayout>()
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+    lateinit var location: com.shi.dayre.twilightclient2.LocationProvider
     lateinit var mSettings: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
     val commandHandler = CommandFromServerHandler(this)
@@ -67,7 +68,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         Thread(Runnable {
             // try to touch View of UI thread
             this.runOnUiThread(java.lang.Runnable {
-                Log.i("Socket", "View updated")
                 textFromServer.text = user.userText
                 currentStatus.text = user.zoneText
                 if (user.logined) {
@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     newPassword.visibility = View.GONE
                     newServer.visibility = View.GONE
                     if (user.justLogined) {
+                        fab.hide()
                         if (mTimer != null) mTimer.cancel()
                         mTimer = Timer()
                         mMyTimerTask = onTimerTick(this)
@@ -82,6 +83,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         user.justLogined = false
                     }
                 }
+                else {fab.show()}
+
                 if (user.superusered) {
                     superuserbar.visibility = View.VISIBLE
                 }
@@ -118,19 +121,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 if (user.location != null)
-                    gpsCoordinate.setText(user.location!!.format())
+                    gpsCoordinate.setText(user.location?.format())
                 else {
                     gpsCoordinate.text = this.resources.getText(R.string.gps_disable)
                 }
                 if (user.locationNet != null)
-                    netCoordinate.setText(user.locationNet!!.format())
+                    netCoordinate.setText(user.locationNet?.format())
                 else {
                     netCoordinate.text = this.resources.getText(R.string.net_disable)
                 }
                 synchronized(syncLock) {
                     syncLock.notify()
                 }
-                Log.i("Socket", "View updated ok")
+                Log.i("TLC.view", "View updated ok")
             })
         }).start()
     }
@@ -191,7 +194,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 gMap?.clear()
                 user.searchUserResult = ArrayList()
                 user.searchZoneResult = ArrayList()
-                var msg = "SEARCHALL(" + user.login + "," + user.password + ")"
+                var msg = "SEARCHALL(" + user.login + COMMA + user.password + ")"
                 wsj?.sendMessage(msg)
                 if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
                     gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
@@ -207,37 +210,46 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             hideSoftKeyboard(this)
             //TODO Change visibility to variable
             if (addnewzonebar.visibility == View.VISIBLE) {
-                if (newZoneTextForHuman.length()<2) newZoneTextForHuman.setText(" ")
-                if (newZoneTextForLight.length()<2) newZoneTextForLight.setText(" ")
-                if (newZoneTextForDark.length()<2) newZoneTextForDark.setText(" ")
-                if (newZoneAchievement.length()<2) newZoneAchievement.setText(" ")
-                var msg = "ADDNEWZONE(" + user.login + "," + user.password + "," +
-                        newZoneName.text + "," + newZoneLatitude.text + "," + newZoneLongitude.text + "," + newZoneRadius.text + "," +
-                        newZoneTextForHuman.text + "," + newZoneTextForLight.text + "," + newZoneTextForDark.text + "," +
-                        newZonePriority.text + "," + newZoneAchievement.text + ","+newZoneSystem.text+")"
-                wsj?.sendMessage(msg)
-                newZoneName.setText("")
-                newZoneLatitude.setText("")
-                newZoneLongitude.setText("")
-                newZoneTextForHuman.setText("")
-                newZoneTextForLight.setText("")
-                newZoneTextForDark.setText("")
-                newZoneAchievement.setText("")
+                if (newZoneName.text.length>1) {
+                    if (newZoneTextForHuman.text.toString().length < 2) newZoneTextForHuman.setText(" ")
+                    if (newZoneTextForLight.text.toString().length < 2) newZoneTextForLight.setText(" ")
+                    if (newZoneTextForDark.text.toString().length < 2) newZoneTextForDark.setText(" ")
+                    if (newZoneRadius.text.toString().equals("")) newZoneRadius.setText("0")
+                    if (newZoneLatitude.text.toString().equals("")) newZoneLatitude.setText("0")
+                    if (newZoneLongitude.text.toString().equals("")) newZoneLongitude.setText("0")
+                    if (newZoneAchievement.text.toString().length < 2) newZoneAchievement.setText(" ")
+                    if (newZoneSystem.text.toString().equals("")) newZoneSystem.setText("0")
+                    if (newZonePriority.text.toString().equals("")) newZonePriority.setText("0")
+                    var msg = "ADDNEWZONE(" + user.login + COMMA + user.password + COMMA +
+                            newZoneName.text.toString() + COMMA + newZoneLatitude.text.toString() + COMMA + newZoneLongitude.text.toString() +
+                            COMMA + newZoneRadius.text.toString() + COMMA + newZoneTextForHuman.text.toString() + COMMA +
+                            newZoneTextForLight.text.toString() + COMMA + newZoneTextForDark.text.toString() + COMMA +
+                            newZonePriority.text.toString() + COMMA + newZoneAchievement.text.toString() + COMMA +
+                            newZoneSystem.text.toString() + ")"
+                    wsj?.sendMessage(msg)
+                    newZoneName.setText("")
+                    newZoneLatitude.setText("")
+                    newZoneLongitude.setText("")
+                    newZoneTextForHuman.setText("")
+                    newZoneTextForLight.setText("")
+                    newZoneTextForDark.setText("")
+                    newZoneAchievement.setText("")
+                }
             } else if (cursebar.visibility == View.VISIBLE) {
                 if (!curseUserName.text.equals("")) {
-                    var msg = "MAKECURSE(" + user.login + "," + user.password + "," +
-                            curseUserName.text + ","+ curseCurseName.text+")"
+                    var msg = "MAKECURSE(" + user.login + COMMA + user.password + COMMA +
+                            curseUserName.text + COMMA+ curseCurseName.text+")"
                     wsj?.sendMessage(msg)
                 }
             } else if (adduserbar.visibility == View.VISIBLE) {
                 if (addUserName.text.length>2) {
-                    var msg = "ADDUSER(" + user.login + "," + user.password + "," +
-                            addUserName.text + "," + addUserPass.text+"," + addUserPowerside.text+"," + addUserSuperuser.text+")"
+                    var msg = "ADDUSER(" + user.login + COMMA + user.password + COMMA +
+                            addUserName.text + COMMA + addUserPass.text+COMMA + addUserPowerside.text+COMMA + addUserSuperuser.text+")"
                     wsj?.sendMessage(msg)
                 }
             } else if (deletezonebar.visibility == View.VISIBLE) {
                 if (deleteZoneName.text.length>2) {
-                    var msg = "DELETEZONE(" + user.login + "," + user.password + "," +
+                    var msg = "DELETEZONE(" + user.login + COMMA + user.password + COMMA +
                             deleteZoneName.text +")"
                     wsj?.sendMessage(msg)
                 }
@@ -247,7 +259,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     user.searchUserResult = ArrayList()
                     user.searchZoneResult = ArrayList()
                     gMap?.clear()
-                    var msg = "SEARCHUSER(" + user.login + "," + user.password + "," +
+                    var msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA +
                             searchName.text + ")"
                     wsj?.sendMessage(msg)
                     searchName.setText("")
@@ -264,14 +276,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
                     editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString());
                     editor.apply()
-                    var msg = "USER(" + user.login + "," + user.password + "," + user.getBestLocation()?.longitude + "," +
+                    var msg = "USER(" + user.login + COMMA + user.password + COMMA + user.getBestLocation()?.longitude + COMMA +
                             user.getBestLocation()?.longitude + ")"
                     wsj = WebSocket(user.server, commandHandler, this)
                     while (wsj?.connected==false) {
                         wsj?.connectWebSocket()
                         TimeUnit.SECONDS.sleep(1)
                         count++
-                        Log.i("Socket","connection count = "+count)
+                        Log.i("TLC.connect","connection count = "+count)
                         if (count > 10) {
                             Toaster.toast(R.string.serverNotResponse);
                             fab.show()
@@ -280,7 +292,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         wsj?.sendMessage(msg)
                     }
                 } catch (x: Exception) {
-                    println("Cloud not connect to server.")
+                    Log.e("TLC.connect",x.toString())
                 }
             }
         }
@@ -325,11 +337,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         loadLayout()
         loadSettings()
+        addListener()
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.searchmap) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        addListener()
+
         refresh()
     }
 
@@ -351,7 +364,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onResume() {
         super.onResume()
-        location!!.start()
+        location?.start()
     }
 
     fun sendLocationToServer() {
@@ -360,7 +373,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         //Remove this check after app connect only after loging
         if (user.login != null && !user.login.equals("null") && user.password != null && !user.password.equals("null")) {
-            var msg = "USER(" + user.login + "," + user.password + "," + lat + "," + lon + ")"
+            var msg = "USER(" + user.login + COMMA + user.password + COMMA + lat + COMMA + lon + ")"
             wsj?.sendMessage(msg)
         }
     }
