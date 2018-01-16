@@ -23,14 +23,14 @@ class CommandFromServerHandler(val context: Context) : Thread() {
             if (fromServer.equals("Password correct.")) user.logined = true
 
             if (fromServer.startsWith("ZONE(")) {
-                //It may have confused with case you first start app in not-free-zone :
-                //You have two message in same time
                 if (!user.zoneText.equals(fromServer.getTextBetween().get(0)) && !fromServer.getTextBetween().get(0).equals("free_zone")) {
                     //Change zone
                     Log.i("WebClient", "NEW ZONE ALARM!")
                     user.justChangedZone = true
                     user.zoneText = fromServer.getTextBetween().get(0)
                     sendNotification(context, context.getString(R.string.enterToNewZone), user.zoneText)
+                    var msg = "GETMAIL(" + user.login + COMMA + user.password + ")"
+                    wsj?.sendMessage(msg)
                 }
             } else if (fromServer.startsWith("SEARCHUSER(")) {
                 user.searchUserResult.add(SearchUserResult(

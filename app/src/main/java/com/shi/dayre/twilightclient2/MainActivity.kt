@@ -26,7 +26,7 @@ import com.shi.dayre.twilightclient2.PowerSide.*
 import xdroid.toaster.Toaster
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
-
+import com.google.android.gms.maps.model.LatLng
 
 val CONNECT_EVERY_SECOND: Long = 30
 val COMMA = "|"
@@ -41,7 +41,31 @@ var wsj: WebSocket? = null
 val syncLock = java.lang.Object()
 val listOfLayout = ArrayList<LinearLayout>()
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerDragListener  {
+
+    override fun onMarkerDragStart(marker: Marker) {
+        val position = marker.position
+        Log.i("TLC.map",
+                String.format("Dragging to %f:%f", position.latitude,
+                        position.longitude))
+    }
+
+    override fun onMarkerDrag(marker: Marker) {
+        val position = marker.position
+        Log.i("TLC.map",
+                String.format("Dragging to %f:%f", position.latitude,
+                        position.longitude))
+    }
+
+    override fun onMarkerDragEnd(marker: Marker) {
+        val position = marker.position
+        Log.i("TLC.map",
+                String.format("Dragging to %f:%f", position.latitude,
+                        position.longitude))
+        newZoneLatitude.setText(position.latitude.toString())
+        newZoneLongitude.setText(position.longitude.toString())
+    }
+
     lateinit var location: com.shi.dayre.twilightclient2.LocationProvider
     lateinit var mSettings: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
@@ -62,6 +86,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     user.getBestLocation()!!.longitude), 10f))
         map.getUiSettings().setZoomControlsEnabled(true)
         map.getUiSettings().setMapToolbarEnabled(false)
+        gMap?.setOnMarkerDragListener(this);
     }
 
     fun refresh() {
@@ -71,9 +96,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 textFromServer.text = user.userText
                 currentStatus.text = user.zoneText
                 if (user.logined) {
-                    newLogin.visibility = View.GONE
-                    newPassword.visibility = View.GONE
-                    newServer.visibility = View.GONE
+                    connectBar.visibility = View.GONE
                     if (user.justLogined) {
                         fab.hide()
                         if (mTimer != null) mTimer.cancel()
@@ -150,6 +173,33 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun addListener() {
         //TODO Make list of element and show/hide for list
+        newZonePinCoordinateButton.setOnClickListener {
+            if (mapbar.visibility==View.GONE) {
+                gMap?.clear()
+                markerToMap = addDragableMarkerToMap(gMap, "", user.getBestLocation()?.latitude,
+                        user.getBestLocation()?.longitude, "", resources, R.drawable.point)
+                newZoneRadius.visibility=View.GONE
+                newZoneTextForDark.visibility=View.GONE
+                newZoneTextForLight.visibility=View.GONE
+                newZoneTextForHuman.visibility=View.GONE
+                newZonePriority.visibility=View.GONE
+                newZoneAchievement.visibility=View.GONE
+                newZoneSystem.visibility=View.GONE
+                newZoneObservable.visibility=View.GONE
+                mapbar.visibility=View.VISIBLE
+            }
+            else {
+                mapbar.visibility=View.GONE
+                newZoneRadius.visibility=View.VISIBLE
+                newZoneTextForDark.visibility=View.VISIBLE
+                newZoneTextForLight.visibility=View.VISIBLE
+                newZoneTextForHuman.visibility=View.VISIBLE
+                newZonePriority.visibility=View.VISIBLE
+                newZoneAchievement.visibility=View.VISIBLE
+                newZoneSystem.visibility=View.VISIBLE
+                newZoneObservable.visibility=View.VISIBLE
+            }
+        }
         make1curseButton.setOnClickListener {
             if (make1cursebar.visibility == View.GONE) {
                 hideBar()
@@ -159,6 +209,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             } else {
                 hideBar()
                 fab.hide()
+            }
+        }
+        mailButton.setOnClickListener {
+            if (mailBar.visibility == View.GONE) {
+                hideBar()
+                mailBar.visibility = View.VISIBLE
+                var msg = "GETMAIL(" + user.login + COMMA + user.password + ")"
+                wsj?.sendMessage(msg)
+            } else {
+                hideBar()
             }
         }
         dieButton.setOnClickListener {
@@ -188,10 +248,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             if (addnewzonebar.visibility == View.GONE) {
                 hideBar()
                 addnewzonebar.visibility = View.VISIBLE
-                gMap?.clear()
-                mapbar.visibility = View.VISIBLE
-                markerToMap = addDragableMarkerToMap(gMap, "", user.getBestLocation()?.latitude,
-                        user.getBestLocation()?.longitude, "", resources, R.drawable.point)
                 //TODO Change fab image
                 fab.show()
             } else {
@@ -239,9 +295,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 mapbar.visibility = View.VISIBLE
                 //TODO Change fab image
                 fab.show()
-                gMap?.clear()
-                user.searchUserResult = ArrayList()
-                user.searchZoneResult = ArrayList()
                 var msg = "SEARCHALL(" + user.login + COMMA + user.password + ")"
                 wsj?.sendMessage(msg)
                 if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
@@ -249,7 +302,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                             user.getBestLocation()!!.longitude), 12f))
             } else {
                 hideBar()
-                gMap?.clear()
                 fab.hide()
             }
         }
@@ -267,6 +319,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (newZoneLongitude.text.toString().equals("")) newZoneLongitude.setText("0")
                     if (newZoneAchievement.text.toString().length < 2) newZoneAchievement.setText(" ")
                     if (newZoneSystem.text.toString().equals("")) newZoneSystem.setText("0")
+                    if (newZoneObservable.text.toString().equals("")) newZoneObservable.setText("0")
                     if (newZonePriority.text.toString().equals("")) newZonePriority.setText("0")
                     val radius = metrToGradusToString(newZoneRadius.text.toString().toInt())
                     var msg = "ADDNEWZONE(" + user.login + COMMA + user.password + COMMA +
@@ -274,7 +327,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                             COMMA + radius + COMMA + newZoneTextForHuman.text.toString() + COMMA +
                             newZoneTextForLight.text.toString() + COMMA + newZoneTextForDark.text.toString() + COMMA +
                             newZonePriority.text.toString() + COMMA + newZoneAchievement.text.toString() + COMMA +
-                            newZoneSystem.text.toString() + ")"
+                            newZoneSystem.text.toString() + COMMA + newZoneObservable.text.toString() + ")"
                     wsj?.sendMessage(msg)
                     newZoneName.setText("")
                     newZoneLatitude.setText("")
@@ -396,12 +449,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         listOfLayout.add(mapbar)
         listOfLayout.add(searchUserBar)
         listOfLayout.add(dieUserBar)
+        listOfLayout.add(mailBar)
     }
 
     fun hideBar() {
         for (lay in listOfLayout) {
             lay.visibility = View.GONE
         }
+        gMap?.clear()
+        user.searchUserResult = ArrayList()
+        user.searchZoneResult = ArrayList()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -417,7 +474,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.searchmap) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-
         refresh()
     }
 
@@ -427,19 +483,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         return true
     }
 
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-////        return when (item.itemId) {
-////           // R.id.action_settings -> true
-////           // else -> super.onOptionsItemSelected(item)
-////        }
-//    }
-
     override fun onResume() {
         super.onResume()
-        location?.start()
+        refresh()
+        location.start()
     }
 
     fun sendLocationToServer() {

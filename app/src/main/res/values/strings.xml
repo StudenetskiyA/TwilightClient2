@@ -11,8 +11,8 @@
     <string name="new_zone_textforhuman">Текст для людей.</string>
     <string name="new_zone_textforlight">Текст для светлых.</string>
     <string name="new_zone_textfordark">Текст для темных.</string>
-    <string name="new_zone_latitude">Широта(7 цифр, 0 для системной зоны).</string>
-    <string name="new_zone_longitude">Долгота(7 цифр, 0 для системной зоны).</string>
+    <string name="new_zone_latitude">Широта.</string>
+    <string name="new_zone_longitude">Долгота.</string>
     <string name="new_zone_priority">Приоритет зоны.</string>
     <string name="new_zone_achievement">Ачивка.</string>
     <string name="new_zone_radius">Радиус зоны в метрах.</string>
@@ -31,4 +31,5 @@
     <string name="castSearch">Заклинание поиска.</string>
     <string name="make1curse">Наложить проклятие 1ого уровня.</string>
     <string name="castEnchant">Наложение чар.</string>
+    <string name="new_zone_observable">Наблюдать за зоной?</string>
 </resources>
