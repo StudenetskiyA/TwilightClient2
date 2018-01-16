@@ -34,7 +34,6 @@ val APP_PREFERENCES = "mysettings"
 val APP_PREFERENCES_USERNAME = "username"
 val APP_PREFERENCES_PASSWORD = "password"
 val APP_PREFERENCES_SERVER = "server"
-//val DEFAULT_SERVER = "ws://192.168.1.198:8080/BHServer/serverendpoint"
 val DEFAULT_SERVER = "ws://test1.uralgufk.ru:8080/BHServer/serverendpoint";
 var user = User()
 
@@ -46,6 +45,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var location: com.shi.dayre.twilightclient2.LocationProvider
     lateinit var mSettings: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
+    var markerToMap: MarkerOptions? = null
     val commandHandler = CommandFromServerHandler(this)
     var mTimer = Timer()
     var mMyTimerTask = onTimerTick(this)
@@ -90,15 +90,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     userbar.visibility = View.VISIBLE
                     if (user.superusered>0) {
                         searchUserButton.visibility = View.VISIBLE
-                        castButton.visibility = View.VISIBLE
+                        addCurseButton.visibility = View.VISIBLE
                     }
-                    if (user.superusered>2) {
+                    if (user.superusered>8) {
                         superuserbar.visibility = View.VISIBLE
                     }
                     user.superusered=0
                 }
                 //MapBar refresh if needs
-                if (!user.searchUserResult.isEmpty() && mapbar.visibility == View.VISIBLE) {
+                if (!user.searchUserResult.isEmpty()) {
+                    mapbar.visibility = View.VISIBLE
                     val founded = user.searchUserResult.iterator()
                     var find: SearchUserResult
                     while (founded.hasNext()) {
@@ -108,7 +109,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         else R.drawable.human
 
                         searchLastconnect.text = getString(R.string.searchUserLastConnected) + find.lastConnected
-                        addMarkerToMap(gMap, find.name, find.latitude.toDouble(), find.longitude.toDouble(), "", resources, draw)
+                        addMarkerToMap(gMap, find.name, find.latitude, find.longitude, "", resources, draw)
                     }
                     //And zones
                     val foundedZ = user.searchZoneResult.iterator()
@@ -125,7 +126,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         else Color.RED
 
                         Log.i("Socket.Radius", findZ.name + "=" + findZ.radius.toDouble().toString())
-                        addCircleToMap(gMap, findZ.latitude, findZ.longitude, findZ.radius.toDouble() * 10000, drawColor)
+                        addCircleToMap(gMap, findZ.latitude, findZ.longitude, findZ.radius.toDouble() * 111900, drawColor)
                     }
                 }
 
@@ -187,6 +188,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             if (addnewzonebar.visibility == View.GONE) {
                 hideBar()
                 addnewzonebar.visibility = View.VISIBLE
+                gMap?.clear()
+                mapbar.visibility = View.VISIBLE
+                markerToMap = addDragableMarkerToMap(gMap, "", user.getBestLocation()?.latitude,
+                        user.getBestLocation()?.longitude, "", resources, R.drawable.point)
                 //TODO Change fab image
                 fab.show()
             } else {
@@ -282,10 +287,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             } else if (dieUserBar.visibility == View.VISIBLE) {
                 var msg = "DIE(" + user.login + COMMA + user.password + ")"
                 wsj?.sendMessage(msg)
+                System.exit(0)
             } else if (make1cursebar.visibility == View.VISIBLE) {
                 if (!curse1UserName.text.equals("")) {
                     var msg = "MAKECURSE(" + user.login + COMMA + user.password + COMMA +
-                            curseUserName.text + COMMA + "Проклятие 1" + ")"
+                            curse1UserName.text + COMMA + "Проклятие 1" + ")"
                     wsj?.sendMessage(msg)
                 }
             } else if (searchUserBar.visibility == View.VISIBLE) {
@@ -294,10 +300,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     user.searchUserResult = ArrayList()
                     user.searchZoneResult = ArrayList()
                     gMap?.clear()
-                    mapbar.visibility = View.VISIBLE
                     var msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA +
                             searchUserName.text + ")"
                     wsj?.sendMessage(msg)
+                    if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
+                        gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
+                                user.getBestLocation()!!.longitude), 12f))
                     searchUserName.setText("")
                 }
             } else if (cursebar.visibility == View.VISIBLE) {

@@ -17,7 +17,7 @@ data class User(
         var server:String = DEFAULT_SERVER,
         var logined:Boolean = false,
         var justLogined:Boolean=true,
-        var superusered:Boolean=false,
+        var superusered:Int=-1,
         var zoneText:String = "",
         var justChangedZone:Boolean = false,
         var searchUserResult:ArrayList<SearchUserResult> = ArrayList(),

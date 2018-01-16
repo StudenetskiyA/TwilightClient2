@@ -45,8 +45,9 @@ class CommandFromServerHandler(val context: Context) : Thread() {
                         fromServer.getTextBetween().get(4).toInt(), fromServer.getTextBetween().get(5)
                 ))
             } else if (fromServer.startsWith("SUPERUSER(")) {
-                Log.i("WebClient", "SuperUser granted.")
-                user.superusered = true
+                val n = fromServer.getTextBetween().get(0).toInt()
+                Log.i("WebClient", "SuperUser granted = "+n)
+                user.superusered = n
             } else if (fromServer.startsWith("MESSAGE(")) {
                 Toaster.toast(fromServer.getTextBetween().get(0));
             }

@@ -27,13 +27,14 @@ import java.util.regex.Pattern
 
 val METERINGRADUS = 10000
 
-fun addCircleToMap(map: GoogleMap?, lat:Double, lon:Double, radius:Double, color:Int){
+fun addCircleToMap(map: GoogleMap?, lat: Double, lon: Double, radius: Double, color: Int) {
     map?.addCircle(CircleOptions()
             .center(LatLng(lat, lon))
             .radius(radius)
             .strokeColor(color)
     )
 }
+
 fun addMarkerToMap(map: GoogleMap?, name: String, lat: Double, lon: Double, snip: String, resource: Resources, icon: Int) {
     if (map != null) {
         Log.i("Webclient", "Try to add point on map:" + lat + "," + lon)
@@ -46,8 +47,27 @@ fun addMarkerToMap(map: GoogleMap?, name: String, lat: Double, lon: Double, snip
     }
 }
 
-fun metrToGradusToString(metr:Int): String{
-    return String.format("%.8f", metr.toDouble()/111197)
+fun addDragableMarkerToMap(map: GoogleMap?, name: String, _lat: Double?, _lon: Double?, snip: String, resource: Resources, icon: Int): MarkerOptions? {
+    var lat =  if (_lat == null) 55.15 else _lat
+    var lon =  if (_lon == null) 61.37 else _lon
+
+    if (_lon == null) lon = 61.37
+    if (map != null) {
+        Log.i("Webclient", "Try to add point on map:" + lat + "," + lon)
+        var marker: MarkerOptions = MarkerOptions()
+                .position(LatLng(lat, lon))
+                .title(name)
+                .snippet(snip)
+                .draggable(true)
+                .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(resource, icon)))
+        map.addMarker(marker)
+        return marker
+    }
+    return null
+}
+
+fun metrToGradusToString(metr: Int): String {
+    return String.format("%.8f", metr.toDouble() / 111197).replace(",", ".")
 }
 
 fun hideSoftKeyboard(activity: Activity) {
@@ -56,6 +76,7 @@ fun hideSoftKeyboard(activity: Activity) {
     inputMethodManager?.hideSoftInputFromWindow(
             activity.currentFocus?.windowToken, 0)
 }
+
 enum class PowerSide {
     Human, Light, Dark;
 
@@ -79,7 +100,7 @@ fun String.toPowerside(): PowerSide {
 }
 
 fun Location.format(): String {
-    return "lat = "+this.latitude+","+ "lon = "+this.longitude
+    return "lat = " + this.latitude + "," + "lon = " + this.longitude
 }
 
 fun String.getTextBetween(): ArrayList<String> {
@@ -94,7 +115,8 @@ fun String.getTextBetween(): ArrayList<String> {
     }
     return rtrn
 }
-fun sendNotification(context: Context, title: String, body: String){
+
+fun sendNotification(context: Context, title: String, body: String) {
     val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
     val notification = NotificationCompat.Builder(context)
             .setSmallIcon(R.drawable.notification_icon_background)

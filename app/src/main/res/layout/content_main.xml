@@ -99,7 +99,7 @@
                 android:src="@drawable/searchuser"
                 android:visibility="gone"/>
             <ImageButton
-                android:id="@+id/castButton"
+                android:id="@+id/addCurseButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
@@ -157,16 +157,6 @@
                 android:background="@color/colorMainBackground"
                 android:gravity="left"
                 android:src="@drawable/adduser" />
-
-            <ImageButton
-                android:id="@+id/addCurseButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginTop="2dp"
-                android:background="@color/colorMainBackground"
-                android:gravity="left"
-                android:src="@drawable/curse" />
         </LinearLayout>
 
         //die
@@ -285,12 +275,6 @@
                 android:text=""
                 android:textSize="@dimen/editable_font" />
 
-            <TextView
-                android:id="@+id/searchLastconnect"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:textSize="@dimen/editable_font" />
         </LinearLayout>
         //add user
         <LinearLayout
@@ -460,6 +444,12 @@
             android:gravity="top|left"
             android:orientation="vertical"
             android:visibility="gone">
+            <TextView
+                android:id="@+id/searchLastconnect"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
             <fragment
                 android:id="@+id/searchmap"
                 android:name="com.google.android.gms.maps.SupportMapFragment"
