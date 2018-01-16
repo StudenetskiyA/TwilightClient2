@@ -11,6 +11,10 @@ kotlin {
 }
 
 android {
+    configurations.all {
+        resolutionStrategy.force 'junit:junit:4.12'
+    }
+
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.shi.dayre.twilightclient2"
@@ -41,4 +45,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.21"
     compile 'com.shamanland:xdroid-toaster:0.2.4'
+    compile 'org.testng:testng:6.9.6'
+    compile 'com.android.support:multidex:1.0.0'
 }

@@ -15,7 +15,7 @@
     <string name="new_zone_longitude">Долгота(7 цифр, 0 для системной зоны).</string>
     <string name="new_zone_priority">Приоритет зоны.</string>
     <string name="new_zone_achievement">Ачивка.</string>
-    <string name="new_zone_radius">Радиус зоны в метрах/10000(в 1 - 10 км).</string>
+    <string name="new_zone_radius">Радиус зоны в метрах.</string>
     <string name="new_search_name">Имя для поиска</string>
     <string name="searchUserLastConnected">Информация обновлена -</string>
     <string name="serverNotResponse">Не удается соединиться с сервером.</string>
@@ -27,4 +27,8 @@
     <string name="addUserPowerSide">Сторона силы(1-светлый,2-темный,3-человек)</string>
     <string name="addUserIsSuperuser">Мастерские полномочия(1-да,0-нет)</string>
     <string name="deleteEnterZoneName">Введите имя зоны для удаления.</string>
+    <string name="youDie">Вы действительно умерли?.</string>
+    <string name="castSearch">Заклинание поиска.</string>
+    <string name="make1curse">Наложить проклятие 1ого уровня.</string>
+    <string name="castEnchant">Наложение чар.</string>
 </resources>

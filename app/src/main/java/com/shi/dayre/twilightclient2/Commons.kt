@@ -46,6 +46,10 @@ fun addMarkerToMap(map: GoogleMap?, name: String, lat: Double, lon: Double, snip
     }
 }
 
+fun metrToGradusToString(metr:Int): String{
+    return String.format("%.8f", metr.toDouble()/111197)
+}
+
 fun hideSoftKeyboard(activity: Activity) {
     val inputMethodManager = activity.getSystemService(
             Activity.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -75,7 +79,7 @@ fun String.toPowerside(): PowerSide {
 }
 
 fun Location.format(): String {
-    return if (this == null) "" else "lat = "+this.latitude.toDouble()+","+ "lon = "+this.longitude.toDouble()
+    return "lat = "+this.latitude+","+ "lon = "+this.longitude
 }
 
 fun String.getTextBetween(): ArrayList<String> {

@@ -82,11 +82,20 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
                         user.justLogined = false
                     }
+                } else {
+                    fab.show()
                 }
-                else {fab.show()}
 
-                if (user.superusered) {
-                    superuserbar.visibility = View.VISIBLE
+                if (user.superusered!=-1) {
+                    userbar.visibility = View.VISIBLE
+                    if (user.superusered>0) {
+                        searchUserButton.visibility = View.VISIBLE
+                        castButton.visibility = View.VISIBLE
+                    }
+                    if (user.superusered>2) {
+                        superuserbar.visibility = View.VISIBLE
+                    }
+                    user.superusered=0
                 }
                 //MapBar refresh if needs
                 if (!user.searchUserResult.isEmpty() && mapbar.visibility == View.VISIBLE) {
@@ -140,6 +149,39 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun addListener() {
         //TODO Make list of element and show/hide for list
+        make1curseButton.setOnClickListener {
+            if (make1cursebar.visibility == View.GONE) {
+                hideBar()
+                make1cursebar.visibility = View.VISIBLE
+                //TODO Change fab image
+                fab.show()
+            } else {
+                hideBar()
+                fab.hide()
+            }
+        }
+        dieButton.setOnClickListener {
+            if (dieUserBar.visibility == View.GONE) {
+                hideBar()
+                dieUserBar.visibility = View.VISIBLE
+                //TODO Change fab image
+                fab.show()
+            } else {
+                hideBar()
+                fab.hide()
+            }
+        }
+        searchUserButton.setOnClickListener {
+            if (searchUserBar.visibility == View.GONE) {
+                hideBar()
+                searchUserBar.visibility = View.VISIBLE
+                //TODO Change fab image
+                fab.show()
+            } else {
+                hideBar()
+                fab.hide()
+            }
+        }
 
         addNewZoneButton.setOnClickListener {
             if (addnewzonebar.visibility == View.GONE) {
@@ -189,6 +231,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             if (searchbar.visibility == View.GONE) {
                 hideBar()
                 searchbar.visibility = View.VISIBLE
+                mapbar.visibility = View.VISIBLE
                 //TODO Change fab image
                 fab.show()
                 gMap?.clear()
@@ -210,7 +253,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             hideSoftKeyboard(this)
             //TODO Change visibility to variable
             if (addnewzonebar.visibility == View.VISIBLE) {
-                if (newZoneName.text.length>1) {
+                if (newZoneName.text.length > 1) {
                     if (newZoneTextForHuman.text.toString().length < 2) newZoneTextForHuman.setText(" ")
                     if (newZoneTextForLight.text.toString().length < 2) newZoneTextForLight.setText(" ")
                     if (newZoneTextForDark.text.toString().length < 2) newZoneTextForDark.setText(" ")
@@ -220,9 +263,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (newZoneAchievement.text.toString().length < 2) newZoneAchievement.setText(" ")
                     if (newZoneSystem.text.toString().equals("")) newZoneSystem.setText("0")
                     if (newZonePriority.text.toString().equals("")) newZonePriority.setText("0")
+                    val radius = metrToGradusToString(newZoneRadius.text.toString().toInt())
                     var msg = "ADDNEWZONE(" + user.login + COMMA + user.password + COMMA +
                             newZoneName.text.toString() + COMMA + newZoneLatitude.text.toString() + COMMA + newZoneLongitude.text.toString() +
-                            COMMA + newZoneRadius.text.toString() + COMMA + newZoneTextForHuman.text.toString() + COMMA +
+                            COMMA + radius + COMMA + newZoneTextForHuman.text.toString() + COMMA +
                             newZoneTextForLight.text.toString() + COMMA + newZoneTextForDark.text.toString() + COMMA +
                             newZonePriority.text.toString() + COMMA + newZoneAchievement.text.toString() + COMMA +
                             newZoneSystem.text.toString() + ")"
@@ -235,26 +279,47 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     newZoneTextForDark.setText("")
                     newZoneAchievement.setText("")
                 }
+            } else if (dieUserBar.visibility == View.VISIBLE) {
+                var msg = "DIE(" + user.login + COMMA + user.password + ")"
+                wsj?.sendMessage(msg)
+            } else if (make1cursebar.visibility == View.VISIBLE) {
+                if (!curse1UserName.text.equals("")) {
+                    var msg = "MAKECURSE(" + user.login + COMMA + user.password + COMMA +
+                            curseUserName.text + COMMA + "Проклятие 1" + ")"
+                    wsj?.sendMessage(msg)
+                }
+            } else if (searchUserBar.visibility == View.VISIBLE) {
+                if (searchUserName.text.length > 1) {
+                    searchLastconnect.text = ""
+                    user.searchUserResult = ArrayList()
+                    user.searchZoneResult = ArrayList()
+                    gMap?.clear()
+                    mapbar.visibility = View.VISIBLE
+                    var msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA +
+                            searchUserName.text + ")"
+                    wsj?.sendMessage(msg)
+                    searchUserName.setText("")
+                }
             } else if (cursebar.visibility == View.VISIBLE) {
                 if (!curseUserName.text.equals("")) {
                     var msg = "MAKECURSE(" + user.login + COMMA + user.password + COMMA +
-                            curseUserName.text + COMMA+ curseCurseName.text+")"
+                            curseUserName.text + COMMA + curseCurseName.text + ")"
                     wsj?.sendMessage(msg)
                 }
             } else if (adduserbar.visibility == View.VISIBLE) {
-                if (addUserName.text.length>2) {
+                if (addUserName.text.length > 2) {
                     var msg = "ADDUSER(" + user.login + COMMA + user.password + COMMA +
-                            addUserName.text + COMMA + addUserPass.text+COMMA + addUserPowerside.text+COMMA + addUserSuperuser.text+")"
+                            addUserName.text + COMMA + addUserPass.text + COMMA + addUserPowerside.text + COMMA + addUserSuperuser.text + ")"
                     wsj?.sendMessage(msg)
                 }
             } else if (deletezonebar.visibility == View.VISIBLE) {
-                if (deleteZoneName.text.length>2) {
+                if (deleteZoneName.text.length > 2) {
                     var msg = "DELETEZONE(" + user.login + COMMA + user.password + COMMA +
-                            deleteZoneName.text +")"
+                            deleteZoneName.text + ")"
                     wsj?.sendMessage(msg)
                 }
             } else if (searchbar.visibility == View.VISIBLE) {
-                if (searchName.text.length>1) {
+                if (searchName.text.length > 1) {
                     searchLastconnect.text = ""
                     user.searchUserResult = ArrayList()
                     user.searchZoneResult = ArrayList()
@@ -266,8 +331,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             } else {
                 try {
-                    var count=0
-                    //TODO Wait
+                    var count = 0
                     fab.hide()
                     user.login = newLogin.text.toString()
                     user.password = newPassword.text.toString()
@@ -276,14 +340,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString());
                     editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString());
                     editor.apply()
-                    var msg = "USER(" + user.login + COMMA + user.password + COMMA + user.getBestLocation()?.longitude + COMMA +
-                            user.getBestLocation()?.longitude + ")"
+                    var msg = "CONNECT(" + user.login + COMMA + user.password + ")"
                     wsj = WebSocket(user.server, commandHandler, this)
-                    while (wsj?.connected==false) {
+                    while (wsj?.connected == false) {
                         wsj?.connectWebSocket()
                         TimeUnit.SECONDS.sleep(1)
                         count++
-                        Log.i("TLC.connect","connection count = "+count)
+                        Log.i("TLC.connect", "connection count = " + count)
                         if (count > 10) {
                             Toaster.toast(R.string.serverNotResponse);
                             fab.show()
@@ -292,7 +355,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         wsj?.sendMessage(msg)
                     }
                 } catch (x: Exception) {
-                    Log.e("TLC.connect",x.toString())
+                    Log.e("TLC.connect", x.toString())
                 }
             }
         }
@@ -321,11 +384,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         listOfLayout.add(cursebar)
         listOfLayout.add(adduserbar)
         listOfLayout.add(deletezonebar)
+        listOfLayout.add(make1cursebar)
+        listOfLayout.add(mapbar)
+        listOfLayout.add(searchUserBar)
+        listOfLayout.add(dieUserBar)
     }
 
-    fun hideBar(){
-        for (lay in listOfLayout){
-            lay.visibility=View.GONE
+    fun hideBar() {
+        for (lay in listOfLayout) {
+            lay.visibility = View.GONE
         }
     }
 

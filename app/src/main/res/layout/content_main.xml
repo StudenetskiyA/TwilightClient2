@@ -60,286 +60,411 @@
             android:layout_marginLeft="5dp"
             android:gravity="left"
             android:maxLines="1"
-            android:visibility="gone"/>
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/userbar"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="top|left"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ImageButton
+                android:id="@+id/make1curseButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/colorMainBackground"
+                android:gravity="left"
+                android:src="@drawable/make1curse" />
+            <ImageButton
+                android:id="@+id/dieButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/colorMainBackground"
+                android:gravity="left"
+                android:src="@drawable/die" />
+            <ImageButton
+                android:id="@+id/searchUserButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/colorMainBackground"
+                android:gravity="left"
+                android:src="@drawable/searchuser"
+                android:visibility="gone"/>
+            <ImageButton
+                android:id="@+id/castButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/colorMainBackground"
+                android:gravity="left"
+                android:src="@drawable/cast"
+                android:visibility="gone"/>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/superuserbar"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ImageButton
+                android:id="@+id/searchAllButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/colorMainBackground"
+                android:gravity="left"
+                android:src="@drawable/map" />
+
+            <ImageButton
+                android:id="@+id/addNewZoneButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/colorMainBackground"
+                android:gravity="left"
+                android:src="@drawable/addzone" />
+
+            <ImageButton
+                android:id="@+id/deleteZoneButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/colorMainBackground"
+                android:gravity="left"
+                android:src="@drawable/removezone" />
+
+            <ImageButton
+                android:id="@+id/addUserButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/colorMainBackground"
+                android:gravity="left"
+                android:src="@drawable/adduser" />
+
+            <ImageButton
+                android:id="@+id/addCurseButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/colorMainBackground"
+                android:gravity="left"
+                android:src="@drawable/curse" />
+        </LinearLayout>
+
+        //die
+        <LinearLayout
+            android:id="@+id/dieUserBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="top|left"
             android:orientation="vertical"
-            android:visibility="gone"
-            >
-            <LinearLayout
-                android:id="@+id/superuserbuttonbar"
+            android:visibility="gone">
+            <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="top|left"
-                android:orientation="horizontal"
-                >
-
-
-                <ImageButton
-                    android:id="@+id/searchAllButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginTop="2dp"
-                    android:gravity="left"
-                    android:src="@drawable/map"
-                    android:background="@color/colorMainBackground"
-                   />
-                <ImageButton
-                    android:id="@+id/addNewZoneButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginTop="2dp"
-                    android:gravity="left"
-                    android:src="@drawable/addzone"
-                    android:background="@color/colorMainBackground" />
-
-                <ImageButton
-                    android:id="@+id/deleteZoneButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginTop="2dp"
-                    android:gravity="left"
-                    android:src="@drawable/removezone"
-                    android:background="@color/colorMainBackground" />
-                <ImageButton
-                    android:id="@+id/addUserButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginTop="2dp"
-                    android:gravity="left"
-                    android:src="@drawable/adduser"
-                    android:background="@color/colorMainBackground" />
-
-                <ImageButton
-                    android:id="@+id/addCurseButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginTop="2dp"
-                    android:gravity="left"
-                    android:src="@drawable/curse"
-                    android:background="@color/colorMainBackground" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/searchbar"
-                android:layout_width="wrap_content"
+                android:singleLine="true"
+                android:text="@string/youDie"/>
+        </LinearLayout>
+        //search user
+        <LinearLayout
+            android:id="@+id/searchUserBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="top|left"
-                android:orientation="vertical"
-                android:visibility="gone"
-                >
-                <EditText
-                    android:id="@+id/searchName"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_search_name"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:text=""/>
-                <TextView
-                    android:id="@+id/searchLastconnect"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"/>
-                <LinearLayout
-                    android:id="@+id/mapbar"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="top|left"
-                    android:orientation="vertical"
-                    >
-                    <fragment
-                        android:id="@+id/searchmap"
-                        android:name="com.google.android.gms.maps.SupportMapFragment"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        >
-                    </fragment>
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/adduserbar"
-                android:layout_width="wrap_content"
+                android:singleLine="true"
+                android:text="@string/castSearch"/>
+            <EditText
+                android:id="@+id/searchUserName"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="top|left"
-                android:orientation="vertical"
-                android:visibility="gone"
-                >
-                <EditText
-                    android:id="@+id/addUserName"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/addUserSetName"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:text=""/>
-                <EditText
-                    android:id="@+id/addUserPass"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/addUserPassword"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:text=""/>
-                <EditText
-                    android:id="@+id/addUserPowerside"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/addUserPowerSide"
-                    android:singleLine="true"
-                    android:inputType="number"
-                    android:textSize="@dimen/editable_font"
-                    android:text=""/>
-                <EditText
-                    android:id="@+id/addUserSuperuser"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/addUserIsSuperuser"
-                    android:singleLine="true"
-                    android:inputType="number"
-                    android:textSize="@dimen/editable_font"
-                    android:text=""/>
-            </LinearLayout>
+                android:hint="@string/new_search_name"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/editable_font" />
 
-            <LinearLayout
-                android:id="@+id/deletezonebar"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/searchUserLastConnect"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="top|left"
-                android:orientation="vertical"
-                android:visibility="gone"
-                >
-                <EditText
-                    android:id="@+id/deleteZoneName"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/deleteEnterZoneName"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:text=""/>
-            </LinearLayout>
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+        </LinearLayout>
+        //make1curse
+        <LinearLayout
+            android:id="@+id/make1cursebar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/make1curse"/>
+            <EditText
+                android:id="@+id/curse1UserName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_curse_user_name"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/editable_font" />
+        </LinearLayout>
+        //cast
+        <LinearLayout
+            android:id="@+id/cursebar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/castEnchant"/>
+            <EditText
+                android:id="@+id/curseUserName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_curse_user_name"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/editable_font" />
 
-            <LinearLayout
-                android:id="@+id/cursebar"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/curseCurseName"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="top|left"
-                android:orientation="vertical"
-                android:visibility="gone"
-                >
-                <EditText
-                    android:id="@+id/curseUserName"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_curse_user_name"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:text=""/>
-                <EditText
-                    android:id="@+id/curseCurseName"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_curse_curse_name"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:text=""/>
-            </LinearLayout>
+                android:hint="@string/new_curse_curse_name"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/editable_font" />
+        </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/addnewzonebar"
-                android:layout_width="wrap_content"
+        //down - super user
+        //search all
+        <LinearLayout
+            android:id="@+id/searchbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/searchName"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="top|left"
-                android:orientation="vertical"
-                android:visibility="gone"
-                >
-                <EditText
-                    android:id="@+id/newZoneName"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_zone_name"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"/>
-                <EditText
-                    android:id="@+id/newZoneTextForHuman"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_zone_textforhuman"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"/>
-                <EditText
-                    android:id="@+id/newZoneTextForLight"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_zone_textforlight"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"/>
-                <EditText
-                    android:id="@+id/newZoneTextForDark"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_zone_textfordark"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"/>
-                <EditText
-                    android:id="@+id/newZoneLatitude"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_zone_latitude"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:inputType="number|numberDecimal"/>
-                <EditText
-                    android:id="@+id/newZoneLongitude"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_zone_longitude"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:inputType="number|numberDecimal"/>
-                <EditText
-                    android:id="@+id/newZoneRadius"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_zone_radius"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:inputType="number|numberDecimal"/>
-                <EditText
-                    android:id="@+id/newZonePriority"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_zone_priority"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:inputType="number"/>
-                <EditText
-                    android:id="@+id/newZoneAchievement"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_zone_achievement"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"/>
-                <EditText
-                    android:id="@+id/newZoneSystem"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/new_zone_system"
-                    android:singleLine="true"
-                    android:textSize="@dimen/editable_font"
-                    android:inputType="number"/>
-            </LinearLayout>
+                android:hint="@string/new_search_name"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/editable_font" />
+
+            <TextView
+                android:id="@+id/searchLastconnect"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+        </LinearLayout>
+        //add user
+        <LinearLayout
+            android:id="@+id/adduserbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/addUserName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/addUserSetName"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/addUserPass"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/addUserPassword"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/addUserPowerside"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/addUserPowerSide"
+                android:inputType="number"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/addUserSuperuser"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/addUserIsSuperuser"
+                android:inputType="number"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/editable_font" />
+        </LinearLayout>
+        //delete zone
+        <LinearLayout
+            android:id="@+id/deletezonebar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/deleteZoneName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/deleteEnterZoneName"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/editable_font" />
+        </LinearLayout>
+        //add new zone
+        <LinearLayout
+            android:id="@+id/addnewzonebar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/newZoneName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_zone_name"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/newZoneTextForHuman"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_zone_textforhuman"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/newZoneTextForLight"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_zone_textforlight"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/newZoneTextForDark"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_zone_textfordark"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/newZoneLatitude"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_zone_latitude"
+                android:inputType="number|numberDecimal"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/newZoneLongitude"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_zone_longitude"
+                android:inputType="number|numberDecimal"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/newZoneRadius"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_zone_radius"
+                android:inputType="number|numberDecimal"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/newZonePriority"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_zone_priority"
+                android:inputType="number"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/newZoneAchievement"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_zone_achievement"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+
+            <EditText
+                android:id="@+id/newZoneSystem"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_zone_system"
+                android:inputType="number"
+                android:singleLine="true"
+                android:textSize="@dimen/editable_font" />
+        </LinearLayout>
+
+        //map bar
+        <LinearLayout
+            android:id="@+id/mapbar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|left"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <fragment
+                android:id="@+id/searchmap"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"></fragment>
         </LinearLayout>
 
         <TextView
