@@ -44,12 +44,23 @@ class CommandFromServerHandler(val context: Context) : Thread() {
                         fromServer.getTextBetween().get(2).toDouble(), fromServer.getTextBetween().get(3).toDouble(),
                         fromServer.getTextBetween().get(4).toInt(), fromServer.getTextBetween().get(5)
                 ))
+            } else if (fromServer.startsWith("VAMPIRESEND(")) {
+                val n = fromServer.getTextBetween().get(0)
+                if (n.equals("0")) user.vampireSend="0"
+                else user.vampireSend=n
+            } else if (fromServer.startsWith("VAMPIRECALL(")) {
+                val n = fromServer.getTextBetween().get(0)
+                if (n.equals("0")) user.vampireCall="0"
+                else {
+                    if (!user.vampireCall.equals(n))   sendNotification(context, context.getString(R.string.newVampireCall), "")
+                    user.vampireCall = n
+                }
             } else if (fromServer.startsWith("SUPERUSER(")) {
                 val n = fromServer.getTextBetween().get(0).toInt()
                 Log.i("WebClient", "SuperUser granted = "+n)
                 user.superusered = n
             } else if (fromServer.startsWith("MESSAGE(")) {
-                Toaster.toast(fromServer.getTextBetween().get(0));
+                Toaster.toast(messageFromServerCode(context,fromServer.getTextBetween().get(0)))
             }
                     else {
                     user.userText = fromServer

@@ -1,18 +1,14 @@
 package com.shi.dayre.twilightclient2
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
-import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.Toast
 import com.google.android.gms.maps.GoogleMap
 
 import kotlinx.android.synthetic.main.activity_main.*
@@ -94,7 +90,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             // try to touch View of UI thread
             this.runOnUiThread(java.lang.Runnable {
                 textFromServer.text = user.userText
-                currentStatus.text = user.zoneText
+                if (!user.zoneText.equals("")) {
+                    currentStatus.visibility=View.VISIBLE
+                    currentStatus.text = user.zoneText
+                }
                 if (user.logined) {
                     connectBar.visibility = View.GONE
                     if (user.justLogined) {
@@ -115,6 +114,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                         searchUserButton.visibility = View.VISIBLE
                         addCurseButton.visibility = View.VISIBLE
                         scanUserButton.visibility = View.VISIBLE
+                        vampireSendButton.visibility= View.VISIBLE
                     }
                     if (user.superusered > 8) {
                         superuserbar.visibility = View.VISIBLE
@@ -123,6 +123,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 }
                 //MapBar refresh if needs
                 if (!user.searchUserResult.isEmpty()) {
+
+                    if (user.infoSearch) {
+                        mapInfoBar.visibility= View.VISIBLE
+                    }
+
                     mapbar.visibility = View.VISIBLE
                     val founded = user.searchUserResult.iterator()
                     var find: SearchUserResult
@@ -155,6 +160,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     }
                 }
 
+                if (!user.vampireSend.equals("0")) vampireSendCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireSendAlready) + user.vampireSend
+                else vampireSendCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireSendNoYet)
+
+                if (!user.vampireCall.equals("0")) {
+                    vampireCallBar.visibility=View.VISIBLE
+                    vampireCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireCallFrom) + user.vampireCall
+                }
+
                 if (user.location != null)
                     gpsCoordinate.setText(user.location?.format())
                 else {
@@ -174,7 +187,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun addListener() {
-        //TODO Make list of element and show/hide for list
         newZonePinCoordinateButton.setOnClickListener {
             if (mapbar.visibility == View.GONE) {
                 gMap?.clear()
@@ -187,7 +199,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 newZonePriority.visibility = View.GONE
                 newZoneAchievement.visibility = View.GONE
                 newZoneSystem.visibility = View.GONE
-                newZoneObservable.visibility = View.GONE
                 mapbar.visibility = View.VISIBLE
             } else {
                 mapbar.visibility = View.GONE
@@ -198,110 +209,71 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 newZonePriority.visibility = View.VISIBLE
                 newZoneAchievement.visibility = View.VISIBLE
                 newZoneSystem.visibility = View.VISIBLE
-                newZoneObservable.visibility = View.VISIBLE
             }
         }
         make1curseButton.setOnClickListener {
-            if (make1cursebar.visibility == View.GONE) {
-                hideBar()
-                make1cursebar.visibility = View.VISIBLE
-                //TODO Change fab image
-                fab.show()
-            } else {
-                hideBar()
-                fab.hide()
-            }
+            addOnClickBarListener(make1cursebar)
         }
-        mailButton.setOnClickListener {
-            if (mailBar.visibility == View.GONE) {
-                hideBar()
-                mailBar.visibility = View.VISIBLE
-                var msg = "GETMAIL(" + user.login + COMMA + user.password + ")"
-                wsj?.sendMessage(msg)
-            } else {
-                hideBar()
-            }
-        }
+//        mailButton.setOnClickListener {
+//            if (mailBar.visibility == View.GONE) {
+//                hideBar()
+//                mailBar.visibility = View.VISIBLE
+//                var msg = "GETMAIL(" + user.login + COMMA + user.password + ")"
+//                wsj?.sendMessage(msg)
+//            } else {
+//                hideBar()
+//            }
+//        }
         dieButton.setOnClickListener {
-            if (dieUserBar.visibility == View.GONE) {
-                hideBar()
-                dieUserBar.visibility = View.VISIBLE
-                //TODO Change fab image
-                fab.show()
-            } else {
-                hideBar()
-                fab.hide()
-            }
+            addOnClickBarListener(dieUserBar)
         }
         searchUserButton.setOnClickListener {
-            if (searchUserBar.visibility == View.GONE) {
-                hideBar()
-                searchUserBar.visibility = View.VISIBLE
-                //TODO Change fab image
-                fab.show()
-            } else {
-                hideBar()
-                fab.hide()
-            }
+            addOnClickBarListener(searchUserBar)
         }
         scanUserButton.setOnClickListener {
             addOnClickBarListener(scanUserBar)
         }
-
+        vampireSendButton.setOnClickListener {
+            addOnClickBarListener(vampireSendBar)
+        }
         addNewZoneButton.setOnClickListener {
-            if (addnewzonebar.visibility == View.GONE) {
-                hideBar()
-                addnewzonebar.visibility = View.VISIBLE
-                //TODO Change fab image
-                fab.show()
-            } else {
-                hideBar()
-                fab.hide()
-            }
+            addOnClickBarListener(addnewzonebar)
         }
         addUserButton.setOnClickListener {
-            if (adduserbar.visibility == View.GONE) {
-                hideBar()
-                adduserbar.visibility = View.VISIBLE
-                //TODO Change fab image
-                fab.show()
-            } else {
-                hideBar()
-                fab.hide()
-            }
+            addOnClickBarListener(adduserbar)
         }
         deleteZoneButton.setOnClickListener {
-            if (deletezonebar.visibility == View.GONE) {
-                hideBar()
-                deletezonebar.visibility = View.VISIBLE
-                //TODO Change fab image
-                fab.show()
-            } else {
-                hideBar()
-                fab.hide()
-            }
+            addOnClickBarListener(deletezonebar)
         }
         addCurseButton.setOnClickListener {
-            if (cursebar.visibility == View.GONE) {
+            addOnClickBarListener(cursebar)
+        }
+
+        vampireCallButton.setOnClickListener {
+            if (mapbar.visibility == View.GONE) {
                 hideBar()
-                cursebar.visibility = View.VISIBLE
-                //TODO Change fab image
-                fab.show()
+                user.searchUserResult = ArrayList()
+                user.searchZoneResult = ArrayList()
+                gMap?.clear()
+                mapbar.visibility = View.VISIBLE
+                user.infoSearch = true
+                var msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA + user.vampireCall + COMMA + "9)"
+                wsj?.sendMessage(msg)
+                if (user.getBestLocation()?.longitude != null)
+                    gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
+                            user.getBestLocation()!!.longitude), 12f))
             } else {
                 hideBar()
-                fab.hide()
             }
         }
         searchAllButton.setOnClickListener {
-            if (searchbar.visibility == View.GONE) {
+            if (mapbar.visibility == View.GONE) {
                 hideBar()
-                // searchbar.visibility = View.VISIBLE
                 mapbar.visibility = View.VISIBLE
-                //TODO Change fab image
                 fab.show()
                 var msg = "SCANUSER(" + user.login + COMMA + user.password + COMMA + "9)"
                 wsj?.sendMessage(msg)
-                if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
+                if (user.getBestLocation()?.longitude != null)
                     gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
                             user.getBestLocation()!!.longitude), 12f))
             } else {
@@ -323,7 +295,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     if (newZoneLongitude.text.toString().equals("")) newZoneLongitude.setText("0")
                     if (newZoneAchievement.text.toString().length < 2) newZoneAchievement.setText(" ")
                     if (newZoneSystem.text.toString().equals("")) newZoneSystem.setText("0")
-                    if (newZoneObservable.text.toString().equals("")) newZoneObservable.setText("0")
+
                     if (newZonePriority.text.toString().equals("")) newZonePriority.setText("0")
                     val radius = metrToGradusToString(newZoneRadius.text.toString().toInt())
                     var msg = "ADDNEWZONE(" + user.login + COMMA + user.password + COMMA +
@@ -331,7 +303,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                             COMMA + radius + COMMA + newZoneTextForHuman.text.toString() + COMMA +
                             newZoneTextForLight.text.toString() + COMMA + newZoneTextForDark.text.toString() + COMMA +
                             newZonePriority.text.toString() + COMMA + newZoneAchievement.text.toString() + COMMA +
-                            newZoneSystem.text.toString() + COMMA + newZoneObservable.text.toString() + ")"
+                            newZoneSystem.text.toString() + ")"
                     wsj?.sendMessage(msg)
                     newZoneName.setText("")
                     newZoneLatitude.setText("")
@@ -345,6 +317,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 var msg = "DIE(" + user.login + COMMA + user.password + ")"
                 wsj?.sendMessage(msg)
                 System.exit(0)
+            } else if (vampireSendBar.visibility == View.VISIBLE) {
+                if (!vampireSendName.text.equals("")) {
+                    var msg = "VAMPIRESEND(" + user.login + COMMA + user.password + COMMA +
+                            vampireSendName.text + COMMA
+                    if (user.vampireSend.equals("")) {
+                        wsj?.sendMessage(msg+ "1" + ")")
+                    }
+                    else {
+                        wsj?.sendMessage(msg+ "0" + ")")
+                    }
+                }
             } else if (make1cursebar.visibility == View.VISIBLE) {
                 if (!curse1UserName.text.equals("")) {
                     var msg = "MAKECURSE(" + user.login + COMMA + user.password + COMMA +
@@ -357,6 +340,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     user.searchUserResult = ArrayList()
                     user.searchZoneResult = ArrayList()
                     gMap?.clear()
+                    user.infoSearch = true
                     val position = searchSpinner.selectedItemPosition + 1
                     var msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA +
                             searchUserName.text + COMMA + position + ")"
@@ -473,19 +457,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         listOfLayout.add(deletezonebar)
         listOfLayout.add(make1cursebar)
         listOfLayout.add(mapbar)
+        listOfLayout.add(mapInfoBar)
         listOfLayout.add(searchUserBar)
         listOfLayout.add(scanUserBar)
         listOfLayout.add(dieUserBar)
+        listOfLayout.add(vampireSendBar)
         listOfLayout.add(mailBar)
     }
 
     fun hideBar() {
-        for (lay in listOfLayout) {
-            lay.visibility = View.GONE
-        }
+        user.infoSearch = false
         gMap?.clear()
         user.searchUserResult = ArrayList()
         user.searchZoneResult = ArrayList()
+        for (lay in listOfLayout) {
+            lay.visibility = View.GONE
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

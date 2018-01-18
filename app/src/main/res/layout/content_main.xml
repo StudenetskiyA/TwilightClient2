@@ -44,6 +44,40 @@
                 android:singleLine="true" />
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/currentStatus"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:gravity="left"
+            android:maxLines="20"
+            android:textSize="@dimen/bigFontSize"
+            android:visibility="gone"/>
+    <LinearLayout
+        android:id="@+id/vampireCallBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+       >
+        <ImageButton
+            android:id="@+id/vampireCallButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="-2dp"
+            android:background="@color/colorMainBackground"
+            android:layout_gravity="right"
+            android:src="@drawable/vampirecall" />
+        <TextView
+            android:id="@+id/vampireCallStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_gravity="left"
+            android:textSize="@dimen/bigFontSize" />
+
+    </LinearLayout>
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -56,7 +90,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:gravity="left"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textSize="@dimen/gpsFontSize" />
 
             <TextView
                 android:id="@+id/netCoordinate"
@@ -64,7 +99,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:gravity="left"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textSize="@dimen/gpsFontSize" />
 
             <TextView
                 android:id="@+id/textFromServer"
@@ -135,9 +171,19 @@
                     android:gravity="left"
                     android:src="@drawable/cast"
                     android:visibility="gone" />
+                <ImageButton
+                    android:id="@+id/vampireSendButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="2dp"
+                    android:background="@color/colorMainBackground"
+                    android:gravity="left"
+                    android:src="@drawable/vampiresend"
+                    android:visibility="gone" />
             </LinearLayout>
-            //super bar
 
+            //super bar
             <LinearLayout
                 android:id="@+id/superuserbar"
                 android:layout_width="fill_parent"
@@ -200,7 +246,8 @@
 
             <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -222,11 +269,33 @@
                             android:singleLine="true"
                             android:text="@string/youDie" />
                     </LinearLayout>
+                    //vampire send call
+                    <LinearLayout
+                        android:id="@+id/vampireSendBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top|left"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+                        <TextView
+                            android:id="@+id/vampireSendCallStatus"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:textSize="@dimen/editable_font" />
+                        <EditText
+                            android:id="@+id/vampireSendName"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/new_search_name"
+                            android:singleLine="true"
+                            android:text=""
+                            android:textSize="@dimen/editable_font" />
+                    </LinearLayout>
                     //search user
-
                     <LinearLayout
                         android:id="@+id/searchUserBar"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top|left"
                         android:orientation="vertical"
@@ -242,7 +311,7 @@
 
                         <EditText
                             android:id="@+id/searchUserName"
-                            android:layout_width="fill_parent"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/new_search_name"
                             android:singleLine="true"
@@ -251,7 +320,7 @@
 
                         <TextView
                             android:id="@+id/searchUserLastConnect"
-                            android:layout_width="fill_parent"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:singleLine="true"
                             android:textSize="@dimen/editable_font" />
@@ -259,7 +328,7 @@
                     //scaning
                     <LinearLayout
                         android:id="@+id/scanUserBar"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top|left"
                         android:orientation="vertical"
@@ -278,7 +347,7 @@
 
                     <LinearLayout
                         android:id="@+id/make1cursebar"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top|left"
                         android:orientation="vertical"
@@ -303,7 +372,7 @@
 
                     <LinearLayout
                         android:id="@+id/cursebar"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top|left"
                         android:orientation="vertical"
@@ -339,7 +408,7 @@
 
                     <LinearLayout
                         android:id="@+id/searchbar"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top|left"
                         android:orientation="vertical"
@@ -359,7 +428,7 @@
 
                     <LinearLayout
                         android:id="@+id/adduserbar"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top|left"
                         android:orientation="vertical"
@@ -406,7 +475,7 @@
                     //delete zone
                     <LinearLayout
                         android:id="@+id/deletezonebar"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top|left"
                         android:orientation="vertical"
@@ -530,19 +599,10 @@
                             android:inputType="number"
                             android:singleLine="true"
                             android:textSize="@dimen/editable_font" />
-
-                        <EditText
-                            android:id="@+id/newZoneObservable"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/new_zone_observable"
-                            android:inputType="number"
-                            android:singleLine="true"
-                            android:textSize="@dimen/editable_font" />
                     </LinearLayout>
                     <LinearLayout
                         android:id="@+id/mailBar"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top|left"
                         android:orientation="vertical"
@@ -562,7 +622,7 @@
 
             //map bar
             <LinearLayout
-                android:id="@+id/mapbar"
+                android:id="@+id/mapInfoBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="top|left"
@@ -581,21 +641,20 @@
                     android:singleLine="true"
                     android:textSize="@dimen/editable_font" />
 
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/mapbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top|left"
+                android:orientation="vertical"
+                android:visibility="gone">
                 <fragment
                     android:id="@+id/searchmap"
                     android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"></fragment>
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/currentStatus"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:gravity="left"
-                android:maxLines="20"
-                android:textSize="32dp" />
         </LinearLayout>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

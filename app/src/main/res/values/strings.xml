@@ -24,15 +24,23 @@
     <string name="new_curse_curse_name">Название проклятия.</string>
     <string name="addUserSetName">Имя пользователя.</string>
     <string name="addUserPassword">Пароль.</string>
-    <string name="addUserPowerSide">Сторона силы(1-светлый,2-темный,3-человек)</string>
+    <string name="addUserPowerSide">Сторона силы(1-светлый,2-темный,0-человек)</string>
     <string name="addUserIsSuperuser">Мастерские полномочия(1-да,0-нет)</string>
     <string name="deleteEnterZoneName">Введите имя зоны для удаления.</string>
-    <string name="youDie">Вы действительно умерли?.</string>
+    <string name="youDie">Вы действительно умерли?</string>
     <string name="castSearch">Заклинание поиска.</string>
     <string name="make1curse">Наложить проклятие 1ого уровня.</string>
     <string name="castEnchant">Наложение чар.</string>
     <string name="new_zone_observable">Наблюдать за зоной?</string>
     <string name="searchUserCurse">Проклятия на игроке - \u0020</string>
+    <string name="vampireSendAlready">Вы зовете \u0020</string>
+    <string name="vampireSendNoYet">Пока вы никого не зовете</string>
+    <string name="newVampireCall">На вас наложили зов!</string>
+    <string name="vampireCallFrom">Вампирский зов от \u0020</string>
+    <string name="serverBaseCantAccess">Сервер поврежден - нет доступа к базам.</string>
+    <string name="addNewZoneCorrect">Зона добавлена корректно.</string>
+    <string name="updateNewZoneCorrect">Зона обновлена корректно.</string>
+    <string name="deleteNewZoneCorrect">Зона удалена корректно.</string>
 
     <string-array name="scanUserSpinner">
         <item>Сканирование уровень 1</item>

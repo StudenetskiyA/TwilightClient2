@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|right"
         android:layout_marginRight="20dp"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="180dp"
         android:background="@color/colorMainBackground"
         android:src="@drawable/ok"
         app:backgroundTint="@android:color/holo_red_light"
