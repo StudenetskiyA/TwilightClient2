@@ -17,7 +17,7 @@
     <string name="new_zone_achievement">Ачивка.</string>
     <string name="new_zone_radius">Радиус зоны в метрах.</string>
     <string name="new_search_name">Имя для поиска</string>
-    <string name="searchUserLastConnected">Информация обновлена -</string>
+    <string name="searchUserLastConnected">Информация обновлена - \u0020</string>
     <string name="serverNotResponse">Не удается соединиться с сервером.</string>
     <string name="new_zone_system">0 для обычных зон, 1 для типов проклятий и свободной зоны.</string>
     <string name="new_curse_user_name">Кого проклинаем?</string>
@@ -32,4 +32,16 @@
     <string name="make1curse">Наложить проклятие 1ого уровня.</string>
     <string name="castEnchant">Наложение чар.</string>
     <string name="new_zone_observable">Наблюдать за зоной?</string>
+    <string name="searchUserCurse">Проклятия на игроке - \u0020</string>
+
+    <string-array name="scanUserSpinner">
+        <item>Сканирование уровень 1</item>
+        <item>Сканирование уровень 2</item>
+        <item>Сканирование уровень 3</item>
+    </string-array>
+    <string-array name="searchUserSpinner">
+        <item>Заклинание \"Поиск уровень 1\"</item>
+        <item>Заклинание \"Поиск уровень 2\"</item>
+        <item>Заклинание \"Поиск уровень 3\"</item>
+    </string-array>
 </resources>

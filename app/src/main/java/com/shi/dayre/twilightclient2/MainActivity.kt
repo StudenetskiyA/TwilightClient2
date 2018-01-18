@@ -41,7 +41,7 @@ var wsj: WebSocket? = null
 val syncLock = java.lang.Object()
 val listOfLayout = ArrayList<LinearLayout>()
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerDragListener  {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerDragListener {
 
     override fun onMarkerDragStart(marker: Marker) {
         val position = marker.position
@@ -109,16 +109,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     fab.show()
                 }
 
-                if (user.superusered!=-1) {
+                if (user.superusered != -1) {
                     userbar.visibility = View.VISIBLE
-                    if (user.superusered>0) {
+                    if (user.superusered > 0) {
                         searchUserButton.visibility = View.VISIBLE
                         addCurseButton.visibility = View.VISIBLE
+                        scanUserButton.visibility = View.VISIBLE
                     }
-                    if (user.superusered>8) {
+                    if (user.superusered > 8) {
                         superuserbar.visibility = View.VISIBLE
                     }
-                    user.superusered=0
+                    user.superusered = 0
                 }
                 //MapBar refresh if needs
                 if (!user.searchUserResult.isEmpty()) {
@@ -130,7 +131,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                         val draw = if (find.powerSide == Light) R.drawable.light
                         else if (find.powerSide == Dark) R.drawable.dark
                         else R.drawable.human
-
+                        if (find.curse.equals("0")) searchUserCurse.text = getString(R.string.searchUserCurse) + "нет"
+                        else searchUserCurse.text = getString(R.string.searchUserCurse) + find.curse
                         searchLastconnect.text = getString(R.string.searchUserLastConnected) + find.lastConnected
                         addMarkerToMap(gMap, find.name, find.latitude, find.longitude, "", resources, draw)
                     }
@@ -174,30 +176,29 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     fun addListener() {
         //TODO Make list of element and show/hide for list
         newZonePinCoordinateButton.setOnClickListener {
-            if (mapbar.visibility==View.GONE) {
+            if (mapbar.visibility == View.GONE) {
                 gMap?.clear()
                 markerToMap = addDragableMarkerToMap(gMap, "", user.getBestLocation()?.latitude,
                         user.getBestLocation()?.longitude, "", resources, R.drawable.point)
-                newZoneRadius.visibility=View.GONE
-                newZoneTextForDark.visibility=View.GONE
-                newZoneTextForLight.visibility=View.GONE
-                newZoneTextForHuman.visibility=View.GONE
-                newZonePriority.visibility=View.GONE
-                newZoneAchievement.visibility=View.GONE
-                newZoneSystem.visibility=View.GONE
-                newZoneObservable.visibility=View.GONE
-                mapbar.visibility=View.VISIBLE
-            }
-            else {
-                mapbar.visibility=View.GONE
-                newZoneRadius.visibility=View.VISIBLE
-                newZoneTextForDark.visibility=View.VISIBLE
-                newZoneTextForLight.visibility=View.VISIBLE
-                newZoneTextForHuman.visibility=View.VISIBLE
-                newZonePriority.visibility=View.VISIBLE
-                newZoneAchievement.visibility=View.VISIBLE
-                newZoneSystem.visibility=View.VISIBLE
-                newZoneObservable.visibility=View.VISIBLE
+                newZoneRadius.visibility = View.GONE
+                newZoneTextForDark.visibility = View.GONE
+                newZoneTextForLight.visibility = View.GONE
+                newZoneTextForHuman.visibility = View.GONE
+                newZonePriority.visibility = View.GONE
+                newZoneAchievement.visibility = View.GONE
+                newZoneSystem.visibility = View.GONE
+                newZoneObservable.visibility = View.GONE
+                mapbar.visibility = View.VISIBLE
+            } else {
+                mapbar.visibility = View.GONE
+                newZoneRadius.visibility = View.VISIBLE
+                newZoneTextForDark.visibility = View.VISIBLE
+                newZoneTextForLight.visibility = View.VISIBLE
+                newZoneTextForHuman.visibility = View.VISIBLE
+                newZonePriority.visibility = View.VISIBLE
+                newZoneAchievement.visibility = View.VISIBLE
+                newZoneSystem.visibility = View.VISIBLE
+                newZoneObservable.visibility = View.VISIBLE
             }
         }
         make1curseButton.setOnClickListener {
@@ -242,6 +243,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 hideBar()
                 fab.hide()
             }
+        }
+        scanUserButton.setOnClickListener {
+            addOnClickBarListener(scanUserBar)
         }
 
         addNewZoneButton.setOnClickListener {
@@ -291,11 +295,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         searchAllButton.setOnClickListener {
             if (searchbar.visibility == View.GONE) {
                 hideBar()
-                searchbar.visibility = View.VISIBLE
+                // searchbar.visibility = View.VISIBLE
                 mapbar.visibility = View.VISIBLE
                 //TODO Change fab image
                 fab.show()
-                var msg = "SEARCHALL(" + user.login + COMMA + user.password + ")"
+                var msg = "SCANUSER(" + user.login + COMMA + user.password + COMMA + "9)"
                 wsj?.sendMessage(msg)
                 if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
                     gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
@@ -353,14 +357,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     user.searchUserResult = ArrayList()
                     user.searchZoneResult = ArrayList()
                     gMap?.clear()
+                    val position = searchSpinner.selectedItemPosition + 1
                     var msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA +
-                            searchUserName.text + ")"
+                            searchUserName.text + COMMA + position + ")"
                     wsj?.sendMessage(msg)
                     if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
                         gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
                                 user.getBestLocation()!!.longitude), 12f))
                     searchUserName.setText("")
                 }
+            } else if (scanUserBar.visibility == View.VISIBLE) {
+                user.searchUserResult = ArrayList()
+                user.searchZoneResult = ArrayList()
+                gMap?.clear()
+                val position = scanSpinner.selectedItemPosition + 1
+                var msg = "SCANUSER(" + user.login + COMMA + user.password + COMMA + position + ")"
+                wsj?.sendMessage(msg)
+                if (user.getBestLocation()?.longitude != null && user.getBestLocation()?.latitude != null)
+                    gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
+                            user.getBestLocation()!!.longitude), 12f))
             } else if (cursebar.visibility == View.VISIBLE) {
                 if (!curseUserName.text.equals("")) {
                     var msg = "MAKECURSE(" + user.login + COMMA + user.password + COMMA +
@@ -386,7 +401,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     user.searchZoneResult = ArrayList()
                     gMap?.clear()
                     var msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA +
-                            searchName.text + ")"
+                            searchName.text + COMMA + "9)"
                     wsj?.sendMessage(msg)
                     searchName.setText("")
                 }
@@ -422,6 +437,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    fun addOnClickBarListener(la: LinearLayout) {
+        if (la.visibility == View.GONE) {
+            hideBar()
+            la.visibility = View.VISIBLE
+            fab.show()
+        } else {
+            hideBar()
+            fab.hide()
+        }
+    }
+
     fun loadSettings() {
         mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
         editor = mSettings.edit()
@@ -448,6 +474,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         listOfLayout.add(make1cursebar)
         listOfLayout.add(mapbar)
         listOfLayout.add(searchUserBar)
+        listOfLayout.add(scanUserBar)
         listOfLayout.add(dieUserBar)
         listOfLayout.add(mailBar)
     }

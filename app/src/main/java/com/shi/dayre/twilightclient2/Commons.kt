@@ -25,8 +25,6 @@ import java.util.regex.Pattern
  * Created by StudenetskiyA on 06.01.2018.
  */
 
-val METERINGRADUS = 10000
-
 fun addCircleToMap(map: GoogleMap?, lat: Double, lon: Double, radius: Double, color: Int) {
     map?.addCircle(CircleOptions()
             .center(LatLng(lat, lon))

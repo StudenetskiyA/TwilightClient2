@@ -36,7 +36,7 @@ class CommandFromServerHandler(val context: Context) : Thread() {
                 user.searchUserResult.add(SearchUserResult(
                         fromServer.getTextBetween().get(0), fromServer.getTextBetween().get(1).toDouble(),
                         fromServer.getTextBetween().get(2).toDouble(), fromServer.getTextBetween().get(3).toPowerside(),
-                        fromServer.getTextBetween().get(4)
+                        fromServer.getTextBetween().get(4), fromServer.getTextBetween().get(5)
                 ))
             } else if (fromServer.startsWith("SEARCHZONE(")) {
                 user.searchZoneResult.add(SearchZoneResult(

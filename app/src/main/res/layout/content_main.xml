@@ -115,7 +115,16 @@
                     android:gravity="left"
                     android:src="@drawable/searchuser"
                     android:visibility="gone" />
-
+                <ImageButton
+                    android:id="@+id/scanUserButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="2dp"
+                    android:background="@color/colorMainBackground"
+                    android:gravity="left"
+                    android:src="@drawable/scanuser"
+                    android:visibility="gone" />
                 <ImageButton
                     android:id="@+id/addCurseButton"
                     android:layout_width="wrap_content"
@@ -185,7 +194,8 @@
                     android:layout_marginTop="2dp"
                     android:background="@color/colorMainBackground"
                     android:gravity="left"
-                    android:src="@drawable/mail" />
+                    android:src="@drawable/mail"
+                    android:visibility="gone"/>
             </LinearLayout>
 
             <ScrollView
@@ -222,11 +232,13 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                        <TextView
-                            android:layout_width="fill_parent"
+                        <Spinner
+                            android:id="@+id/searchSpinner"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:singleLine="true"
-                            android:text="@string/castSearch" />
+                            android:drawSelectorOnTop="true"
+                            android:entries="@array/searchUserSpinner">
+                        </Spinner>
 
                         <EditText
                             android:id="@+id/searchUserName"
@@ -244,6 +256,24 @@
                             android:singleLine="true"
                             android:textSize="@dimen/editable_font" />
                     </LinearLayout>
+                    //scaning
+                    <LinearLayout
+                        android:id="@+id/scanUserBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="top|left"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <Spinner
+                            android:id="@+id/scanSpinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawSelectorOnTop="true"
+                            android:entries="@array/scanUserSpinner">
+                        </Spinner>
+                    </LinearLayout>
+
                     //make1curse
 
                     <LinearLayout
@@ -538,7 +568,12 @@
                 android:gravity="top|left"
                 android:orientation="vertical"
                 android:visibility="gone">
-
+                <TextView
+                    android:id="@+id/searchUserCurse"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textSize="@dimen/editable_font" />
                 <TextView
                     android:id="@+id/searchLastconnect"
                     android:layout_width="fill_parent"
