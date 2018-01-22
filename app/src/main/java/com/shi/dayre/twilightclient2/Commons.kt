@@ -25,6 +25,16 @@ import java.util.regex.Pattern
  * Created by StudenetskiyA on 06.01.2018.
  */
 
+fun messageFromServerCode(context:Context,serverCode: String): String {
+   return when (serverCode) {
+        "#deletezonecorrect" ->  context.getString(R.string.deleteNewZoneCorrect)
+        "#updatezonecorrect" ->  context.getString(R.string.updateNewZoneCorrect)
+        "#newzonecorrect" ->  context.getString(R.string.addNewZoneCorrect)
+        "#damage" ->  context.getString(R.string.serverBaseCantAccess)
+        else ->  serverCode
+    }
+}
+
 fun addCircleToMap(map: GoogleMap?, lat: Double, lon: Double, radius: Double, color: Int) {
     map?.addCircle(CircleOptions()
             .center(LatLng(lat, lon))
@@ -46,8 +56,8 @@ fun addMarkerToMap(map: GoogleMap?, name: String, lat: Double, lon: Double, snip
 }
 
 fun addDragableMarkerToMap(map: GoogleMap?, name: String, _lat: Double?, _lon: Double?, snip: String, resource: Resources, icon: Int): MarkerOptions? {
-    var lat =  if (_lat == null) 55.15 else _lat
-    var lon =  if (_lon == null) 61.37 else _lon
+    var lat = if (_lat == null) 55.15 else _lat
+    var lon = if (_lon == null) 61.37 else _lon
 
     if (_lon == null) lon = 61.37
     if (map != null) {

@@ -1,25 +1,22 @@
 package com.shi.dayre.twilightclient2
 
-import android.app.Activity
 import android.util.Log
-import java.io.UnsupportedEncodingException
 import android.content.Context
-import android.location.Location
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
-import android.widget.Toast
+import org.json.JSONObject
 import xdroid.toaster.Toaster
-
 
 //Created by StudenetskiyA on 27.01.2017.
 
 class CommandFromServerHandler(val context: Context) : Thread() {
+    val JSON_COMMAND_NAME = "command"
+
     var fromServer: String = ""
     override fun run() {
         if (fromServer != null) {
             Log.i("WebClient.Proceed", "Proceed command " + fromServer)
-
+//            val jsonObject = JSONObject(fromServer)
+//            Log.i("WebClient.Proceed", "Proceed JSON command " + jsonObject.getString(JSON_COMMAND_NAME))
+//            Log.i("WebClient.Proceed", "Proceed JSON name " + jsonObject.getString("name"))
             if (fromServer.equals("Password correct.")) user.logined = true
 
             if (fromServer.startsWith("ZONE(")) {
@@ -57,6 +54,7 @@ class CommandFromServerHandler(val context: Context) : Thread() {
                 }
             } else if (fromServer.startsWith("SUPERUSER(")) {
                 val n = fromServer.getTextBetween().get(0).toInt()
+                user.interfaceStyle=1
                 Log.i("WebClient", "SuperUser granted = "+n)
                 user.superusered = n
             } else if (fromServer.startsWith("MESSAGE(")) {

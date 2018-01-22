@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Сумеречный компаньон</string>
     <string name="action_settings">Settings</string>
-    <string name="gps_disable">GPS выключен.</string>
+    <string name="gps_disable">GPS недоступен.</string>
     <string name="net_disable">Координаты сети недоступны.</string>
     <string name="new_login">Логин</string>
     <string name="new_password">Пароль</string>
@@ -25,7 +25,7 @@
     <string name="addUserSetName">Имя пользователя.</string>
     <string name="addUserPassword">Пароль.</string>
     <string name="addUserPowerSide">Сторона силы(1-светлый,2-темный,0-человек)</string>
-    <string name="addUserIsSuperuser">Мастерские полномочия(1-да,0-нет)</string>
+    <string name="addUserIsSuperuser">Полномочия(9-мастерские,0-человек)</string>
     <string name="deleteEnterZoneName">Введите имя зоны для удаления.</string>
     <string name="youDie">Вы действительно умерли?</string>
     <string name="castSearch">Заклинание поиска.</string>
@@ -41,6 +41,8 @@
     <string name="addNewZoneCorrect">Зона добавлена корректно.</string>
     <string name="updateNewZoneCorrect">Зона обновлена корректно.</string>
     <string name="deleteNewZoneCorrect">Зона удалена корректно.</string>
+    <string name="exitYesNo">Вы уверены, что хотите выйти? Ваши координаты перестанут отслеживаться, для других игроков вы будете вне игры.</string>
+    <string name="sensorOpen">Для нормальной работы приложения нужно включить датчики геопозиционирования. Если у вас небольшая батарея у устройства - выберете \"Режим - Экономия заряда\". Включить датчики?</string>
 
     <string-array name="scanUserSpinner">
         <item>Сканирование уровень 1</item>

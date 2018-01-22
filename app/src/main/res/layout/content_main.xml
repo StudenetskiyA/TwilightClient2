@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorMainBackground"
+    android:id="@+id/mainWindow"
+    style="@style/Human"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.shi.dayre.twilightclient2.MainActivity"
     tools:showIn="@layout/activity_main">
@@ -66,7 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:layout_marginTop="-2dp"
-            android:background="@color/colorMainBackground"
+            android:background="@null"
             android:layout_gravity="right"
             android:src="@drawable/vampirecall" />
         <TextView
@@ -127,7 +128,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/make1curse" />
 
@@ -137,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/die" />
 
@@ -147,7 +148,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/searchuser"
                     android:visibility="gone" />
@@ -157,7 +158,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/scanuser"
                     android:visibility="gone" />
@@ -167,7 +168,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/cast"
                     android:visibility="gone" />
@@ -177,7 +178,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/vampiresend"
                     android:visibility="gone" />
@@ -199,7 +200,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/map" />
 
@@ -209,7 +210,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/addzone" />
 
@@ -219,7 +220,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/removezone" />
 
@@ -229,7 +230,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/adduser" />
                 <ImageButton
@@ -238,7 +239,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="2dp"
-                    android:background="@color/colorMainBackground"
+                    android:background="@null"
                     android:gravity="left"
                     android:src="@drawable/mail"
                     android:visibility="gone"/>
@@ -534,7 +535,7 @@
                                 android:layout_width="wrap_content"
                                 android:id="@+id/newZonePinCoordinateButton"
                                 android:layout_height="wrap_content"
-                                android:background="@color/colorMainBackground"
+                                android:background="@null"
                                 android:layout_marginTop="-5dp"
                                 android:src="@drawable/point" />
 

@@ -23,6 +23,14 @@ import xdroid.toaster.Toaster
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 import com.google.android.gms.maps.model.LatLng
+import android.content.DialogInterface
+import android.content.Intent
+import android.provider.Settings
+import android.support.constraint.ConstraintLayout
+import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
+import com.shi.dayre.twilightclient2.R.color.colorMainBackgroundLight
+
 
 val CONNECT_EVERY_SECOND: Long = 30
 val COMMA = "|"
@@ -38,6 +46,15 @@ val syncLock = java.lang.Object()
 val listOfLayout = ArrayList<LinearLayout>()
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerDragListener {
+    var isAddFrameOpen:Boolean = false;
+    lateinit var location: com.shi.dayre.twilightclient2.LocationProvider
+    lateinit var mSettings: SharedPreferences
+    lateinit var editor: SharedPreferences.Editor
+    var markerToMap: MarkerOptions? = null
+    val commandHandler = CommandFromServerHandler(this)
+    var mTimer = Timer()
+    var mMyTimerTask = onTimerTick(this)
+    var gMap: GoogleMap? = null
 
     override fun onMarkerDragStart(marker: Marker) {
         val position = marker.position
@@ -62,15 +79,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         newZoneLongitude.setText(position.longitude.toString())
     }
 
-    lateinit var location: com.shi.dayre.twilightclient2.LocationProvider
-    lateinit var mSettings: SharedPreferences
-    lateinit var editor: SharedPreferences.Editor
-    var markerToMap: MarkerOptions? = null
-    val commandHandler = CommandFromServerHandler(this)
-    var mTimer = Timer()
-    var mMyTimerTask = onTimerTick(this)
-    var gMap: GoogleMap? = null
-
     override fun onMapReady(map: GoogleMap) {
         Log.i("WebClient", "onMapReady")
         gMap = map
@@ -85,106 +93,110 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         gMap?.setOnMarkerDragListener(this);
     }
 
-    fun refresh() {
-        Thread(Runnable {
-            // try to touch View of UI thread
-            this.runOnUiThread(java.lang.Runnable {
-                textFromServer.text = user.userText
-                if (!user.zoneText.equals("")) {
-                    currentStatus.visibility=View.VISIBLE
-                    currentStatus.text = user.zoneText
+    fun refresh() = Thread(Runnable {
+        // try to touch View of UI thread
+        this.runOnUiThread(java.lang.Runnable {
+            textFromServer.text = user.userText
+            if (!user.zoneText.equals("")) {
+                currentStatus.visibility=View.VISIBLE
+                currentStatus.text = user.zoneText
+            }
+
+            if (user.logined) {
+//                if (user.interfaceStyle!=0) {
+//                    //mainWindow = ConstraintLayout(this, null, R.style.Light);
+//                   // make1curseButton.setS
+//                    mainWindow.setBackgroundColor(ContextCompat.getColor(this, colorMainBackgroundLight))
+//                }
+                connectBar.visibility = View.GONE
+                if (user.justLogined) {
+                    fab.hide()
+                    if (mTimer != null) mTimer.cancel()
+                    mTimer = Timer()
+                    mMyTimerTask = onTimerTick(this)
+                    mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
+                    user.justLogined = false
                 }
-                if (user.logined) {
-                    connectBar.visibility = View.GONE
-                    if (user.justLogined) {
-                        fab.hide()
-                        if (mTimer != null) mTimer.cancel()
-                        mTimer = Timer()
-                        mMyTimerTask = onTimerTick(this)
-                        mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
-                        user.justLogined = false
-                    }
-                } else {
-                    fab.show()
+            } else {
+                fab.show()
+            }
+
+            if (user.superusered != -1) {
+                userbar.visibility = View.VISIBLE
+                if (user.superusered > 0) {
+                    searchUserButton.visibility = View.VISIBLE
+                    addCurseButton.visibility = View.VISIBLE
+                    scanUserButton.visibility = View.VISIBLE
+                    vampireSendButton.visibility= View.VISIBLE
+                }
+                if (user.superusered > 8) {
+                    superuserbar.visibility = View.VISIBLE
+                }
+                user.superusered = 0
+            }
+            //MapBar refresh if needs
+            if (!user.searchUserResult.isEmpty()) {
+
+                if (user.infoSearch) {
+                    mapInfoBar.visibility= View.VISIBLE
                 }
 
-                if (user.superusered != -1) {
-                    userbar.visibility = View.VISIBLE
-                    if (user.superusered > 0) {
-                        searchUserButton.visibility = View.VISIBLE
-                        addCurseButton.visibility = View.VISIBLE
-                        scanUserButton.visibility = View.VISIBLE
-                        vampireSendButton.visibility= View.VISIBLE
-                    }
-                    if (user.superusered > 8) {
-                        superuserbar.visibility = View.VISIBLE
-                    }
-                    user.superusered = 0
+                mapbar.visibility = View.VISIBLE
+                val founded = user.searchUserResult.iterator()
+                var find: SearchUserResult
+                while (founded.hasNext()) {
+                    find = founded.next()
+                    val draw = if (find.powerSide == Light) R.drawable.light
+                    else if (find.powerSide == Dark) R.drawable.dark
+                    else R.drawable.human
+                    if (find.curse.equals("0")) searchUserCurse.text = getString(R.string.searchUserCurse) + "нет"
+                    else searchUserCurse.text = getString(R.string.searchUserCurse) + find.curse
+                    searchLastconnect.text = getString(R.string.searchUserLastConnected) + find.lastConnected
+                    addMarkerToMap(gMap, find.name, find.latitude, find.longitude, "", resources, draw)
                 }
-                //MapBar refresh if needs
-                if (!user.searchUserResult.isEmpty()) {
+                //And zones
+                val foundedZ = user.searchZoneResult.iterator()
+                var findZ: SearchZoneResult
+                while (foundedZ.hasNext()) {
+                    findZ = foundedZ.next()
+                    val draw = if (findZ.priority == 0) R.drawable.zone1
+                    else if (findZ.priority == 1) R.drawable.zone2
+                    else R.drawable.zone3
+                    addMarkerToMap(gMap, findZ.name, findZ.latitude, findZ.longitude, findZ.textForHuman, resources, draw)
+                    //TODO Draw circle
+                    val drawColor = if (findZ.priority == 0) Color.GREEN
+                    else if (findZ.priority == 1) Color.YELLOW
+                    else Color.RED
 
-                    if (user.infoSearch) {
-                        mapInfoBar.visibility= View.VISIBLE
-                    }
-
-                    mapbar.visibility = View.VISIBLE
-                    val founded = user.searchUserResult.iterator()
-                    var find: SearchUserResult
-                    while (founded.hasNext()) {
-                        find = founded.next()
-                        val draw = if (find.powerSide == Light) R.drawable.light
-                        else if (find.powerSide == Dark) R.drawable.dark
-                        else R.drawable.human
-                        if (find.curse.equals("0")) searchUserCurse.text = getString(R.string.searchUserCurse) + "нет"
-                        else searchUserCurse.text = getString(R.string.searchUserCurse) + find.curse
-                        searchLastconnect.text = getString(R.string.searchUserLastConnected) + find.lastConnected
-                        addMarkerToMap(gMap, find.name, find.latitude, find.longitude, "", resources, draw)
-                    }
-                    //And zones
-                    val foundedZ = user.searchZoneResult.iterator()
-                    var findZ: SearchZoneResult
-                    while (foundedZ.hasNext()) {
-                        findZ = foundedZ.next()
-                        val draw = if (findZ.priority == 0) R.drawable.zone1
-                        else if (findZ.priority == 1) R.drawable.zone2
-                        else R.drawable.zone3
-                        addMarkerToMap(gMap, findZ.name, findZ.latitude, findZ.longitude, findZ.textForHuman, resources, draw)
-                        //TODO Draw circle
-                        val drawColor = if (findZ.priority == 0) Color.GREEN
-                        else if (findZ.priority == 1) Color.YELLOW
-                        else Color.RED
-
-                        Log.i("Socket.Radius", findZ.name + "=" + findZ.radius.toDouble().toString())
-                        addCircleToMap(gMap, findZ.latitude, findZ.longitude, findZ.radius.toDouble() * 111900, drawColor)
-                    }
+                    Log.i("Socket.Radius", findZ.name + "=" + findZ.radius.toDouble().toString())
+                    addCircleToMap(gMap, findZ.latitude, findZ.longitude, findZ.radius.toDouble() * 111900, drawColor)
                 }
+            }
 
-                if (!user.vampireSend.equals("0")) vampireSendCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireSendAlready) + user.vampireSend
-                else vampireSendCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireSendNoYet)
+            if (!user.vampireSend.equals("0")) vampireSendCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireSendAlready) + user.vampireSend
+            else vampireSendCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireSendNoYet)
 
-                if (!user.vampireCall.equals("0")) {
-                    vampireCallBar.visibility=View.VISIBLE
-                    vampireCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireCallFrom) + user.vampireCall
-                }
+            if (!user.vampireCall.equals("0")) {
+                vampireCallBar.visibility=View.VISIBLE
+                vampireCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireCallFrom) + user.vampireCall
+            }
 
-                if (user.location != null)
-                    gpsCoordinate.setText(user.location?.format())
-                else {
-                    gpsCoordinate.text = this.resources.getText(R.string.gps_disable)
-                }
-                if (user.locationNet != null)
-                    netCoordinate.setText(user.locationNet?.format())
-                else {
-                    netCoordinate.text = this.resources.getText(R.string.net_disable)
-                }
-                synchronized(syncLock) {
-                    syncLock.notify()
-                }
-                Log.i("TLC.view", "View updated ok")
-            })
-        }).start()
-    }
+            if (user.location != null)
+                gpsCoordinate.setText(user.location?.format())
+            else {
+                gpsCoordinate.text = this.resources.getText(R.string.gps_disable)
+            }
+            if (user.locationNet != null)
+                netCoordinate.setText(user.locationNet?.format())
+            else {
+                netCoordinate.text = this.resources.getText(R.string.net_disable)
+            }
+            synchronized(syncLock) {
+                syncLock.notify()
+            }
+            Log.i("TLC.view", "View updated ok")
+        })
+    }).start()
 
     fun addListener() {
         newZonePinCoordinateButton.setOnClickListener {
@@ -192,6 +204,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 gMap?.clear()
                 markerToMap = addDragableMarkerToMap(gMap, "", user.getBestLocation()?.latitude,
                         user.getBestLocation()?.longitude, "", resources, R.drawable.point)
+                if (user.getBestLocation()?.longitude != null)
+                    gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocation()!!.latitude,
+                            user.getBestLocation()!!.longitude), 12f))
                 newZoneRadius.visibility = View.GONE
                 newZoneTextForDark.visibility = View.GONE
                 newZoneTextForLight.visibility = View.GONE
@@ -214,16 +229,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         make1curseButton.setOnClickListener {
             addOnClickBarListener(make1cursebar)
         }
-//        mailButton.setOnClickListener {
-//            if (mailBar.visibility == View.GONE) {
-//                hideBar()
-//                mailBar.visibility = View.VISIBLE
-//                var msg = "GETMAIL(" + user.login + COMMA + user.password + ")"
-//                wsj?.sendMessage(msg)
-//            } else {
-//                hideBar()
-//            }
-//        }
         dieButton.setOnClickListener {
             addOnClickBarListener(dieUserBar)
         }
@@ -256,6 +261,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 user.searchZoneResult = ArrayList()
                 gMap?.clear()
                 mapbar.visibility = View.VISIBLE
+                isAddFrameOpen=true
                 user.infoSearch = true
                 var msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA + user.vampireCall + COMMA + "9)"
                 wsj?.sendMessage(msg)
@@ -270,7 +276,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             if (mapbar.visibility == View.GONE) {
                 hideBar()
                 mapbar.visibility = View.VISIBLE
-                fab.show()
+                isAddFrameOpen=true
                 var msg = "SCANUSER(" + user.login + COMMA + user.password + COMMA + "9)"
                 wsj?.sendMessage(msg)
                 if (user.getBestLocation()?.longitude != null)
@@ -425,6 +431,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         if (la.visibility == View.GONE) {
             hideBar()
             la.visibility = View.VISIBLE
+            isAddFrameOpen=true
             fab.show()
         } else {
             hideBar()
@@ -466,6 +473,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun hideBar() {
+        fab.hide()
+        isAddFrameOpen=false
         user.infoSearch = false
         gMap?.clear()
         user.searchUserResult = ArrayList()
@@ -491,6 +500,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         refresh()
     }
 
+    override fun onBackPressed(){
+        if (isAddFrameOpen) {
+            hideBar()
+        }
+        else {
+            val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
+                when (which) {
+                    DialogInterface.BUTTON_POSITIVE -> {
+                        System.exit(0)
+                    }
+                    DialogInterface.BUTTON_NEGATIVE -> {
+                    }
+                }
+            }
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage(getString(R.string.exitYesNo)).setPositiveButton("Выход", dialogClickListener)
+                    .setNegativeButton("Отмена", dialogClickListener).show()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -499,7 +528,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     override fun onResume() {
         super.onResume()
-        refresh()
+        refresh() 
+        if (!location.isAnySensorEnable()) {
+            val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
+                when (which) {
+                    DialogInterface.BUTTON_POSITIVE -> {
+                        startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                    }
+                    DialogInterface.BUTTON_NEGATIVE -> {
+                    }
+                }
+            }
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage(getString(R.string.sensorOpen)).setPositiveButton("Да", dialogClickListener)
+                    .setNegativeButton("Отмена", dialogClickListener).show()
+        }
         location.start()
     }
 

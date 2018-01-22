@@ -60,6 +60,12 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
         return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
+    fun isAnySensorEnable():Boolean {
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+        return true
+        else return false
+    }
+
     val locationListener = object : LocationListener {
 
         override fun onLocationChanged(location: Location) {

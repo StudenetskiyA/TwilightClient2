@@ -24,7 +24,8 @@ data class User(
         var searchZoneResult:ArrayList<SearchZoneResult> = ArrayList(),
         var vampireSend:String ="0",
         var vampireCall:String= "0",
-        var infoSearch:Boolean = false
+        var infoSearch:Boolean = false,
+        var interfaceStyle:Int = 0
 ) {
     fun getBestLocation(): Location? {
         if (location != null) return location else return locationNet

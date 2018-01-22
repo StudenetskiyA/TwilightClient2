@@ -8,6 +8,16 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="Human">
+        <item name="android:background">#959595</item>
+    </style>
+    <style name="Light">
+        <item name="android:background">#bcbc00</item>
+    </style>
+    <style name="Dark">
+        <item name="android:background">#3b3b3b</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

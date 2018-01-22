@@ -28,7 +28,7 @@
         android:layout_gravity="top|right"
         android:layout_marginRight="20dp"
         android:layout_marginTop="180dp"
-        android:background="@color/colorMainBackground"
+        style="@style/Light"
         android:src="@drawable/ok"
         app:backgroundTint="@android:color/holo_red_light"
         app:srcCompat="@drawable/ok" />
