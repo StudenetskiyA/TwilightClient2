@@ -13,7 +13,6 @@ import com.google.android.gms.maps.GoogleMap
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import java.util.*
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,10 +25,7 @@ import com.google.android.gms.maps.model.LatLng
 import android.content.DialogInterface
 import android.content.Intent
 import android.provider.Settings
-import android.support.constraint.ConstraintLayout
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
-import com.shi.dayre.twilightclient2.R.color.colorMainBackgroundLight
 
 
 val CONNECT_EVERY_SECOND: Long = 30
@@ -38,6 +34,8 @@ val APP_PREFERENCES = "mysettings"
 val APP_PREFERENCES_USERNAME = "username"
 val APP_PREFERENCES_PASSWORD = "password"
 val APP_PREFERENCES_SERVER = "server"
+val APP_PREFERENCES_SUPERUSER = "superuser"
+
 val DEFAULT_SERVER = "ws://test1.uralgufk.ru:8080/BHServer/serverendpoint";
 var user = User()
 
@@ -52,8 +50,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     lateinit var editor: SharedPreferences.Editor
     var markerToMap: MarkerOptions? = null
     val commandHandler = CommandFromServerHandler(this)
-    var mTimer = Timer()
-    var mMyTimerTask = onTimerTick(this)
+   // var mTimer = Timer()
+   // var mMyTimerTask = onTimerTick(this)
     var gMap: GoogleMap? = null
 
     override fun onMarkerDragStart(marker: Marker) {
@@ -111,10 +109,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 connectBar.visibility = View.GONE
                 if (user.justLogined) {
                     fab.hide()
-                    if (mTimer != null) mTimer.cancel()
-                    mTimer = Timer()
-                    mMyTimerTask = onTimerTick(this)
-                    mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
+                    //
+                    Log.i("TLC.service", "try to start")
+                    val serviceIntent = Intent(this, ForegroundLocationService::class.java)
+                    startService( serviceIntent)
+                    //
+//                    if (mTimer != null) mTimer.cancel()
+//                    mTimer = Timer()
+//                    mMyTimerTask = onTimerTick(this)
+//                    mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
                     user.justLogined = false
                 }
             } else {
@@ -528,7 +531,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     override fun onResume() {
         super.onResume()
-        refresh() 
+        refresh()
+        //Turn on sensor
         if (!location.isAnySensorEnable()) {
             val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
                 when (which) {
@@ -544,24 +548,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     .setNegativeButton("Отмена", dialogClickListener).show()
         }
         location.start()
+        hideSoftKeyboard(this)
     }
 
-    fun sendLocationToServer() {
-        val lat: Double? = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude else 0.0
-        val lon: Double? = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude else 0.0
+//    fun sendLocationToServer() {
+//        val lat: Double? = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude else 0.0
+//        val lon: Double? = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude else 0.0
+//
+//        //Remove this check after app connect only after loging
+//        if (user.login != null && !user.login.equals("null") && user.password != null && !user.password.equals("null")) {
+//            var msg = "USER(" + user.login + COMMA + user.password + COMMA + lat + COMMA + lon + ")"
+//            wsj?.sendMessage(msg)
+//        }
+//    }
 
-        //Remove this check after app connect only after loging
-        if (user.login != null && !user.login.equals("null") && user.password != null && !user.password.equals("null")) {
-            var msg = "USER(" + user.login + COMMA + user.password + COMMA + lat + COMMA + lon + ")"
-            wsj?.sendMessage(msg)
-        }
-    }
-
-    class onTimerTick(val context: MainActivity) : TimerTask() {
-        override fun run() {
-            context.sendLocationToServer()
-        }
-    }
+//    class onTimerTick(val context: MainActivity) : TimerTask() {
+//        override fun run() {
+//            context.sendLocationToServer()
+//        }
+//    }
 }
 
 

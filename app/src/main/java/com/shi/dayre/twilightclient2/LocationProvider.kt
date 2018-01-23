@@ -1,5 +1,6 @@
 package com.shi.dayre.twilightclient2
 
+import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -9,6 +10,13 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import xdroid.toaster.Toaster
+import android.content.Context.LOCATION_SERVICE
+import android.support.v4.app.ActivityCompat
+
+
+
+
 
 /**
  * Created by StudenetskiyA on 06.01.2018.
@@ -28,7 +36,10 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
         if (Build.VERSION.SDK_INT >= 23 &&
                 ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+            Toaster.toast("Включите разрешения для доступа к геоданным.")
+            ActivityCompat.requestPermissions(mView,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1)
+            //I know what I must check, what user say about permission. But without it application do nothing.
         }
         //For CONNECT_EVERY_SECOND second, minimum 5 meter
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
@@ -45,10 +56,11 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
 
         Log.i("TLC.location","Location updated")
         if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
-            user.location = location;
+            user.location = location
         } else if (location.getProvider().equals(
                 LocationManager.NETWORK_PROVIDER)) {
-            user.locationNet = location;
+            user.locationNet = location
+          //  Toaster.toast("Location tick")
         }
         mView.refresh()
     }
@@ -79,24 +91,46 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
 
         override fun onProviderEnabled(provider: String) {
             Log.i("TLC.location","onProviderEnable.")
-
+           // Toaster.toast("Location tick")
             Log.i("TLC.location","Net provider is "+checkNetEnabled()+".")
             Log.i("TLC.location","GPS provider is "+checkGPSEnabled()+".")
             if (Build.VERSION.SDK_INT >= 23 &&
                     ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
+                Toaster.toast("Включите разрешения для доступа к геоданным.")
+                ActivityCompat.requestPermissions(mView,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1)
             }
-            updateLocation(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER))
+            updateLocation(getLastKnownLocation())
         }
 
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
             if (Build.VERSION.SDK_INT >= 23 &&
                     ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
+                Toaster.toast("Включите разрешения для доступа к геоданным.")
+                ActivityCompat.requestPermissions(mView,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1)
             }
-            updateLocation(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER))
+            updateLocation(getLastKnownLocation())
+        }
+
+        private fun getLastKnownLocation(): Location? {
+            var mLocationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
+            val providers = mLocationManager.getProviders(true)
+            var bestLocation: Location? = null
+            for (provider in providers) {
+                if (Build.VERSION.SDK_INT >= 23 &&
+                        ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    val l = mLocationManager.getLastKnownLocation(provider) ?: continue
+                if (bestLocation == null || l.getAccuracy() < bestLocation.accuracy) {
+                    // Found best last known location: %s", l);
+                    bestLocation = l
+                }
+                }
+            }
+            return bestLocation
         }
     }
 

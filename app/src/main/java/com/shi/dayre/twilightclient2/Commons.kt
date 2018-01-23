@@ -128,7 +128,7 @@ fun sendNotification(context: Context, title: String, body: String) {
     val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
     val notification = NotificationCompat.Builder(context)
             .setSmallIcon(R.drawable.notification_icon_background)
-            .setContentTitle(title)
+            .setContentTitle(System.currentTimeMillis().toString() +": "+ title)
             .setContentText(body)
             .setAutoCancel(true)
             .setSound(soundUri)
