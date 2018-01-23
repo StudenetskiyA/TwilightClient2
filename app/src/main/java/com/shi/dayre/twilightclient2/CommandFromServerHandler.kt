@@ -4,6 +4,9 @@ import android.util.Log
 import android.content.Context
 import org.json.JSONObject
 import xdroid.toaster.Toaster
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 //Created by StudenetskiyA on 27.01.2017.
 
@@ -25,10 +28,13 @@ class CommandFromServerHandler(val context: Context) : Thread() {
                     Log.i("WebClient", "NEW ZONE ALARM!")
                     user.justChangedZone = true
                     user.zoneText = fromServer.getTextBetween().get(0)
-                    sendNotification(context, context.getString(R.string.enterToNewZone), user.zoneText)
-                    var msg = "GETMAIL(" + user.login + COMMA + user.password + ")"
-                    wsj?.sendMessage(msg)
+                    val formattedDate = SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime())
+                    sendNotification(context, formattedDate + " " + context.getString(R.string.enterToNewZone), user.zoneText)
+                   // var msg = "GETMAIL(" + user.login + COMMA + user.password + ")"
+                   // wsj?.sendMessage(msg)
                 }
+            } else if (fromServer.startsWith("MAIL(")) {
+                user.mail.add(fromServer.getTextBetween().get(0))
             } else if (fromServer.startsWith("SEARCHUSER(")) {
                 user.searchUserResult.add(SearchUserResult(
                         fromServer.getTextBetween().get(0), fromServer.getTextBetween().get(1).toDouble(),

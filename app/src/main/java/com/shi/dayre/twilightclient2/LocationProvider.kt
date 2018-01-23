@@ -12,10 +12,12 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import xdroid.toaster.Toaster
 import android.content.Context.LOCATION_SERVICE
+import android.content.DialogInterface
+import android.content.Intent
+import android.provider.Settings
 import android.support.v4.app.ActivityCompat
-
-
-
+import android.support.v4.content.ContextCompat.startActivity
+import android.support.v7.app.AlertDialog
 
 
 /**
@@ -86,6 +88,21 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
         }
 
         override fun onProviderDisabled(provider: String) {
+            if (!isAnySensorEnable()) {
+                val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
+                    when (which) {
+                        DialogInterface.BUTTON_POSITIVE -> {
+                            mView.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                        }
+                        DialogInterface.BUTTON_NEGATIVE -> {
+                            mView.logOut()
+                        }
+                    }
+                }
+                val builder = AlertDialog.Builder(context)
+                builder.setMessage(context.getString(R.string.sensorOpen)).setPositiveButton("Да", dialogClickListener)
+                        .setNegativeButton("Отмена", dialogClickListener).show()
+            }
             updateLocation(null)
         }
 

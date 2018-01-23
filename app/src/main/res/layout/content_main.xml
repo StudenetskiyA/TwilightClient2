@@ -613,8 +613,7 @@
                             android:id="@+id/mailTextView"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:singleLine="true"
-                            android:text="Mail must be here."
+                            android:text=""
                             android:textSize="@dimen/editable_font" />
                     </LinearLayout>
 

@@ -50,8 +50,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     lateinit var editor: SharedPreferences.Editor
     var markerToMap: MarkerOptions? = null
     val commandHandler = CommandFromServerHandler(this)
-   // var mTimer = Timer()
-   // var mMyTimerTask = onTimerTick(this)
     var gMap: GoogleMap? = null
 
     override fun onMarkerDragStart(marker: Marker) {
@@ -109,15 +107,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 connectBar.visibility = View.GONE
                 if (user.justLogined) {
                     fab.hide()
-                    //
                     Log.i("TLC.service", "try to start")
                     val serviceIntent = Intent(this, ForegroundLocationService::class.java)
-                    startService( serviceIntent)
-                    //
-//                    if (mTimer != null) mTimer.cancel()
-//                    mTimer = Timer()
-//                    mMyTimerTask = onTimerTick(this)
-//                    mTimer.schedule(mMyTimerTask, 1000, CONNECT_EVERY_SECOND * 1000);
+                    startService(serviceIntent)
                     user.justLogined = false
                 }
             } else {
@@ -125,18 +117,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
 
             if (user.superusered != -1) {
+                fab.hide()
                 userbar.visibility = View.VISIBLE
                 if (user.superusered > 0) {
                     searchUserButton.visibility = View.VISIBLE
                     addCurseButton.visibility = View.VISIBLE
                     scanUserButton.visibility = View.VISIBLE
                     vampireSendButton.visibility= View.VISIBLE
+                    mailButton.visibility = View.VISIBLE
                 }
                 if (user.superusered > 8) {
                     superuserbar.visibility = View.VISIBLE
                 }
-                user.superusered = 0
             }
+            //Mail bar
+            if (!user.mail.isEmpty()) {
+                mailTextView.setText("")
+                for (txt in user.mail)
+                mailTextView.setText(mailTextView.text.toString() + txt + "\n")
+            }
+
             //MapBar refresh if needs
             if (!user.searchUserResult.isEmpty()) {
 
@@ -228,6 +228,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 newZoneAchievement.visibility = View.VISIBLE
                 newZoneSystem.visibility = View.VISIBLE
             }
+        }
+        mailButton.setOnClickListener {
+            addOnClickBarListener(mailBar)
+            fab.hide()
         }
         make1curseButton.setOnClickListener {
             addOnClickBarListener(make1cursebar)
@@ -325,7 +329,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             } else if (dieUserBar.visibility == View.VISIBLE) {
                 var msg = "DIE(" + user.login + COMMA + user.password + ")"
                 wsj?.sendMessage(msg)
-                System.exit(0)
+              logOut()
             } else if (vampireSendBar.visibility == View.VISIBLE) {
                 if (!vampireSendName.text.equals("")) {
                     var msg = "VAMPIRESEND(" + user.login + COMMA + user.password + COMMA +
@@ -452,6 +456,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         if (mSettings.contains(APP_PREFERENCES_SERVER))
             user.server = mSettings.getString(APP_PREFERENCES_SERVER, "null")
         else user.server = DEFAULT_SERVER
+        if (mSettings.contains(APP_PREFERENCES_SUPERUSER))
+            user.superusered = mSettings.getInt(APP_PREFERENCES_SUPERUSER, 0)
+
         newServer.setText(user.server)
         if (user.login != null)
             newLogin.setText(user.login)
@@ -487,6 +494,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    fun logOut() {
+        var msg = "LOGOUT(" + user.login + COMMA + user.password + ")"
+        wsj?.sendMessage(msg)
+
+        val serviceIntent = Intent(this, ForegroundLocationService::class.java)
+        stopService(serviceIntent)
+        System.exit(0)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         location = com.shi.dayre.twilightclient2.LocationProvider(this, this)
@@ -494,13 +510,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         setSupportActionBar(toolbar)
 
         loadLayout()
-        loadSettings()
         addListener()
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.searchmap) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        refresh()
     }
 
     override fun onBackPressed(){
@@ -511,7 +524,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
                 when (which) {
                     DialogInterface.BUTTON_POSITIVE -> {
-                        System.exit(0)
+                      logOut()
                     }
                     DialogInterface.BUTTON_NEGATIVE -> {
                     }
@@ -531,6 +544,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     override fun onResume() {
         super.onResume()
+        loadSettings()
         refresh()
         //Turn on sensor
         if (!location.isAnySensorEnable()) {
@@ -550,23 +564,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         location.start()
         hideSoftKeyboard(this)
     }
-
-//    fun sendLocationToServer() {
-//        val lat: Double? = if (user.getBestLocation()?.latitude != null) user.getBestLocation()?.latitude else 0.0
-//        val lon: Double? = if (user.getBestLocation()?.longitude != null) user.getBestLocation()?.longitude else 0.0
-//
-//        //Remove this check after app connect only after loging
-//        if (user.login != null && !user.login.equals("null") && user.password != null && !user.password.equals("null")) {
-//            var msg = "USER(" + user.login + COMMA + user.password + COMMA + lat + COMMA + lon + ")"
-//            wsj?.sendMessage(msg)
-//        }
-//    }
-
-//    class onTimerTick(val context: MainActivity) : TimerTask() {
-//        override fun run() {
-//            context.sendLocationToServer()
-//        }
-//    }
 }
 
 

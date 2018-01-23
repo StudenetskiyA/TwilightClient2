@@ -25,7 +25,8 @@ data class User(
         var vampireSend:String ="0",
         var vampireCall:String= "0",
         var infoSearch:Boolean = false,
-        var interfaceStyle:Int = 0
+        var interfaceStyle:Int = 0,
+        var mail:ArrayList<String> = ArrayList()
 ) {
     fun getBestLocation(): Location? {
         if (location != null) return location else return locationNet

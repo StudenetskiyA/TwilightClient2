@@ -26,7 +26,7 @@ class ForegroundLocationService : Service() {
                 PendingIntent.FLAG_CANCEL_CURRENT)
 
         val builder = Notification.Builder(this)
-                .setSmallIcon(R.drawable.map)
+                .setSmallIcon(R.drawable.yinyan)
                 .setContentTitle(getString(R.string.twilightWatchYou))
                 .setContentIntent(contentIntent)
         val notification: Notification
