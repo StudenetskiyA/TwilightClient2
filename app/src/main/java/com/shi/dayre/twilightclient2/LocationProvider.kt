@@ -14,10 +14,13 @@ import xdroid.toaster.Toaster
 import android.content.Context.LOCATION_SERVICE
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.provider.Settings
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.app.AlertDialog
+import android.view.ContextThemeWrapper
+import com.shi.dayre.twilightclient2.R.id.newLogin
 
 
 /**
@@ -27,8 +30,12 @@ import android.support.v7.app.AlertDialog
 
 class LocationProvider(val context:Context, val mView:MainActivity) {
     var locationManager: LocationManager
+     var mSettings: SharedPreferences
+     var editor: SharedPreferences.Editor
 
     init{
+        mSettings = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
+        editor = mSettings.edit()
         locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (locationManager!=null)
         Log.i("TLC.location","Location service inited ok.")
@@ -43,6 +50,7 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1)
             //I know what I must check, what user say about permission. But without it application do nothing.
         }
+
         //For CONNECT_EVERY_SECOND second, minimum 5 meter
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 (1000 * CONNECT_EVERY_SECOND).toLong(), 5f, locationListener)
@@ -57,14 +65,22 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
             return
 
         Log.i("TLC.location","Location updated")
+//        var gpsLocation = false
         if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
-            user.location = location
+           // user.location = location
+            editor.putFloat(APP_PREFERENCES_LAST_LATITUDE_GPS, location.latitude.toFloat())
+            editor.putFloat(APP_PREFERENCES_LAST_LONGITUDE_GPS, location.longitude.toFloat())
         } else if (location.getProvider().equals(
                 LocationManager.NETWORK_PROVIDER)) {
-            user.locationNet = location
+            editor.putFloat(APP_PREFERENCES_LAST_LATITUDE_NET, location.latitude.toFloat())
+            editor.putFloat(APP_PREFERENCES_LAST_LONGITUDE_NET, location.longitude.toFloat())
+           // user.locationNet = location
           //  Toaster.toast("Location tick")
         }
-        mView.refresh()
+       // if (gpsLocation) {
+
+       // }
+        editor.apply()
     }
 
     private fun checkGPSEnabled():Boolean{
@@ -88,21 +104,7 @@ class LocationProvider(val context:Context, val mView:MainActivity) {
         }
 
         override fun onProviderDisabled(provider: String) {
-            if (!isAnySensorEnable()) {
-                val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
-                    when (which) {
-                        DialogInterface.BUTTON_POSITIVE -> {
-                            mView.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                        }
-                        DialogInterface.BUTTON_NEGATIVE -> {
-                            mView.logOut()
-                        }
-                    }
-                }
-                val builder = AlertDialog.Builder(context)
-                builder.setMessage(context.getString(R.string.sensorOpen)).setPositiveButton("Да", dialogClickListener)
-                        .setNegativeButton("Отмена", dialogClickListener).show()
-            }
+           //What I must to do???
             updateLocation(null)
         }
 

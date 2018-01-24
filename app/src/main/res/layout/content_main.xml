@@ -304,7 +304,7 @@
 
                         <Spinner
                             android:id="@+id/searchSpinner"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:drawSelectorOnTop="true"
                             android:entries="@array/searchUserSpinner">
@@ -337,7 +337,7 @@
 
                         <Spinner
                             android:id="@+id/scanSpinner"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:drawSelectorOnTop="true"
                             android:entries="@array/scanUserSpinner">

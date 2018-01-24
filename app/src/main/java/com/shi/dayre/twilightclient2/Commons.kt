@@ -111,6 +111,7 @@ fun Location.format(): String {
     return "lat = " + this.latitude + "," + "lon = " + this.longitude
 }
 
+
 fun String.getTextBetween(): ArrayList<String> {
     var fromText = this
     val rtrn = ArrayList<String>()

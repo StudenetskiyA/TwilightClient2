@@ -20,8 +20,8 @@
     <string name="searchUserLastConnected">Информация обновлена - \u0020</string>
     <string name="serverNotResponse">Не удается соединиться с сервером.</string>
     <string name="new_zone_system">0 для обычных зон, 1 для типов проклятий и свободной зоны.</string>
-    <string name="new_curse_user_name">Кого проклинаем?</string>
-    <string name="new_curse_curse_name">Название проклятия.</string>
+    <string name="new_curse_user_name">Цель заклинания</string>
+    <string name="new_curse_curse_name">Название заклинания</string>
     <string name="addUserSetName">Имя пользователя.</string>
     <string name="addUserPassword">Пароль.</string>
     <string name="addUserPowerSide">Сторона силы(1-светлый,2-темный,0-человек)</string>
@@ -54,5 +54,6 @@
         <item>Заклинание \"Поиск уровень 1\"</item>
         <item>Заклинание \"Поиск уровень 2\"</item>
         <item>Заклинание \"Поиск уровень 3\"</item>
+        <item>Заклинание \"Поиск уровень Мастер\"</item>
     </string-array>
 </resources>

@@ -10,8 +10,10 @@ data class User(
         var userText: String = "",
         var gpsLocation: String = "",
         var netLocation: String = "",
-        var location: Location? = null,
-        var locationNet: Location? = null,
+        var locationLatitude: Double? = null,
+        var locationLongitude: Double? = null,
+        var locationNetLatitude: Double? = null,
+        var locationNetLongitude: Double? = null,
         var login: String? = null,
         var password: String? = null,
         var server:String = DEFAULT_SERVER,
@@ -28,7 +30,10 @@ data class User(
         var interfaceStyle:Int = 0,
         var mail:ArrayList<String> = ArrayList()
 ) {
-    fun getBestLocation(): Location? {
-        if (location != null) return location else return locationNet
+    fun getBestLocationLatitude(): Double? {
+        if (locationLatitude != null) return locationLatitude else return locationNetLatitude
+    }
+    fun getBestLocationLongitude(): Double? {
+        if (locationLongitude != null) return locationLongitude else return locationNetLongitude
     }
 }

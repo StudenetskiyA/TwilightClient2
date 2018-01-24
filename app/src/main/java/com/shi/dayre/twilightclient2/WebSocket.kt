@@ -42,7 +42,7 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, v
                         val command = commandList.iterator()
                         while (command.hasNext()) {
                             var com = command.next()
-                            Log.i("Socket.onHandle", com)
+                            Log.i("TLC.connect.onHandle", com)
                             commandHandler.fromServer = com
                             commandHandler.run()
                             val job = launch { mView.refresh() }
