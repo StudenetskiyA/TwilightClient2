@@ -1,6 +1,5 @@
 package com.shi.dayre.twilightclient2
 
-import android.app.Application
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -45,7 +44,7 @@ fun addCircleToMap(map: GoogleMap?, lat: Double, lon: Double, radius: Double, co
 
 fun addMarkerToMap(map: GoogleMap?, name: String, lat: Double, lon: Double, snip: String, resource: Resources, icon: Int) {
     if (map != null) {
-        Log.i("Webclient", "Try to add point on map:" + lat + "," + lon)
+        Log.i("TLC", "Try to add point on map:" + lat + "," + lon)
         var marker: MarkerOptions = MarkerOptions()
                 .position(LatLng(lat, lon))
                 .title(name)

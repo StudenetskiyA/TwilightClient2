@@ -92,7 +92,8 @@
                 android:layout_marginLeft="5dp"
                 android:gravity="left"
                 android:maxLines="1"
-                android:textSize="@dimen/gpsFontSize" />
+                android:textSize="@dimen/gpsFontSize"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/netCoordinate"
@@ -101,7 +102,8 @@
                 android:layout_marginLeft="5dp"
                 android:gravity="left"
                 android:maxLines="1"
-                android:textSize="@dimen/gpsFontSize" />
+                android:textSize="@dimen/gpsFontSize"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/textFromServer"

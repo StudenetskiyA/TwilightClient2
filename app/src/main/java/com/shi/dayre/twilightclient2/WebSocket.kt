@@ -18,7 +18,7 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, v
     private var mWebSocketClient: WebSocketClient? = null
     var commandList = ArrayList<String>()
 
-     fun connectWebSocket() {
+    fun connectWebSocket() {
         val uri: URI
         try {
             uri = URI(url)
@@ -35,7 +35,7 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, v
             }
 
             override fun onMessage(s: String) {
-                Log.i("TLC.connect.onMessage", s)
+                // Log.i("TLC.connect.onMessage", s)
                 commandList.add(s)
                 synchronized(syncLock) {
                     if (commandList.size == 1) {

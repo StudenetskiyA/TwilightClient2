@@ -9,26 +9,28 @@ import com.google.android.gms.common.api.GoogleApiClient
 import android.content.Intent
 import android.content.SharedPreferences
 import android.location.Location
-import android.os.Build
+import android.os.Binder
 import android.os.IBinder
-
 import com.google.android.gms.location.LocationRequest
-
 import android.util.Log
-
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.location.FusedLocationProviderApi
 import com.google.android.gms.location.LocationServices
-import xdroid.toaster.Toaster
 import java.util.*
+import android.app.NotificationManager
+
+
 
 class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+    private var notificationManager: NotificationManager? = null
+    val NOTIFICATION_ID = 666
+
     private val TAG = "TLC.fused"
-    var savedLocation:Location? = null
+    private var savedLocation: Location? = null
     var timer = Timer()
-    private val LOCATION_INTERVAL = 1000
-    lateinit var editor: SharedPreferences.Editor
-    lateinit var mSettings: SharedPreferences
+    private val LOCATION_INTERVAL = 10000
+    private lateinit var editor: SharedPreferences.Editor
+    private lateinit var mSettings: SharedPreferences
     private var mContext: Context? = null
     private var locationRequest: LocationRequest? = null
     private var googleApiClient: GoogleApiClient? = null
@@ -42,43 +44,35 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         Log.i(TAG, "onStartCommand")
         val notificationIntent = Intent(applicationContext, MainActivity::class.java)
         val contentIntent = PendingIntent.getActivity(applicationContext,
-                777, notificationIntent,
+                NOTIFICATION_ID, notificationIntent,
                 PendingIntent.FLAG_CANCEL_CURRENT)
 
         val builder = Notification.Builder(this)
                 .setSmallIcon(R.drawable.yinyan)
                 .setContentTitle(getString(R.string.twilightWatchYou))
                 .setContentIntent(contentIntent)
-        val notification: Notification
+        val notification: Notification= builder.build()
 
-        if (Build.VERSION.SDK_INT < 16)
-            notification = builder.getNotification()
-        else {
-            notification = builder.build()
-        }
-
-        Log.i("TLC.service", "onCreateCommand")
         startForeground(777, notification)
 
-        //super.onStartCommand(intent, flags, startId)
-        return START_STICKY
+        mContext = this
+        mSettings = applicationContext.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
+        editor = mSettings.edit()
+        timer.schedule(TimerTickTask(), 0, CONNECT_EVERY_SECOND * 1000)
+        getLocation()
+
+        return START_REDELIVER_INTENT
     }
 
     override fun onCreate() {
         Log.i(TAG, "onCreate")
-        mContext = this
-        mSettings = applicationContext.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
-        editor = mSettings.edit()
-        timer.schedule(timerTickTask(), 0, CONNECT_EVERY_SECOND * 1000);
-        getLocation()
+        notificationManager = this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     }
 
-    private inner class timerTickTask : TimerTask() {
+    private inner class TimerTickTask : TimerTask() {
         override fun run() {
             Log.i(TAG, "onTick")
-           // Toaster.toast("timer tick");
             sendLocationToServer()
-            // MainActivity().refresh()
         }
     }
 
@@ -91,9 +85,19 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             login = mSettings.getString(APP_PREFERENCES_USERNAME, "null")
         if (mSettings.contains(APP_PREFERENCES_PASSWORD))
             password = mSettings.getString(APP_PREFERENCES_PASSWORD, "null")
-        //Remove this check after app connect only after loging
+
         if (login != null && password != null) {
-            var msg = "USER(" + login + COMMA + password + COMMA + savedLocation?.latitude + COMMA + savedLocation?.longitude + ")"
+            val msg = "USER(" + login + COMMA + password + COMMA + savedLocation?.latitude + COMMA + savedLocation?.longitude + ")"
+
+            if (wsj != null) {
+                if (!wsj!!.connected) {
+                    //Reconnect!
+                    Log.i("TLC.connect", "try to reconnect")
+                    wsj?.connectWebSocket()
+                }
+            } else {
+                Log.i("TLC.connect", "socket null")
+            }
             wsj?.sendMessage(msg)
         }
     }
@@ -101,6 +105,9 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     override fun onDestroy() {
         Log.i(TAG, "onDestroy")
         super.onDestroy()
+        notificationManager?.cancel(NOTIFICATION_ID)
+        stopSelf()
+
         try {
             if (googleApiClient != null) {
                 googleApiClient!!.disconnect()
@@ -108,14 +115,13 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     private fun getLocation() {
         locationRequest = LocationRequest.create()
-        locationRequest!!.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-        locationRequest!!.setInterval(LOCATION_INTERVAL.toLong())
-        locationRequest!!.setFastestInterval(LOCATION_INTERVAL.toLong())
+        locationRequest!!.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest!!.interval = LOCATION_INTERVAL.toLong()
+        locationRequest!!.fastestInterval = LOCATION_INTERVAL.toLong()
         fusedLocationProviderApi = LocationServices.FusedLocationApi
         googleApiClient = GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -128,49 +134,20 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     }
 
     override fun onConnected(arg0: Bundle?) {
-        //  Location location = fusedLocationProviderApi.getLastLocation(googleApiClient);
         fusedLocationProviderApi!!.requestLocationUpdates(googleApiClient, locationRequest, this)
     }
 
     override fun onConnectionSuspended(arg0: Int) {
-
-    }
-
-    fun onResponse(reqCode: Int, statusCode: Int, json: String) {
-
-    }
-
-    fun onCancel(canceled: Boolean) {
-
-    }
-
-    fun onProgressChange(progress: Int) {
-
     }
 
     override fun onLocationChanged(location: Location) {
-        //here
-        Log.i("TLC.location", "Location updated")
-        editor.putFloat(APP_PREFERENCES_LAST_LATITUDE_NET, location.getLatitude().toFloat())
-        editor.putFloat(APP_PREFERENCES_LAST_LONGITUDE_NET, location.getLongitude().toFloat())
+        Log.i("TLC.fused", "Location updated")
+        editor.putFloat(APP_PREFERENCES_LAST_LATITUDE_NET, location.latitude.toFloat())
+        editor.putFloat(APP_PREFERENCES_LAST_LONGITUDE_NET, location.longitude.toFloat())
         editor.apply()
-        savedLocation=location
-        //Toast.makeText(mContext, "Driver location :" + location.getLatitude() + " , " + location.getLongitude(), Toast.LENGTH_SHORT).show()
-    }
-
-    fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
-
-    }
-
-    fun onProviderEnabled(provider: String) {
-
-    }
-
-    fun onProviderDisabled(provider: String) {
-
+        savedLocation = location
     }
 
     override fun onConnectionFailed(arg0: ConnectionResult) {
-
     }
 }
