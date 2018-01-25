@@ -17,7 +17,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import android.app.Activity
 import android.view.inputmethod.InputMethodManager
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 import java.util.regex.Pattern
+import java.nio.file.Files.exists
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -34,6 +41,30 @@ fun messageFromServerCode(context:Context,serverCode: String): String {
     }
 }
 
+fun writeToLog(text: String) {
+    val logFile = File("sdcard/twilightLog.txt")
+    if (!logFile.exists()) {
+        try {
+            logFile.createNewFile()
+        } catch (e: IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+        }
+    }
+    try {
+        //BufferedWriter for performance, true to set append to file flag
+        val buf = BufferedWriter(FileWriter(logFile, true))
+        val sd =  SimpleDateFormat("HH:mm");
+        val formattedDate = sd.format(Calendar.getInstance().getTime());
+        buf.append(formattedDate+":"+text)
+        buf.newLine()
+        buf.close()
+    } catch (e: IOException) {
+        // TODO Auto-generated catch block
+        e.printStackTrace()
+    }
+
+}
 fun addCircleToMap(map: GoogleMap?, lat: Double, lon: Double, radius: Double, color: Int) {
     map?.addCircle(CircleOptions()
             .center(LatLng(lat, lon))

@@ -26,6 +26,7 @@
         android:debuggable="true"
         android:icon="@drawable/yinyan"
         android:label="@string/app_name"
+        android:launchMode="singleTask"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:testOnly="true"
