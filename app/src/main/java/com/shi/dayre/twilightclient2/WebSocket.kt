@@ -45,8 +45,8 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, v
                             Log.i("TLC.connect.onHandle", com)
                             commandHandler.fromServer = com
                             commandHandler.run()
-                            val job = launch { mView.refresh() }
-                            syncLock.wait()
+                                    // val job = launch { mView.refresh() }
+                            //syncLock.wait()
                             command.remove()
                         }
                     }
