@@ -75,7 +75,7 @@ fun addCircleToMap(map: GoogleMap?, lat: Double, lon: Double, radius: Double, co
 
 fun addMarkerToMap(map: GoogleMap?, name: String, lat: Double, lon: Double, snip: String, resource: Resources, icon: Int) {
     if (map != null) {
-        Log.i("TLC", "Try to add point on map:" + lat + "," + lon)
+      //  Log.i("TLC", "Try to add point on map:" + lat + "," + lon)
         var marker: MarkerOptions = MarkerOptions()
                 .position(LatLng(lat, lon))
                 .title(name)
@@ -149,7 +149,6 @@ fun String.getTextBetween(): ArrayList<String> {
     fromText = fromText.substring(fromText.indexOf(beforeText) + 1, fromText.indexOf(")"))
     val par = fromText.split(Pattern.quote(COMMA).toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
     for (i in par.indices) {
-        println("Par : " + par[i])
         rtrn.add(par[i])
     }
     return rtrn

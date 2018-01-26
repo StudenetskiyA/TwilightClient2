@@ -1,5 +1,6 @@
 package com.shi.dayre.twilightclient2
 
+import android.content.Intent
 import android.util.Log
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
@@ -13,7 +14,7 @@ import java.net.URISyntaxException
  * Created by StudenetskiyA on 05.01.2018.
  */
 
-class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, val mView: MainActivity) {
+class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, val service: FusedLocationService) {
     var connected: Boolean = false
     private var mWebSocketClient: WebSocketClient? = null
     var commandList = ArrayList<String>()
@@ -37,20 +38,20 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, v
             override fun onMessage(s: String) {
                 // Log.i("TLC.connect.onMessage", s)
                 commandList.add(s)
-                synchronized(syncLock) {
-                    if (commandList.size == 1) {
+               // synchronized(service.syncLock) {
+                    if (commandList.size == 1) { //Handle command one by one
                         val command = commandList.iterator()
                         while (command.hasNext()) {
                             var com = command.next()
                             Log.i("TLC.connect.onHandle", com)
                             commandHandler.fromServer = com
                             commandHandler.run()
-                                    // val job = launch { mView.refresh() }
-                            //syncLock.wait()
+                          //  val job = launch { service.sendBroadcast(BROADCAST_NEED_TO_REFRESH) }
+                           // service.syncLock.wait()
                             command.remove()
                         }
                     }
-                }
+                //}
             }
 
             override fun onClose(i: Int, s: String, b: Boolean) {
