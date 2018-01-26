@@ -1,7 +1,5 @@
 package com.shi.dayre.twilightclient2
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -21,14 +19,17 @@ import xdroid.toaster.Toaster
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 import com.google.android.gms.maps.model.LatLng
-import android.content.DialogInterface
-import android.content.Intent
 import android.location.LocationManager
 import android.provider.Settings
 import android.support.v7.app.AlertDialog
 import android.app.AlarmManager
 import android.R.string.cancel
 import android.app.PendingIntent
+import android.content.*
+import android.os.IBinder
+import android.content.ComponentName
+import android.content.ServiceConnection
+
 
 
 
@@ -47,18 +48,33 @@ val APP_PREFERENCES_LAST_LONGITUDE_NET = "longitudenet"
 val DEFAULT_SERVER = "ws://test1.uralgufk.ru:8080/BHServer/serverendpoint"
 
 var user = User()
-var wsj: WebSocket? = null
 val syncLock = java.lang.Object()
-
+lateinit var mSettings: SharedPreferences
+lateinit var editor: SharedPreferences.Editor
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerDragListener {
+    var myService: FusedLocationService? = null
+    var isBound = false
+
+    //var wsj: WebSocket? = null
     var isAddFrameOpen:Boolean = false
     val listOfLayout = ArrayList<LinearLayout>()
-    lateinit var mSettings: SharedPreferences
-    lateinit var editor: SharedPreferences.Editor
+
     var markerToMap: MarkerOptions? = null
-    val commandHandler = CommandFromServerHandler(this)
     var gMap: GoogleMap? = null
+
+    private val myConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName,
+                                        service: IBinder) {
+            val binder = service as FusedLocationService.MyLocalBinder
+            myService = binder.getService()
+            isBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            isBound = false
+        }
+    }
 
     override fun onMarkerDragStart(marker: Marker) {
         val position = marker.position
@@ -120,20 +136,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             if (user.logined) {
                 if (user.justLogined) {
                     fab.hide()
-                    Log.i("TLC.service", "try to start")
-                    //val serviceIntent = Intent(this, FusedLocationService::class.java)
-                    //startService(serviceIntent)
 
-                    val serviceIntent = Intent(this, FusedLocationService::class.java)
-                    val pintent = PendingIntent.getService(this, 0, serviceIntent, 0)
-                    val alarm = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                    alarm.cancel(pintent)
-                    alarm.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pintent)
+
+//                    val serviceIntent = Intent(this, FusedLocationService::class.java)
+//                    val pintent = PendingIntent.getService(this, 0, serviceIntent, 0)
+//                    val alarm = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//                    alarm.cancel(pintent)
+//                    alarm.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pintent)
 
                     user.justLogined = false
                 }
             } else {
-                fab.show()
+//                fab.show()
             }
 
             if (user.superusered != -1) {
@@ -223,6 +237,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         })
     }).start()
 
+    fun connectToServer() {
+        Log.i("TLC.service", "try to start")
+        val serviceIntent = Intent(this, FusedLocationService::class.java)
+        serviceIntent.putExtra("login",user.login)
+        serviceIntent.putExtra("password",user.password)
+        serviceIntent.putExtra("url",user.server)
+        serviceIntent.setAction("connect")
+        startService(serviceIntent)
+    }
+    fun sendToServer(message:String) {
+        val serviceIntent = Intent(this, FusedLocationService::class.java)
+        serviceIntent.putExtra("login",user.login)
+        serviceIntent.putExtra("password",user.password)
+        serviceIntent.putExtra("url",user.server)
+        serviceIntent.putExtra("message",message)
+        serviceIntent.setAction("send message")
+        startService(serviceIntent)
+    }
+    
     fun addListener() {
         newZonePinCoordinateButton.setOnClickListener {
             if (mapbar.visibility == View.GONE) {
@@ -295,7 +328,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 isAddFrameOpen=true
                 user.infoSearch = true
                 val msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA + user.vampireCall + COMMA + "9)"
-                wsj?.sendMessage(msg)
+                //wsj?.sendMessage(msg)
+                sendToServer(msg)
                 if (user.getBestLocationLongitude() != null)
                     gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocationLatitude()!!,
                             user.getBestLocationLongitude()!!), 12f))
@@ -313,7 +347,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 user.searchZoneResult = ArrayList()
                 isAddFrameOpen=true
                 val msg = "SCANUSER(" + user.login + COMMA + user.password + COMMA + "9)"
-                wsj?.sendMessage(msg)
+               sendToServer(msg)
                 if (user.getBestLocationLongitude() != null)
                     gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocationLatitude()!!,
                             user.getBestLocationLongitude()!!), 12f))
@@ -325,6 +359,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
 
         fab.setOnClickListener {
+            Log.i("TLC.exp","binded="+myService?.testCount)
             Log.i("TLC.view", "fab clicked")
             hideSoftKeyboard(this)
             //TODO Change visibility to variable
@@ -347,7 +382,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                             newZoneTextForLight.text.toString() + COMMA + newZoneTextForDark.text.toString() + COMMA +
                             newZonePriority.text.toString() + COMMA + newZoneAchievement.text.toString() + COMMA +
                             newZoneSystem.text.toString() + ")"
-                    wsj?.sendMessage(msg)
+                   sendToServer(msg)
                     newZoneName.setText("")
                     newZoneLatitude.setText("")
                     newZoneLongitude.setText("")
@@ -358,24 +393,24 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 }
             } else if (dieUserBar.visibility == View.VISIBLE) {
                 val msg = "DIE(" + user.login + COMMA + user.password + ")"
-                wsj?.sendMessage(msg)
+               sendToServer(msg)
               logOut()
             } else if (vampireSendBar.visibility == View.VISIBLE) {
                 if (!vampireSendName.text.equals("")) {
                     val msg = "VAMPIRESEND(" + user.login + COMMA + user.password + COMMA +
                             vampireSendName.text + COMMA
                     if (user.vampireSend.equals("")) {
-                        wsj?.sendMessage(msg+ "1" + ")")
+                        sendToServer(msg+ "1" + ")")
                     }
                     else {
-                        wsj?.sendMessage(msg+ "0" + ")")
+                        sendToServer(msg+ "0" + ")")
                     }
                 }
             } else if (make1cursebar.visibility == View.VISIBLE) {
                 if (!curse1UserName.text.equals("")) {
                     val msg = "MAKECURSE(" + user.login + COMMA + user.password + COMMA +
                             curse1UserName.text + COMMA + "Проклятие 1" + ")"
-                    wsj?.sendMessage(msg)
+                   sendToServer(msg)
                 }
             } else if (searchUserBar.visibility == View.VISIBLE) {
                 if (searchUserName.text.length > 1) {
@@ -388,7 +423,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     if (position>3) position = 9
                     val msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA +
                             searchUserName.text + COMMA + position + ")"
-                    wsj?.sendMessage(msg)
+                   sendToServer(msg)
                     if (user.getBestLocationLongitude() != null)
                         gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocationLatitude()!!,
                                 user.getBestLocationLongitude()!!), 12f))
@@ -400,7 +435,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 gMap?.clear()
                 val position = scanSpinner.selectedItemPosition + 1
                 val msg = "SCANUSER(" + user.login + COMMA + user.password + COMMA + position + ")"
-                wsj?.sendMessage(msg)
+               sendToServer(msg)
                 if (user.getBestLocationLongitude() != null )
                     gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(user.getBestLocationLatitude()!!,
                             user.getBestLocationLongitude()!!), 12f))
@@ -408,19 +443,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 if (!curseUserName.text.equals("")) {
                     val msg = "MAKECURSE(" + user.login + COMMA + user.password + COMMA +
                             curseUserName.text + COMMA + curseCurseName.text + ")"
-                    wsj?.sendMessage(msg)
+                   sendToServer(msg)
                 }
             } else if (adduserbar.visibility == View.VISIBLE) {
                 if (addUserName.text.length > 2) {
                     val msg = "ADDUSER(" + user.login + COMMA + user.password + COMMA +
                             addUserName.text + COMMA + addUserPass.text + COMMA + addUserPowerside.text + COMMA + addUserSuperuser.text + ")"
-                    wsj?.sendMessage(msg)
+                   sendToServer(msg)
                 }
             } else if (deletezonebar.visibility == View.VISIBLE) {
                 if (deleteZoneName.text.length > 2) {
                     val msg = "DELETEZONE(" + user.login + COMMA + user.password + COMMA +
                             deleteZoneName.text + ")"
-                    wsj?.sendMessage(msg)
+                   sendToServer(msg)
                 }
             } else if (searchbar.visibility == View.VISIBLE) {
                 if (searchName.text.length > 1) {
@@ -430,7 +465,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     gMap?.clear()
                     val msg = "SEARCHUSER(" + user.login + COMMA + user.password + COMMA +
                             searchName.text + COMMA + "9)"
-                    wsj?.sendMessage(msg)
+                   sendToServer(msg)
                     searchName.setText("")
                 }
             } else {
@@ -443,7 +478,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString())
                     editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString())
                     editor.apply()
-                    connect()
+                    connectToServer()
                 } catch (x: Exception) {
                     Log.e("TLC.connect", x.toString())
                 }
@@ -466,8 +501,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     private fun loadSettings() {
-        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
-        editor = mSettings.edit()
+        //mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
+      //  editor = mSettings.edit()
         if (mSettings.contains(APP_PREFERENCES_USERNAME))
             user.login = mSettings.getString(APP_PREFERENCES_USERNAME, "null")
         if (mSettings.contains(APP_PREFERENCES_PASSWORD))
@@ -518,7 +553,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         Log.i("TLC.view","log out")
         //Send message to server
         val msg = "LOGOUT(" + user.login + COMMA + user.password + ")"
-        wsj?.sendMessage(msg)
+       sendToServer(msg)
         //Stop sending location
         val serviceIntent = Intent(this, FusedLocationService::class.java)
         stopService(serviceIntent)
@@ -530,9 +565,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         Log.i("TLC.view","onCreate")
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        mSettings = applicationContext.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
+        editor =  mSettings.edit()
 
         loadLayout()
         addListener()
+//
+
+        val serviceIntent = Intent(this, FusedLocationService::class.java)
+
+        serviceIntent.putExtra("login","login")
+        serviceIntent.putExtra("password","password")
+        serviceIntent.putExtra("url","password")
+        serviceIntent.setAction("test")
+        startService(serviceIntent)
+        bindService(serviceIntent, myConnection, Context.BIND_AUTO_CREATE)
+      //  Log.i("TLC.exp","binded="+myService?.getCurrentTime())
+     //   serviceIntent.putExtra("login","login")
+     //   serviceIntent.putExtra("password","password")
+     //   serviceIntent.putExtra("url","password")
+//        serviceIntent.setAction("test")
+        //startService(serviceIntent)
+ //       Log.i("TLC.exp","binded="+myService?.getCurrentTime())
+
+
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.searchmap) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -587,7 +643,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         if (user.superusered!=-1) {
             //Reconnect
-           connect()
+           connectToServer()
         }
         refresh()
         hideSoftKeyboard(this)
@@ -605,25 +661,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         else return false
     }
 
-    private fun connect() {
-        var count=0
-        fab.hide()
-        Log.i("TLC.view","onRestart")
-        val msg = "CONNECT(" + user.login + COMMA + user.password + ")"
-        wsj = WebSocket(user.server, commandHandler, this)
-        while (wsj?.connected == false) {
-            wsj?.connectWebSocket()
-            TimeUnit.SECONDS.sleep(1)
-            count++
-            Log.i("TLC.connect", "connection count = " + count)
-            if (count > 10) {
-                Toaster.toast(R.string.serverNotResponse)
-                fab.show()
-                break
-            }
-            wsj?.sendMessage(msg)
-        }
-    }
+//    private fun connect() {
+//        var count=0
+//        fab.hide()
+//        Log.i("TLC.view","onRestart")
+//        val msg = "CONNECT(" + user.login + COMMA + user.password + ")"
+//        wsj = WebSocket(user.server, commandHandler, this)
+//        while (wsj?.connected == false) {
+//            wsj?.connectWebSocket()
+//            TimeUnit.SECONDS.sleep(1)
+//            count++
+//            Log.i("TLC.connect", "connection count = " + count)
+//            if (count > 10) {
+//                Toaster.toast(R.string.serverNotResponse)
+//                fab.show()
+//                break
+//            }
+//           sendToServer(msg)
+//        }
+//    }
 }
 
 
