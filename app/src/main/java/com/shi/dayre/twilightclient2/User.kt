@@ -10,6 +10,7 @@ data class User(
         var password: String? = null,
         var url:String = "",
         var superusered:Int=-1,
+        var lastConnected:String = "никогда",
         var zoneText:String = "",
         var searchUserResult:ArrayList<SearchUserResult> = ArrayList(),
         var searchZoneResult:ArrayList<SearchZoneResult> = ArrayList(),

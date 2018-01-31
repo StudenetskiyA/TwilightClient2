@@ -1,9 +1,6 @@
 package com.shi.dayre.twilightclient2
 
-import android.content.Intent
 import android.util.Log
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.drafts.Draft_17
 import org.java_websocket.handshake.ServerHandshake
@@ -14,10 +11,15 @@ import java.net.URISyntaxException
  * Created by StudenetskiyA on 05.01.2018.
  */
 
-class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, val service: FusedLocationService) {
+class WebSocket(val url: String, val commandHandler: CommandFromServerHandler) {
     var connected: Boolean = false
     private var mWebSocketClient: WebSocketClient? = null
     var commandList = ArrayList<String>()
+
+    fun disconnectWebSocket() {
+        connected=false
+        mWebSocketClient?.close()
+    }
 
     fun connectWebSocket() {
         val uri: URI
@@ -25,6 +27,7 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, v
             uri = URI(url)
         } catch (e: URISyntaxException) {
             Log.i("TLC.connect", "Server offline.")
+            writeToLog("Server error connect")
             return
         }
 
@@ -36,22 +39,18 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler, v
             }
 
             override fun onMessage(s: String) {
-                // Log.i("TLC.connect.onMessage", s)
                 commandList.add(s)
-               // synchronized(service.syncLock) {
                     if (commandList.size == 1) { //Handle command one by one
                         val command = commandList.iterator()
                         while (command.hasNext()) {
                             var com = command.next()
                             Log.i("TLC.connect.onHandle", com)
+                            writeToLog("Handle message from server - "+com)
                             commandHandler.fromServer = com
                             commandHandler.run()
-                          //  val job = launch { service.sendBroadcast(BROADCAST_NEED_TO_REFRESH) }
-                           // service.syncLock.wait()
                             command.remove()
                         }
                     }
-                //}
             }
 
             override fun onClose(i: Int, s: String, b: Boolean) {

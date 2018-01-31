@@ -31,6 +31,6 @@
         style="@style/Light"
         android:src="@drawable/ok"
         app:backgroundTint="@android:color/holo_red_light"
-        app:srcCompat="@drawable/ok" />
+        />
 
 </android.support.design.widget.CoordinatorLayout>

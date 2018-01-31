@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_gravity="left"
-            android:textSize="@dimen/bigFontSize" />
+            android:textSize="@dimen/midFontSize" />
 
     </LinearLayout>
         <LinearLayout
@@ -86,7 +86,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/gpsCoordinate"
+                android:id="@+id/lastConnected"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"

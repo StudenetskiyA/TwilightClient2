@@ -3,5 +3,6 @@
     <dimen name="editable_font">14dp</dimen>
     <dimen name="topLineSize">35dp</dimen>
     <dimen name="bigFontSize">28dp</dimen>
+    <dimen name="midFontSize">20dp</dimen>
     <dimen name="gpsFontSize">10dp</dimen>
 </resources>

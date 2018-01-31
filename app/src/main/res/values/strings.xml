@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Сумеречный компаньон</string>
+    <string name="app_name_version">Сумеречный компаньон v0.742</string>
     <string name="action_settings">Settings</string>
     <string name="gps_disable">GPS недоступен.</string>
     <string name="net_disable">Координаты сети недоступны.</string>
@@ -35,7 +36,7 @@
     <string name="searchUserCurse">Проклятия на игроке - \u0020</string>
     <string name="vampireSendAlready">Вы зовете \u0020</string>
     <string name="vampireSendNoYet">Пока вы никого не зовете</string>
-    <string name="newVampireCall">На вас наложили зов!</string>
+    <string name="newVampireCall">На вас действует вампирский зов!</string>
     <string name="vampireCallFrom">Вампирский зов от \u0020</string>
     <string name="serverBaseCantAccess">Сервер поврежден - нет доступа к базам.</string>
     <string name="addNewZoneCorrect">Зона добавлена корректно.</string>
@@ -45,6 +46,14 @@
     <string name="sensorOpen">Для нормальной работы приложения нужно включить датчики геопозиционирования. Если у вас небольшая батарея у устройства - выберете \"Режим - Экономия заряда\". Включить датчики?</string>
     <string name="twilightWatchYou">Сумрак наблюдает за вами.</string>
     <string name="No">нет</string>
+    <string name="damageSQLUser">Повреждена или недоступна таблица User</string>
+    <string name="damageSQLZone">Повреждена или недоступна таблица Zones</string>
+    <string name="damageSQLLogs">Повреждена или недоступна таблица Logs</string>
+    <string name="damageSQLMail">Повреждена или недоступна таблица Mail</string>
+    <string name="wrongLoginPass">Неверный логин или пароль</string>
+    <string name="dismissVampireCall">С вас снят вампирский зов</string>
+    <string name="wrongClientVersion">Ваша версия клиента устарела, необходимо обновление.</string>
+    <string name="newVersion">v0.724 от 31.01\n1. Значок галочки больше не пропадает при обновлении состояния.\n2. Вампирский зов и новая зона - это теперь разные уведомления.\n3. Проверка версии клиента на сервере.\n4.Разные звуки для разных уведомлений</string>
 
     <string-array name="scanUserSpinner">
         <item>Сканирование уровень 1</item>

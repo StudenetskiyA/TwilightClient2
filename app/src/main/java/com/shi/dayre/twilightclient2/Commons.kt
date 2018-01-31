@@ -16,13 +16,14 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import android.app.Activity
+import android.net.Uri
 import android.view.inputmethod.InputMethodManager
+import com.google.common.reflect.Reflection.getPackageName
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.util.regex.Pattern
-import java.nio.file.Files.exists
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,13 +32,21 @@ import java.util.*
  * Created by StudenetskiyA on 06.01.2018.
  */
 
+val NOTIFICATION_CODE = 1717
+
 fun messageFromServerCode(context:Context,serverCode: String): String {
    return when (serverCode) {
         "#deletezonecorrect" ->  context.getString(R.string.deleteNewZoneCorrect)
         "#updatezonecorrect" ->  context.getString(R.string.updateNewZoneCorrect)
         "#newzonecorrect" ->  context.getString(R.string.addNewZoneCorrect)
         "#damage" ->  context.getString(R.string.serverBaseCantAccess)
-        else ->  serverCode
+       "#damageSQLUser" -> context.getString(R.string.damageSQLUser)
+       "#damageSQLZone" -> context.getString(R.string.damageSQLZone)
+       "#damageSQLLogs" -> context.getString(R.string.damageSQLLogs)
+       "#damageSQLMail" -> context.getString(R.string.damageSQLMail)
+       "#wrongLoginPass" -> context.getString(R.string.wrongLoginPass)
+       "#wrongClientVersion" -> context.getString(R.string.wrongClientVersion)
+       else ->  serverCode
     }
 }
 
@@ -54,7 +63,7 @@ fun writeToLog(text: String) {
     try {
         //BufferedWriter for performance, true to set append to file flag
         val buf = BufferedWriter(FileWriter(logFile, true))
-        val sd =  SimpleDateFormat("HH:mm");
+        val sd =  SimpleDateFormat("HH:mm:ss");
         val formattedDate = sd.format(Calendar.getInstance().getTime());
         buf.append(formattedDate+":"+text)
         buf.newLine()
@@ -154,8 +163,17 @@ fun String.getTextBetween(): ArrayList<String> {
     return rtrn
 }
 
-fun sendNotification(context: Context, title: String, body: String) {
-    val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+fun sendNotification(context: Context, title: String, body: String, notifyCode: Int, type:Int) {
+    var soundUri:Uri
+    if (type==1) {
+        soundUri = Uri.parse("android.resource://com.shi.dayre.twilightclient2/" + R.raw.somethinghappen)
+    }
+    else  {
+        soundUri = Uri.parse("android.resource://com.shi.dayre.twilightclient2/" + R.raw.allright)
+    }
+
+    //val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
     val notification = NotificationCompat.Builder(context)
             .setSmallIcon(R.drawable.yinyan)
             .setContentTitle(title)
@@ -167,5 +185,10 @@ fun sendNotification(context: Context, title: String, body: String) {
 
     notification.setContentIntent(pendingIntent)
     val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    notificationManager.notify(1, notification.build())
+    notificationManager.notify(notifyCode, notification.build())
+}
+
+fun hideNotification(context:Context,notifyCode: Int){
+    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    notificationManager.cancel(notifyCode)
 }

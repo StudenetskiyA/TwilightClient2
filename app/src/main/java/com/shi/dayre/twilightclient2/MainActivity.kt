@@ -25,46 +25,57 @@ import android.os.IBinder
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.support.v4.content.LocalBroadcastManager
+import kotlinx.coroutines.experimental.launch
 
-
-val CONNECT_EVERY_SECOND: Long = 20
+val CLIENT_VERSION = "0.725"
+val CONNECT_EVERY_SECOND: Long = 30
 val COMMA = "|"
 val APP_PREFERENCES = "mysettings"
 val APP_PREFERENCES_USERNAME = "username"
 val APP_PREFERENCES_PASSWORD = "password"
 val APP_PREFERENCES_SERVER = "server"
-val BROADCAST_NEED_TO_REFRESH = "com.shi.dayre.twilightclient2.needToRefresh"
-val ACTION_CONNECT  = "connect"
-val ACTION_SEND_MESSAGE = "send message"
-val DEFAULT_SERVER = "ws://test1.uralgufk.ru:8080/BHServer/serverendpoint"
+val APP_PREFERENCES_SUPERUSER = "superuser"
+val APP_PREFERENCES_ALREADY_VIEW_HELLO = "viewhello"
 
+val BROADCAST = "com.shi.dayre.twilightclient2"
+val BROADCAST_NEED_TO_REFRESH = "com.shi.dayre.twilightclient2.needToRefresh"
+val BROADCAST_NEED_TO_REFRESH_MAP = "com.shi.dayre.twilightclient2.needToRefreshMap"
+val BROADCAST_NEED_TO_REFRESH_USERSTATE = "com.shi.dayre.twilightclient2.needToRefreshUserState"
+
+val ACTION_CONNECT = "connect"
+val ACTION_DISCONNECT = "disconnect"
+val ACTION_SEND_MESSAGE = "send message"
+val ACTION_SETUP_CONNECTION = "setup"
+
+val DEFAULT_SERVER = "ws://test1.uralgufk.ru:8080/BHServer/serverendpoint"
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerDragListener {
     var service: FusedLocationService? = null
-    var isBound = false
-    val bindLock = java.lang.Object()
+    var binded: Boolean = false
 
-    lateinit var mSettings: SharedPreferences
-    lateinit var editor: SharedPreferences.Editor
-    lateinit var broadcast: BroadcastReceiver
+    private var superUserView:Int=-1
+    private lateinit var mSettings: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor
+    private lateinit var broadcast: BroadcastReceiver
 
     private var isAddFrameOpen: Boolean = false
     private val listOfLayout = ArrayList<LinearLayout>()
 
     private var markerToMap: MarkerOptions? = null
-    var gMap: GoogleMap? = null
-    var infoSearch = false
+    private var gMap: GoogleMap? = null
+    private var infoSearch = false
+    private var fabLock = false
 
     private val myConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName,
                                         _service: IBinder) {
             val binder = _service as FusedLocationService.MyLocalBinder
             service = binder.getService()
-            isBound = true
+            binded = true
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
-            isBound = false
+            binded = false
         }
     }
 
@@ -102,139 +113,220 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         gMap?.setOnMarkerDragListener(this)
     }
 
-    fun broadcastRefresh() = Thread(Runnable {
+    fun broadcastRefreshMap() = Thread(Runnable {
         // try to touch View of UI thread
         this.runOnUiThread({
-          // testField.setText("Service report - "+service?.userState?.testCount)
-            refresh()
-        })
-    }).start()
-
-    fun refresh() = Thread(Runnable {
-        // try to touch View of UI thread
-        this.runOnUiThread({
-            if (service?.userState?.latitude != null)
-                netCoordinate.text = "lat = " + service?.userState?.latitude + "," + "lon = " + service?.userState?.longitude
-            else {
-                netCoordinate.text = this.resources.getText(R.string.net_disable)
-            }
-
-            if (service?.userState?.zoneText != "") {
-                currentStatus.visibility = View.VISIBLE
-                currentStatus.text = service?.userState?.zoneText
-            }
-
-            if (service?.userState?.superusered != -1) {
-                //TODO Add more superuser types
-                connectBar.visibility = View.GONE
-                userbar.visibility = View.VISIBLE
-                netCoordinate.visibility = View.VISIBLE
-                if (service?.userState?.superusered!! > 0) {
-                    searchUserButton.visibility = View.VISIBLE
-                    addCurseButton.visibility = View.VISIBLE
-                    scanUserButton.visibility = View.VISIBLE
-                    vampireSendButton.visibility = View.VISIBLE
-                    mailButton.visibility = View.VISIBLE
-                }
-                if (service?.userState?.superusered!! > 8) {
-                    superuserbar.visibility = View.VISIBLE
-                }
-            }
-            else {
-                fab.show()
-            }
-
-            //Mail bar
-            if (!service?.userState?.mail!!.isEmpty()) {
-                mailTextView.text = ""
-                for (txt in service?.userState?.mail!!)
-                    mailTextView.text = mailTextView.text.toString() + txt + "\n"
-            }
-
             //MapBar refresh if needs
-            if (!service?.userState?.searchUserResult!!.isEmpty()) {
-
-                if (infoSearch) {
-                    mapInfoBar.visibility = View.VISIBLE
+            if (service != null && !service?.userState?.searchUserResult!!.isEmpty()) {
+                if ( mapInfoBar.visibility == View.VISIBLE) {
                     //One search, zoom to target
                     if (service?.userState?.longitude != null)
                         gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(service?.userState?.searchUserResult?.get(0)?.latitude!!,
                                 service?.userState?.searchUserResult?.get(0)?.longitude!!), 12f))
 
-                }
-                else {
-                    mapInfoBar.visibility = View.GONE
+                } else {
                     //Many search, zoom to user
                     if (service?.userState?.longitude != null)
                         gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(service?.userState?.latitude!!,
                                 service?.userState?.longitude!!), 12f))
                 }
 
-                mapbar.visibility = View.VISIBLE
                 val founded = service?.userState?.searchUserResult?.iterator()
-                var find: SearchUserResult
+                //var find: SearchUserResult
                 while (founded!!.hasNext()) {
-                    find = founded!!.next()
-                    val draw = if (find.powerSide == Light) R.drawable.light
-                    else if (find.powerSide == Dark) R.drawable.dark
-                    else R.drawable.human
-                    if (find.curse.equals("0")) searchUserCurse.text = getString(R.string.searchUserCurse) + getString(com.shi.dayre.twilightclient2.R.string.No)
+                    val find = founded.next()
+                    val draw = when {
+                        find.powerSide == Light -> R.drawable.light
+                        find.powerSide == Dark -> R.drawable.dark
+                        else -> R.drawable.human
+                    }
+                    if (find.curse == "0") searchUserCurse.text = getString(R.string.searchUserCurse) + getString(com.shi.dayre.twilightclient2.R.string.No)
                     else searchUserCurse.text = getString(R.string.searchUserCurse) + find.curse
-                    searchLastconnect.text = getString(R.string.searchUserLastConnected) + find.lastConnected
-                    addMarkerToMap(gMap, find.name, find.latitude, find.longitude, "", resources, draw)
-                }
-                //And zones
-                val foundedZ = service?.userState?.searchZoneResult!!.iterator()
-                var findZ: SearchZoneResult
-                while (foundedZ.hasNext()) {
-                    findZ = foundedZ.next()
-                    val draw = if (findZ.priority == 0) R.drawable.zone1
-                    else if (findZ.priority == 1) R.drawable.zone2
-                    else R.drawable.zone3
-                    addMarkerToMap(gMap, findZ.name, findZ.latitude, findZ.longitude, findZ.textForHuman, resources, draw)
-                    //TODO Draw circle
-                    val drawColor = if (findZ.priority == 0) Color.GREEN
-                    else if (findZ.priority == 1) Color.YELLOW
-                    else Color.RED
 
-                    Log.i("Socket.Radius", findZ.name + "=" + findZ.radius.toString())
+                    searchLastconnect.text = getString(R.string.searchUserLastConnected) + find.lastConnected
+                    addMarkerToMap(gMap, find.name, find.latitude, find.longitude, find.lastConnected, resources, draw)
+                }
+
+            }
+            //And zones
+            if (service != null && !service?.userState?.searchZoneResult!!.isEmpty()) {
+                val foundedZ = service?.userState?.searchZoneResult!!.iterator()
+                //var findZ: SearchZoneResult
+                while (foundedZ.hasNext()) {
+                    val findZ = foundedZ.next()
+                    val draw = when {
+                        findZ.priority == 0 -> R.drawable.zone1
+                        findZ.priority == 1 -> R.drawable.zone2
+                        else -> R.drawable.zone3
+                    }
+                    addMarkerToMap(gMap, findZ.name, findZ.latitude, findZ.longitude, findZ.textForHuman, resources, draw)
+                    val drawColor = when {
+                        findZ.priority == 0 -> Color.GREEN
+                        findZ.priority == 1 -> Color.YELLOW
+                        else -> Color.RED
+                    }
+
                     addCircleToMap(gMap, findZ.latitude, findZ.longitude, findZ.radius * 111900, drawColor)
                 }
             }
 
-            if (!service?.userState?.vampireSend.equals("0")) vampireSendCallStatus.text =
-                    getString(com.shi.dayre.twilightclient2.R.string.vampireSendAlready) + service?.userState?.vampireSend
-            else vampireSendCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireSendNoYet)
+//            if (service != null) {
+//                synchronized(service!!.syncLock) {
+//                    service!!.syncLock.notify()
+//                }
+//            }
 
-            if (!service?.userState?.vampireCall.equals("0")) {
-                vampireCallBar.visibility = View.VISIBLE
-                vampireCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireCallFrom) + service?.userState?.vampireCall
-            }
-
-            synchronized(service!!.syncLock) {
-                service!!.syncLock.notify()
-            }
-            Log.i("TLC.view", "View updated ok")
+            Log.i("TLC.view", "View map updated ok")
         })
     }).start()
 
-    fun startService() {
-        Log.i("TLC.service", "try to start")
-        service?.isMainActivityRunnig=true
+    fun broadcastRefreshSuperUser() = Thread(Runnable {
+
+        // try to touch View of UI thread
+        this.runOnUiThread({
+            fabLock=false
+            fab.setImageResource(R.drawable.ok)
+            if (binded) {
+                if (service?.userState?.superusered!=null) {
+                    editor.putInt(APP_PREFERENCES_SUPERUSER, service?.userState?.superusered!!)
+                    editor.apply()
+                }
+
+                if (service != null && service?.userState?.superusered != -1) {
+                    superUserView= service?.userState?.superusered!!
+                } else {
+                    fab.show()
+                }
+                Log.i("TLC.view", "View updated ok")
+            }
+
+            if (superUserView!=-1) {
+                //TODO Add more superuser types
+                fab.hide()
+                connectBar.visibility = View.GONE
+                userbar.visibility = View.VISIBLE
+                netCoordinate.visibility = View.VISIBLE
+                lastConnected.visibility = View.VISIBLE
+                if (superUserView > 0) {
+                    searchUserButton.visibility = View.VISIBLE
+                    addCurseButton.visibility = View.VISIBLE
+                    scanUserButton.visibility = View.VISIBLE
+                    vampireSendButton.visibility = View.VISIBLE
+                    mailButton.visibility = View.VISIBLE
+                }
+                if (superUserView > 8) {
+                    superuserbar.visibility = View.VISIBLE
+                }
+            }
+            else { fab.show()
+                connectBar.visibility = View.VISIBLE
+                userbar.visibility = View.GONE
+                netCoordinate.visibility = View.GONE
+                lastConnected.visibility = View.GONE
+                superuserbar.visibility = View.GONE
+                searchUserButton.visibility = View.GONE
+                addCurseButton.visibility = View.GONE
+                scanUserButton.visibility = View.GONE
+                vampireSendButton.visibility = View.GONE
+                mailButton.visibility = View.GONE
+                currentStatus.visibility = View.GONE
+                vampireCallBar.visibility = View.GONE}
+        })
+    }).start()
+
+
+    fun broadcastRefresh() = Thread(Runnable {
+        // try to touch View of UI thread
+        this.runOnUiThread({
+            fabLock=false
+            fab.setImageResource(R.drawable.ok)
+            if (binded) {
+                if (service?.userState?.superusered != null) {
+                    editor.putInt(APP_PREFERENCES_SUPERUSER, service?.userState?.superusered!!)
+                    editor.apply()
+                }
+
+                if (service?.userState?.latitude != null)
+                    netCoordinate.text = "lat = " + service?.userState?.latitude + ", lon = " + service?.userState?.longitude
+                else {
+                    netCoordinate.text = this.resources.getText(R.string.net_disable)
+                }
+
+                if (service?.userState?.lastConnected != null)
+                    lastConnected.text = "Обновлено - " + service?.userState?.lastConnected + "."
+
+                if (service?.userState?.zoneText != "") {
+                    currentStatus.visibility = View.VISIBLE
+                    currentStatus.text = service?.userState?.zoneText
+                }
+
+                if (service != null && service?.userState?.superusered != -1) {
+                    superUserView = service?.userState?.superusered!!
+                } else {
+                    fab.show()
+                }
+
+                //Mail bar
+                if (service != null && !service?.userState?.mail!!.isEmpty()) {
+                    mailTextView.text = ""
+                    for (txt in service?.userState?.mail!!)
+                        mailTextView.text = mailTextView.text.toString() + txt + "\n"
+                }
+
+                if (!service?.userState?.vampireSend.equals("0")) vampireSendCallStatus.text =
+                        getString(com.shi.dayre.twilightclient2.R.string.vampireSendAlready) + service?.userState?.vampireSend
+                else vampireSendCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireSendNoYet)
+
+                if (!service?.userState?.vampireCall.equals("0")) {
+                    vampireCallBar.visibility = View.VISIBLE
+                    vampireCallStatus.text = getString(com.shi.dayre.twilightclient2.R.string.vampireCallFrom) + service?.userState?.vampireCall
+                } else {
+                    vampireCallBar.visibility = View.GONE
+                }
+
+                if (service != null) {
+                    synchronized(service!!.syncLock) {
+                        service!!.syncLock.notify()
+                    }
+                }
+                Log.i("TLC.view", "View updated ok")
+            }})
+    }).start()
+
+    private fun serviceDisconnect() {
+        service?.isMainActivityRunnig = true
         val serviceIntent = Intent(this, FusedLocationService::class.java)
-        serviceIntent.setAction(ACTION_CONNECT)
+        serviceIntent.action = ACTION_DISCONNECT
         startService(serviceIntent)
     }
 
-    fun sendToServer(message: String) {
+    private fun serviceConnect() {
+        service?.isMainActivityRunnig = true
+        val serviceIntent = Intent(this, FusedLocationService::class.java)
+        serviceIntent.action = ACTION_CONNECT
+        startService(serviceIntent)
+    }
+
+    private fun serviceSetup() {
+        val serviceIntent = Intent(this, FusedLocationService::class.java)
+        //This action needs, because binding is asynchron and not work as I want
+        serviceIntent.action = ACTION_SETUP_CONNECTION
+        serviceIntent.putExtra("url", newServer.text.toString())
+        serviceIntent.putExtra("login", newLogin.text.toString())
+        serviceIntent.putExtra("password", newPassword.text.toString())
+        startService(serviceIntent)
+    }
+
+    private fun sendToServer(message: String) {
         val serviceIntent = Intent(this, FusedLocationService::class.java)
         serviceIntent.putExtra("message", message)
-        serviceIntent.setAction(ACTION_SEND_MESSAGE)
+        serviceIntent.action = ACTION_SEND_MESSAGE
         startService(serviceIntent)
     }
 
-    fun addListener() {
+    private fun addListener() {
         newZonePinCoordinateButton.setOnClickListener {
+            hideSoftKeyboard(this)
             if (mapbar.visibility == View.GONE) {
                 gMap?.clear()
                 service?.userState?.searchUserResult = ArrayList()
@@ -304,7 +396,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 isAddFrameOpen = true
                 infoSearch = true
                 val msg = "SEARCHUSER(" + service?.userState?.login + COMMA + service?.userState?.password + COMMA + service?.userState?.vampireCall + COMMA + "9)"
-                 sendToServer(msg)
+                sendToServer(msg)
+                mapbar.visibility = View.VISIBLE
+                mapInfoBar.visibility = View.VISIBLE
             } else {
                 hideBar()
             }
@@ -318,6 +412,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 isAddFrameOpen = true
                 val msg = "SCANUSER(" + service?.userState?.login + COMMA + service?.userState?.password + COMMA + "9)"
                 sendToServer(msg)
+                mapbar.visibility = View.VISIBLE
             } else {
                 hideBar()
             }
@@ -325,6 +420,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         fab.setOnClickListener {
             Log.i("TLC.view", "fab clicked")
+            service?.isMainActivityRunnig = true
             hideSoftKeyboard(this)
             //TODO Change visibility to variable
             if (addnewzonebar.visibility == View.VISIBLE) {
@@ -387,6 +483,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     val msg = "SEARCHUSER(" + service?.userState?.login + COMMA + service?.userState?.password + COMMA +
                             searchUserName.text + COMMA + position + ")"
                     sendToServer(msg)
+                    mapbar.visibility = View.VISIBLE
+                    mapInfoBar.visibility = View.VISIBLE
                 }
             } else if (scanUserBar.visibility == View.VISIBLE) {
                 service?.userState?.searchUserResult = ArrayList()
@@ -395,6 +493,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 val position = scanSpinner.selectedItemPosition + 1
                 val msg = "SCANUSER(" + service?.userState?.login + COMMA + service?.userState?.password + COMMA + position + ")"
                 sendToServer(msg)
+                mapbar.visibility = View.VISIBLE
             } else if (cursebar.visibility == View.VISIBLE) {
                 if (!curseUserName.text.equals("")) {
                     val msg = "MAKECURSE(" + service?.userState?.login + COMMA + service?.userState?.password + COMMA +
@@ -413,31 +512,24 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                             deleteZoneName.text + ")"
                     sendToServer(msg)
                 }
-            } else if (searchbar.visibility == View.VISIBLE) {
-                if (searchName.text.length > 1) {
-                    searchLastconnect.text = ""
-                    service?.userState?.searchUserResult = ArrayList()
-                    service?.userState?.searchZoneResult = ArrayList()
-                    gMap?.clear()
-                    val msg = "SEARCHUSER(" + service?.userState?.login + COMMA + service?.userState?.password + COMMA +
-                            searchName.text + COMMA + "9)"
-                    sendToServer(msg)
-                    searchName.setText("")
-                }
-            } else {
+           }
+            else {
+                if (!fabLock) {
                 try {
-                    //Connect
-                    fab.hide()
-                    service?.userState?.login = newLogin.text.toString()
-                    service?.userState?.password = newPassword.text.toString()
-                    service?.userState?.url = newServer.text.toString()
-                    editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString())
-                    editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString())
-                    editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString())
-                    editor.apply()
-                    startService()
-                } catch (x: Exception) {
-                    Log.e("TLC.connect", x.toString())
+                    Log.i("TLC.view", "fab connect")
+                        fabLock=true
+                        fab.setImageResource(R.drawable.wait)
+                        //save login and password
+                        editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString())
+                        editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString())
+                        editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString())
+                        editor.apply()
+                        //start service
+                        serviceSetup()
+                        serviceConnect()
+                    } catch (x: Exception) {
+                        Log.e("TLC.connect", x.toString())
+                    }
                 }
             }
         }
@@ -464,6 +556,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         if (mSettings.contains(APP_PREFERENCES_SERVER))
             newServer.setText(mSettings.getString(APP_PREFERENCES_SERVER, DEFAULT_SERVER))
         else newServer.setText(DEFAULT_SERVER)
+        if (mSettings.contains(APP_PREFERENCES_SUPERUSER)) {
+            if (mSettings.getInt(APP_PREFERENCES_SUPERUSER, -1)>-1) {
+                superUserView = mSettings.getInt(APP_PREFERENCES_SUPERUSER, -1)
+                Log.i("TLC.view","Setting super user = "+mSettings.getInt(APP_PREFERENCES_SUPERUSER, -1))
+                fab.hide()
+                serviceSetup()
+                serviceConnect()
+            }
+        }
     }
 
     private fun loadLayout() {
@@ -485,6 +586,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private fun hideBar() {
         fab.hide()
         isAddFrameOpen = false
+        mapInfoBar.visibility = View.GONE
         for (lay in listOfLayout) {
             lay.visibility = View.GONE
         }
@@ -492,35 +594,55 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     private fun logOut() {
         Log.i("TLC.view", "log out")
+        writeToLog("User log out")
+        //unbindService(myConnection)
+        //binded=false
+        //LocalBroadcastManager.getInstance(this)
+         //       .unregisterReceiver(broadcast)
         //Send message to server
+        hideNotification(this, NOTIFICATION_CODE_ZONE)
+        hideNotification(this, NOTIFICATION_CODE_VAMPIRE)
         val msg = "LOGOUT(" + service?.userState?.login + COMMA + service?.userState?.password + ")"
         sendToServer(msg)
         //Stop sending location
-        val serviceIntent = Intent(this, FusedLocationService::class.java)
-        stopService(serviceIntent)
-        System.exit(0)
+        serviceDisconnect()
+
+        editor.putInt(APP_PREFERENCES_SUPERUSER, -1)
+        editor.apply()
+
+        superUserView=-1
+        broadcastRefresh()
+        broadcastRefreshSuperUser()
+        //System.exit(0)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("TLC.view", "onCreate")
+        writeToLog("Activity started")
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        val serviceIntent = Intent(this, FusedLocationService::class.java)
+        bindService(serviceIntent, myConnection, 0)
+
+        broadcast = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                Log.i("TLC.broadcast","action = "+intent.getStringExtra("action"))
+                when (intent.getStringExtra("action")) {
+                    BROADCAST_NEED_TO_REFRESH -> broadcastRefresh()
+                    BROADCAST_NEED_TO_REFRESH_MAP -> broadcastRefreshMap()
+                    BROADCAST_NEED_TO_REFRESH_USERSTATE -> broadcastRefreshSuperUser()
+                }
+            }
+        }
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(broadcast, IntentFilter(BROADCAST))
+
+        service?.isMainActivityRunnig = true
 
         loadLayout()
         addListener()
         loadSettings()
-
-        val serviceIntent = Intent(this, FusedLocationService::class.java)
-        bindService(serviceIntent, myConnection, Context.BIND_AUTO_CREATE)
-
-        broadcast = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                broadcastRefresh()
-            }
-        }
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(broadcast, IntentFilter(BROADCAST_NEED_TO_REFRESH))
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.searchmap) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -530,18 +652,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         if (isAddFrameOpen) {
             hideBar()
         } else {
-            val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
-                when (which) {
-                    DialogInterface.BUTTON_POSITIVE -> {
-                        logOut()
-                    }
-                    DialogInterface.BUTTON_NEGATIVE -> {
+            if (superUserView!=-1) {
+                val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
+                    when (which) {
+                        DialogInterface.BUTTON_POSITIVE -> {
+                            logOut()
+                        }
+                        DialogInterface.BUTTON_NEGATIVE -> {
+                        }
                     }
                 }
+                val builder = AlertDialog.Builder(this)
+                builder.setMessage(getString(R.string.exitYesNo)).setPositiveButton("Выход", dialogClickListener)
+                        .setNegativeButton("Отмена", dialogClickListener).show()
             }
-            val builder = AlertDialog.Builder(this)
-            builder.setMessage(getString(R.string.exitYesNo)).setPositiveButton("Выход", dialogClickListener)
-                    .setNegativeButton("Отмена", dialogClickListener).show()
+            else { System.exit(0)}
         }
     }
 
@@ -553,8 +678,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     override fun onResume() {
         super.onResume()
         Log.i("TLC.view", "onResume")
-
-
+        writeToLog("Activity resume")
         if (!isAnySensorEnable()) {
             val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
                 when (which) {
@@ -570,30 +694,52 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             builder.setMessage(this.getString(R.string.sensorOpen)).setPositiveButton("Да", dialogClickListener)
                     .setNegativeButton("Отмена", dialogClickListener).show()
         }
+        service?.isMainActivityRunnig = true
+        broadcastRefresh()
+        broadcastRefreshSuperUser()
+
+        fun showHello(){
+            val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
+            }
+
+            val builder2 = AlertDialog.Builder(this)
+            builder2.setMessage(getString(R.string.newVersion)).setPositiveButton("Понятно", dialogClickListener)
+                    .show()
+            editor.putString(APP_PREFERENCES_ALREADY_VIEW_HELLO, CLIENT_VERSION)
+        }
+        if (mSettings.contains(APP_PREFERENCES_ALREADY_VIEW_HELLO)) {
+            if (mSettings.getString(APP_PREFERENCES_ALREADY_VIEW_HELLO, "") != CLIENT_VERSION) {
+              showHello()
+            }
+        } else {
+            showHello()
+        }
 
         hideSoftKeyboard(this)
     }
 
     override fun onPause() {
         super.onPause()
+        writeToLog("Activity paused")
         if (!isAddFrameOpen) {
             service?.userState?.searchUserResult = ArrayList()
             service?.userState?.searchZoneResult = ArrayList()
             gMap?.clear()
         }
+        service?.isMainActivityRunnig = false
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.i("TLC.view", "onDestroy")
-        if (service!=null) {
-            service?.isMainActivityRunnig=false
-        }
+        service?.isMainActivityRunnig = true
 
         unbindService(myConnection)
 
         LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(broadcast)
+
+        Log.i("TLC.view", "onDestroy")
+        writeToLog("Activity destroyed")
     }
 
     private fun isAnySensorEnable(): Boolean {

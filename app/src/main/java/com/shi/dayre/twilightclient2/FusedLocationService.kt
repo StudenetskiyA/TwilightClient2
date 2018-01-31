@@ -21,18 +21,21 @@ import java.util.concurrent.TimeUnit
 import android.content.ComponentName
 import android.app.ActivityManager
 import android.content.Context
-
+//import com.sun.corba.se.impl.orbutil.concurrent.SyncUtil.acquire
+import android.net.wifi.WifiManager
+import android.os.PowerManager
 
 class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
     var userState = User()
-    var serviceStarted: Boolean = false
+    private var serviceStarted: Boolean = false
     val syncLock = java.lang.Object()
     var isMainActivityRunnig = false
     private var notificationManager: NotificationManager? = null
     private val NOTIFICATION_ID = 666
 
     var wsj: WebSocket? = null
-
+    var  wifiLock:WifiManager.WifiLock? = null
+    var  wakeLock: PowerManager.WakeLock? = null
     private val TAG = "TLC.fused"
     private var locationRequest: LocationRequest? = null
     private var googleApiClient: GoogleApiClient? = null
@@ -50,21 +53,28 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         return mBinder
     }
 
-    private fun connect() {
+    private fun connect(needToReturn:Boolean) {
         var count = 0
-        val msg = "CONNECT(" + userState.login + COMMA + userState.password + ")"
+        val msg = "CONNECT(" + userState.login + COMMA + userState.password + COMMA + CLIENT_VERSION+")"
+        //val msg = "CONNECT(" + userState.login + COMMA + userState.password +")"
 
         while (wsj?.connected == false) {
+            wsj = WebSocket(userState.url, CommandFromServerHandler(this, this))
             wsj?.connectWebSocket()
             TimeUnit.SECONDS.sleep(1)
             count++
-            Log.i("TLC.connect", "connection count = " + count)
-            if (count > 10) {
+            if (count > 9) {
+                if (needToReturn) {
+                    userState.superusered = -1
+                    sendBroadcasting(BROADCAST_NEED_TO_REFRESH)
+                }
                 Toaster.toast(R.string.serverNotResponse)
+                writeToLog("Fail to connect to server, url = "+userState.url)
                 break
             }
-            wsj?.sendMessage(msg)
         }
+        if (wsj?.connected == true)
+        wsj?.sendMessage(msg)
     }
 
     private fun sendMessageToServer(message: String) {
@@ -72,12 +82,15 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
             if (!wsj!!.connected) {
                 //Reconnect
                 Log.i("TLC.connect", "try to reconnect")
-                wsj?.connectWebSocket()
+                writeToLog("Service try to reconnect")
+                connect(false)
             }
         } else {
             //Recreate?
             Log.i("TLC.connect", "socket null")
+            writeToLog("Server socket null")
         }
+        writeToLog("Service send message - "+message)
         wsj?.sendMessage(message)
     }
 
@@ -88,15 +101,15 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         sendMessageToServer(msg)
     }
 
-    fun sendBroadcast(action: String) {
-        val intentReceive = Intent(action)
+    fun sendBroadcasting(action: String) {
+        val intentReceive = Intent(BROADCAST)
+        intentReceive.putExtra("action",action)
         LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(intentReceive)
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.i(TAG, "onStartCommand")
-
+    fun runInForeground() {
+        notificationManager = this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notificationIntent = Intent(applicationContext, MainActivity::class.java)
         val contentIntent = PendingIntent.getActivity(applicationContext,
                 NOTIFICATION_ID, notificationIntent,
@@ -109,32 +122,76 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         val notification: Notification = builder.build()
 
         startForeground(777, notification)
+    }
 
-        val action: String = intent.getAction()
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        Log.i(TAG, "onStartService with command "+intent.action)
+
+        val action: String? = intent.action
+        writeToLog("Service started with action = "+action)
 
         when (action) {
+            ACTION_SETUP_CONNECTION -> {
+                userState.url = intent.getStringExtra("url")
+                userState.login = intent.getStringExtra("login")
+                userState.password = intent.getStringExtra("password")
+            }
             ACTION_CONNECT -> {
-                wsj = WebSocket(userState.url, CommandFromServerHandler(this, this), this)
-                connect()
-                getLocation()//Here or in MESSAGE?
+                val wm = application.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL, "MyWifiLock")
+                if (wifiLock?.isHeld != true) {
+                    Log.i(TAG, "wifi locked")
+                    wifiLock?.acquire()
+                }
+                val wm2 = application.getSystemService(Context.POWER_SERVICE) as PowerManager
+                wakeLock = wm2.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock")
+                if (wakeLock?.isHeld != true) {
+                    Log.i(TAG, "wake locked")
+                    wakeLock?.acquire()
+                }
+
+                writeToLog("WiFi lock hold on")
+                wsj = WebSocket(userState.url, CommandFromServerHandler(this, this))
+                connect(true)
+            }
+            ACTION_DISCONNECT -> {
+                destroyThis()
+                stopForeground(true)
             }
             ACTION_SEND_MESSAGE -> {
                 sendMessageToServer(intent.getStringExtra("message"))
             }
         }
-
-        return START_REDELIVER_INTENT
+        return START_STICKY
+       // return START_REDELIVER_INTENT
     }
 
     override fun onCreate() {
         Log.i(TAG, "onCreate")
-        notificationManager = this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        writeToLog("Service created")
+
         serviceStarted = true
     }
 
-    override fun onDestroy() {
-        Log.i(TAG, "onDestroy")
-        super.onDestroy()
+    fun destroyThis() {
+        userState = User()
+        wsj?.disconnectWebSocket()
+        // release the WifiLock
+        if (wifiLock != null) {
+            if (wifiLock?.isHeld()==true) {
+                wifiLock?.release()
+                Log.i(TAG, "wifi unlocked")
+                writeToLog("WiFi lock unhelded")
+            }
+        }
+        if (wakeLock != null) {
+            if (wakeLock?.isHeld()==true) {
+                wakeLock?.release()
+                Log.i(TAG, "wake unlocked")
+                writeToLog("Wake lock unhelded")
+            }
+        }
+        writeToLog("Service destroyed")
         notificationManager?.cancel(NOTIFICATION_ID)
         try {
             if (googleApiClient != null) {
@@ -145,7 +202,13 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         }
     }
 
-    private fun getLocation() {
+    override fun onDestroy() {
+        Log.i(TAG, "onDestroy")
+        super.onDestroy()
+        destroyThis()
+    }
+
+    fun startGettingLocation() {
         locationRequest = LocationRequest.create()
         locationRequest!!.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationRequest!!.interval = CONNECT_EVERY_SECOND*1000
@@ -173,7 +236,7 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
     override fun onLocationChanged(location: Location) {
         Log.i("TLC.fused", "Location updated")
-        Log.i("TLC.exp", "isForeground "+isForeground())
+        writeToLog("Location changed")
         userState.latitude = location.latitude
         userState.longitude = location.longitude
         sendLocationToServer()
