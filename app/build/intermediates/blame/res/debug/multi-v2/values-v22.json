@@ -1,0 +1,36 @@
+{
+    "logs": [
+        {
+            "outputFile": "/media/studenetsky/403E61A43E6193A6/Users/samsung/StudioProjects/TwilightClient2/C:\\Users\\samsung\\StudioProjects\\TwilightClient2\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-v22\\values-v22.xml",
+            "map": [
+                {
+                    "source": "/media/studenetsky/403E61A43E6193A6/Users/samsung/StudioProjects/TwilightClient2/C:\\Users\\samsung\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-26.1.0.aar\\4c249aea7cfa384d5de867b5a52e7282\\res\\values-v22\\values-v22.xml",
+                    "from": {
+                        "startLines": "2,3,4,9",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,130,217,553",
+                        "endLines": "2,3,8,13",
+                        "endColumns": "74,86,12,12",
+                        "endOffsets": "125,212,548,896"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "/media/studenetsky/403E61A43E6193A6/Users/samsung/StudioProjects/TwilightClient2/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v22/values-v22.xml",
+            "map": [
+                {
+                    "source": "/home/studenetsky/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/da0e35f7eb8a31d8716f7c8aab47ca4b/res/values-v22/values-v22.xml",
+                    "from": {
+                        "startLines": "2,3,4,9",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,130,217,553",
+                        "endLines": "2,3,8,13",
+                        "endColumns": "74,86,12,12",
+                        "endOffsets": "125,212,548,896"
+                    }
+                }
+            ]
+        }
+    ]
+}

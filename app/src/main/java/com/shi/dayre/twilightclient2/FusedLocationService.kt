@@ -3,12 +3,9 @@ package com.shi.dayre.twilightclient2
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
-import android.os.Bundle
 import com.google.android.gms.common.api.GoogleApiClient
 import android.content.Intent
 import android.location.Location
-import android.os.Binder
-import android.os.IBinder
 import com.google.android.gms.location.LocationRequest
 import android.util.Log
 import com.google.android.gms.common.ConnectionResult
@@ -18,28 +15,26 @@ import android.app.NotificationManager
 import android.support.v4.content.LocalBroadcastManager
 import xdroid.toaster.Toaster
 import java.util.concurrent.TimeUnit
-import android.content.ComponentName
 import android.app.ActivityManager
 import android.content.Context
-//import com.sun.corba.se.impl.orbutil.concurrent.SyncUtil.acquire
 import android.net.wifi.WifiManager
-import android.os.PowerManager
+import android.os.*
 
 class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
     var userState = User()
     private var serviceStarted: Boolean = false
-    val syncLock = java.lang.Object()
     var isMainActivityRunnig = false
     private var notificationManager: NotificationManager? = null
-    private val NOTIFICATION_ID = 666
 
-    var wsj: WebSocket? = null
-    var  wifiLock:WifiManager.WifiLock? = null
-    var  wakeLock: PowerManager.WakeLock? = null
+    private var wsj: WebSocket? = null
+    private var  wifiLock:WifiManager.WifiLock? = null
+    private var  wakeLock: PowerManager.WakeLock? = null
     private val TAG = "TLC.fused"
     private var locationRequest: LocationRequest? = null
     private var googleApiClient: GoogleApiClient? = null
     private var fusedLocationProviderApi: FusedLocationProviderApi? = null
+    //var handler = Handler()
+    //val PERIOD_FAIL = 120000 //If cant create connection - try again after 2 minutes
 
     private val mBinder = MyLocalBinder()
 
@@ -56,7 +51,6 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     private fun connect(needToReturn:Boolean) {
         var count = 0
         val msg = "CONNECT(" + userState.login + COMMA + userState.password + COMMA + CLIENT_VERSION+")"
-        //val msg = "CONNECT(" + userState.login + COMMA + userState.password +")"
 
         while (wsj?.connected == false) {
             wsj = WebSocket(userState.url, CommandFromServerHandler(this, this))
@@ -68,14 +62,19 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                     userState.superusered = -1
                     sendBroadcasting(BROADCAST_NEED_TO_REFRESH)
                 }
+                //Log.i(TAG, "No connection, retry after 2 minute")
+                //handler.postDelayed({connect(needToReturn)}, PERIOD_FAIL.toLong())
                 Toaster.toast(R.string.serverNotResponse)
                 writeToLog("Fail to connect to server, url = "+userState.url)
                 break
             }
         }
-        if (wsj?.connected == true)
-        wsj?.sendMessage(msg)
+        if (wsj?.connected == true) {
+            writeToLog("Service send message - "+msg)
+            wsj?.sendMessage(msg)
+        }
     }
+
 
     private fun sendMessageToServer(message: String) {
         if (wsj != null) {
@@ -147,10 +146,10 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 wakeLock = wm2.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock")
                 if (wakeLock?.isHeld != true) {
                     Log.i(TAG, "wake locked")
-                    wakeLock?.acquire()
+                    wakeLock?.acquire()//I am sorry, but no timeout!
                 }
 
-                writeToLog("WiFi lock hold on")
+                writeToLog("WiFi and wake lock hold on")
                 wsj = WebSocket(userState.url, CommandFromServerHandler(this, this))
                 connect(true)
             }
@@ -162,8 +161,8 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 sendMessageToServer(intent.getStringExtra("message"))
             }
         }
-        return START_STICKY
-       // return START_REDELIVER_INTENT
+        //return START_STICKY
+        return START_REDELIVER_INTENT
     }
 
     override fun onCreate() {

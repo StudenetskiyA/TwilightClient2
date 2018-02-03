@@ -68,11 +68,11 @@ class CommandFromServerHandler(private val context: Context, private val service
                     if (fromServer.getTextBetween().get(1).equals("0"))
                     sendNotification(context, formattedDate + " " + context.getString(R.string.enterToNewZone), service.userState.zoneText, NOTIFICATION_CODE_ZONE,0)
                     else    sendNotification(context, formattedDate + " " + context.getString(R.string.enterToNewZone), service.userState.zoneText, NOTIFICATION_CODE_ZONE,1)
-                    sendNeedToRefresh("all")
+                  //  sendNeedToRefresh("all")
                 }
             } else if (fromServer.startsWith("MAIL(")) {
                 service.userState.mail.add(fromServer.getTextBetween().get(0))
-                sendNeedToRefresh("all")
+                //sendNeedToRefresh("all")
             } else if (fromServer.startsWith("SEARCHUSER(")) {
                 service.userState.searchUserResult.add(SearchUserResult(
                         fromServer.getTextBetween().get(0), fromServer.getTextBetween().get(1).toDouble(),
@@ -89,6 +89,8 @@ class CommandFromServerHandler(private val context: Context, private val service
                // sendNeedToRefresh("map")
             } else if (fromServer.startsWith("ENDSEARCH")) {
                 sendNeedToRefresh("map")
+            } else if (fromServer.startsWith("REFRESH")) {
+                sendNeedToRefresh("all")
             } else if (fromServer.startsWith("VAMPIRESEND(")) {
                 val n = fromServer.getTextBetween().get(0)
                 if (n.equals("0")) service.userState.vampireSend = "0"
@@ -104,10 +106,10 @@ class CommandFromServerHandler(private val context: Context, private val service
                     if (!service.userState.vampireCall.equals(n)) sendNotification(context, context.getString(R.string.newVampireCall), "", NOTIFICATION_CODE_VAMPIRE,1)
                     service.userState.vampireCall = n
                 }
-                sendNeedToRefresh("all")
+                //sendNeedToRefresh("all")
             } else if (fromServer.startsWith("SUPERUSER(")) {
                 val n = fromServer.getTextBetween().get(0).toInt()
-                Log.i("WebClient", "SuperUser granted = " + n)
+                Log.i("TLC.connect", "SuperUser granted = " + n)
                 service.userState.superusered = n
                 if (n!=-1) {
                     service.startGettingLocation()

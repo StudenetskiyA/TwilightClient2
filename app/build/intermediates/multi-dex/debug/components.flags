@@ -1,0 +1,85 @@
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.java-websocket\Java-WebSocket\1.3.0\db2658f013fb163de4a99274c2eb9e17efe535d2\Java-WebSocket-1.3.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\play-services-location-8.4.0.aar\a6d2e170c41205a9b9b9f7e1904c7c6e\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlinx\kotlinx-coroutines-core\0.21\f627719b82a4341f4caeb97965bb4b0e2e472fb7\kotlinx-coroutines-core-0.21.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\xdroid-toaster-0.2.4.aar\be80b61b69a7c01dfbfb62de932c4c09\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.testng\testng\6.9.6\e6788337be58ddc30c01d0ade783fb06cc825c7c\testng-6.9.6.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\multidex-1.0.2.aar\fd9c08487f70362bb6c415e5e44abaef\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib-jre7\1.2.10\ea1aafdd031ba2604b06cb89a97da397b7aff520\kotlin-stdlib-jre7-1.2.10.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\design-26.1.0.aar\75aa0960258d195e3b52a4758b20a748\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\appcompat-v7-26.1.0.aar\4c249aea7cfa384d5de867b5a52e7282\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\constraint-layout-1.0.2.aar\0fad729e306bfd63727842469f531ed5\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\play-services-maps-8.4.0.aar\fcbd1dac94a98da63266dd4639f396d2\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\play-services-base-8.4.0.aar\4abef7a9fd8df8d6a9bd228470a637c1\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib\1.2.10\b9bf650516989595a5390e5a54181e16347208ac\kotlin-stdlib-1.2.10.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\xdroid-core-0.2.4.aar\5968e010fec81f4f39431afbbe6ff300\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\com.google.inject\guice\4.0\199b7acaa05b570bbccf31be998f013963e5e752\guice-4.0-no_aop.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.beanshell\bsh\2.0b4\a05f0a0feefa8d8467ac80e16e7de071489f0d9c\bsh-2.0b4.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.apache.ant\ant\1.7.0\9746af1a485e50cf18dcb232489032a847067066\ant-1.7.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\com.beust\jcommander\1.48\bfcb96281ea3b59d626704f74bc6d625ff51cbce\jcommander-1.48.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.yaml\snakeyaml\1.15\3b132bea69e8ee099f416044970997bde80f4ea6\snakeyaml-1.15.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\junit\junit\4.12\2973d150c0dc1fefe998f834810d68f278ea58ec\junit-4.12.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-26.1.0.aar\051afb50f9bc2c29edba879319603cde\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-26.1.0.aar\ad22901674025e948563faa54fef0a36\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\recyclerview-v7-26.1.0.aar\7e3acd4f6aae764ba72817f3991afdb1\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\transition-26.1.0.aar\b6798b63f018887be80dcada5db2f2de\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\play-services-basement-8.4.0.aar\2aad24c382fa7f421e555d6e1a069f5c\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-v4-26.1.0.aar\e7bace3f0ac011a405947305f54e8e94\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-fragment-26.1.0.aar\6eccbc04832a6b93577b04c2f162e8c5\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-core-ui-26.1.0.aar\1165718972095d4c1b903f16713add89\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-media-compat-26.1.0.aar\d8177d95f27ee03cd8e037f48984eb4c\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-core-utils-26.1.0.aar\80759f690f66c978a51c85985c2ed2ff\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\support-compat-26.1.0.aar\30fa1a60660e5f8460f29c3f738b23fd\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\com.android.support\support-annotations\26.1.0\814258103cf26a15fcc26ecce35f5b7d24b73f8\support-annotations-26.1.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\com.android.support.constraint\constraint-layout-solver\1.0.2\b9cd8fc6bd15cb915735d34535db30ece0c44603\constraint-layout-solver-1.0.2.jar'(**.class)
+-injars 'C:\Program Files\Android\Android Studio\gradle\m2repository\org\jetbrains\annotations\13.0\annotations-13.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\javax.inject\javax.inject\1\6975da39a7040257bd51d21a231b76c915872d38\javax.inject-1.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\aopalliance\aopalliance\1.0\235ba8b489512805ac13a8f9ea77a1ca5ebe3e8\aopalliance-1.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\com.google.guava\guava\16.0.1\5fa98cd1a63c99a44dd8d3b77e4762b066a5d0c5\guava-16.0.1.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.apache.ant\ant-launcher\1.7.0\e7e30789211e074aa70ef3eaea59bd5b22a7fa7a\ant-launcher-1.7.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\org.hamcrest\hamcrest-core\1.3\42a25dc3219429f0e5d060061f71acb49bf010a0\hamcrest-core-1.3.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\transforms-1\files-1.1\runtime-1.0.0.aar\5f9421056471f1f6304b7d8bf49b8e8c\jars\classes.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\android.arch.lifecycle\common\1.0.0\e414a4cb28434e25c4f6aa71426eb20cf4874ae9\common-1.0.0.jar'(**.class)
+-injars 'C:\Users\samsung\.gradle\caches\modules-2\files-2.1\android.arch.core\common\1.0.0\a2d487452376193fc8c103dd2b9bd5f2b1b44563\common-1.0.0.jar'(**.class)
+-injars 'C:\Users\samsung\StudioProjects\TwilightClient2\app\build\intermediates\classes\debug'(**.class)
+-injars 'C:\Users\samsung\StudioProjects\TwilightClient2\app\build\tmp\kotlin-classes\debug'(**.class)
+-outjars 'C:\Users\samsung\StudioProjects\TwilightClient2\app\build\intermediates\multi-dex\debug\componentClasses.jar'
+
+-libraryjars 'C:\Users\samsung\AppData\Local\Android\sdk\build-tools\26.0.2\lib\shrinkedAndroid.jar'
+
+-forceprocessing
+-dontoptimize
+-dontobfuscate
+-dontusemixedcaseclassnames
+-dontpreverify
+-dontnote **
+-dontwarn **
+-printconfiguration 'C:\Users\samsung\StudioProjects\TwilightClient2\app\build\intermediates\multi-dex\debug\components.flags'
+
+
+# Referenced at C:\Users\samsung\StudioProjects\TwilightClient2\app\build\intermediates\manifests\full\debug\AndroidManifest.xml:25
+-keep class android.support.multidex.MultiDexApplication {
+    <init>(...);
+}
+
+-keep public class * extends android.app.Instrumentation {
+    <init>();
+}
+
+-keep public class * extends android.app.Application {
+    <init>();
+    void attachBaseContext(android.content.Context);
+}
+
+-keep public class * extends android.app.backup.BackupAgent {
+    <init>();
+}
+
+-keep public class * extends java.lang.annotation.Annotation {
+    <fields>;
+    <methods>;
+}
+
+-keep class com.android.tools.ir.** {
+    <fields>;
+    <methods>;
+}

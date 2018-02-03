@@ -1,0 +1,72 @@
+{
+    "logs": [
+        {
+            "outputFile": "/media/studenetsky/403E61A43E6193A6/Users/samsung/StudioProjects/TwilightClient2/C:\\Users\\samsung\\StudioProjects\\TwilightClient2\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-land\\values-land.xml",
+            "map": [
+                {
+                    "source": "/media/studenetsky/403E61A43E6193A6/Users/samsung/StudioProjects/TwilightClient2/C:\\Users\\samsung\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-26.1.0.aar\\4c249aea7cfa384d5de867b5a52e7282\\res\\values-land\\values-land.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,125,189,260",
+                        "endColumns": "69,63,70,67",
+                        "endOffsets": "120,184,255,323"
+                    }
+                },
+                {
+                    "source": "/media/studenetsky/403E61A43E6193A6/Users/samsung/StudioProjects/TwilightClient2/C:\\Users\\samsung\\.gradle\\caches\\transforms-1\\files-1.1\\design-26.1.0.aar\\75aa0960258d195e3b52a4758b20a748\\res\\values-land\\values-land.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "232"
+                    },
+                    "to": {
+                        "startLines": "6",
+                        "startColumns": "4",
+                        "startOffsets": "328",
+                        "endLines": "9",
+                        "endColumns": "12",
+                        "endOffsets": "505"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "/media/studenetsky/403E61A43E6193A6/Users/samsung/StudioProjects/TwilightClient2/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-land/values-land.xml",
+            "map": [
+                {
+                    "source": "/home/studenetsky/.gradle/caches/transforms-1/files-1.1/design-26.1.0.aar/5ccd2097c9959e43dfecc44425fff27e/res/values-land/values-land.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "232"
+                    },
+                    "to": {
+                        "startLines": "6",
+                        "startColumns": "4",
+                        "startOffsets": "328",
+                        "endLines": "9",
+                        "endColumns": "12",
+                        "endOffsets": "505"
+                    }
+                },
+                {
+                    "source": "/home/studenetsky/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/da0e35f7eb8a31d8716f7c8aab47ca4b/res/values-land/values-land.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,125,189,260",
+                        "endColumns": "69,63,70,67",
+                        "endOffsets": "120,184,255,323"
+                    }
+                }
+            ]
+        }
+    ]
+}

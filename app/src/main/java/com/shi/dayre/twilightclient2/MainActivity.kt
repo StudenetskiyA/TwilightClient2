@@ -25,29 +25,29 @@ import android.os.IBinder
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.support.v4.content.LocalBroadcastManager
-import kotlinx.coroutines.experimental.launch
 
-val CLIENT_VERSION = "0.725"
-val CONNECT_EVERY_SECOND: Long = 30
-val COMMA = "|"
-val APP_PREFERENCES = "mysettings"
-val APP_PREFERENCES_USERNAME = "username"
-val APP_PREFERENCES_PASSWORD = "password"
-val APP_PREFERENCES_SERVER = "server"
-val APP_PREFERENCES_SUPERUSER = "superuser"
-val APP_PREFERENCES_ALREADY_VIEW_HELLO = "viewhello"
+const val CLIENT_VERSION = "0.727"
+const val CONNECT_EVERY_SECOND: Long = 30
+const val COMMA = "|"
+const val APP_PREFERENCES = "mysettings"
+const val APP_PREFERENCES_USERNAME = "username"
+const val APP_PREFERENCES_PASSWORD = "password"
+const val APP_PREFERENCES_SERVER = "server"
+const val APP_PREFERENCES_SUPERUSER = "superuser"
+const val APP_PREFERENCES_ALREADY_VIEW_HELLO = "viewhello"
 
-val BROADCAST = "com.shi.dayre.twilightclient2"
-val BROADCAST_NEED_TO_REFRESH = "com.shi.dayre.twilightclient2.needToRefresh"
-val BROADCAST_NEED_TO_REFRESH_MAP = "com.shi.dayre.twilightclient2.needToRefreshMap"
-val BROADCAST_NEED_TO_REFRESH_USERSTATE = "com.shi.dayre.twilightclient2.needToRefreshUserState"
+const val BROADCAST = "com.shi.dayre.twilightclient2"
+const val BROADCAST_NEED_TO_REFRESH = "com.shi.dayre.twilightclient2.needToRefresh"
+const val BROADCAST_NEED_TO_REFRESH_MAP = "com.shi.dayre.twilightclient2.needToRefreshMap"
+const val BROADCAST_NEED_TO_REFRESH_USERSTATE = "com.shi.dayre.twilightclient2.needToRefreshUserState"
 
-val ACTION_CONNECT = "connect"
-val ACTION_DISCONNECT = "disconnect"
-val ACTION_SEND_MESSAGE = "send message"
-val ACTION_SETUP_CONNECTION = "setup"
+const val ACTION_CONNECT = "connect"
+const val ACTION_DISCONNECT = "disconnect"
+const val ACTION_SEND_MESSAGE = "send message"
+const val ACTION_SETUP_CONNECTION = "setup"
 
-val DEFAULT_SERVER = "ws://test1.uralgufk.ru:8080/BHServer/serverendpoint"
+const val NOTIFICATION_ID = 666
+const val DEFAULT_SERVER = "ws://test1.uralgufk.ru:8080/BHServer/serverendpoint"
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerDragListener {
     var service: FusedLocationService? = null
@@ -117,66 +117,64 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         // try to touch View of UI thread
         this.runOnUiThread({
             //MapBar refresh if needs
-            if (service != null && !service?.userState?.searchUserResult!!.isEmpty()) {
-                if ( mapInfoBar.visibility == View.VISIBLE) {
-                    //One search, zoom to target
-                    if (service?.userState?.longitude != null)
-                        gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(service?.userState?.searchUserResult?.get(0)?.latitude!!,
-                                service?.userState?.searchUserResult?.get(0)?.longitude!!), 12f))
+            try {
+                if (service != null && !service?.userState?.searchUserResult!!.isEmpty()) {
+                    if (mapInfoBar.visibility == View.VISIBLE) {
+                        //One search, zoom to target
+                        if (service?.userState?.longitude != null)
+                            gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(service?.userState?.searchUserResult?.get(0)?.latitude!!,
+                                    service?.userState?.searchUserResult?.get(0)?.longitude!!), 12f))
 
-                } else {
-                    //Many search, zoom to user
-                    if (service?.userState?.longitude != null)
-                        gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(service?.userState?.latitude!!,
-                                service?.userState?.longitude!!), 12f))
-                }
-
-                val founded = service?.userState?.searchUserResult?.iterator()
-                //var find: SearchUserResult
-                while (founded!!.hasNext()) {
-                    val find = founded.next()
-                    val draw = when {
-                        find.powerSide == Light -> R.drawable.light
-                        find.powerSide == Dark -> R.drawable.dark
-                        else -> R.drawable.human
+                    } else {
+                        //Many search, zoom to user
+                        if (service?.userState?.longitude != null)
+                            gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(service?.userState?.latitude!!,
+                                    service?.userState?.longitude!!), 12f))
                     }
-                    if (find.curse == "0") searchUserCurse.text = getString(R.string.searchUserCurse) + getString(com.shi.dayre.twilightclient2.R.string.No)
-                    else searchUserCurse.text = getString(R.string.searchUserCurse) + find.curse
 
-                    searchLastconnect.text = getString(R.string.searchUserLastConnected) + find.lastConnected
-                    addMarkerToMap(gMap, find.name, find.latitude, find.longitude, find.lastConnected, resources, draw)
+                    val founded = service?.userState?.searchUserResult?.iterator()
+                    while (founded!!.hasNext()) {
+                        val find = founded.next()
+                        val draw = when {
+                            find.powerSide == Light -> R.drawable.light
+                            find.powerSide == Dark -> R.drawable.dark
+                            else -> R.drawable.human
+                        }
+                        if (find.curse == "0") searchUserCurse.text = getString(R.string.searchUserCurse) + getString(com.shi.dayre.twilightclient2.R.string.No)
+                        else searchUserCurse.text = getString(R.string.searchUserCurse) + find.curse
+
+                        searchLastconnect.text = getString(R.string.searchUserLastConnected) + find.lastConnected
+                        addMarkerToMap(gMap, find.name, find.latitude, find.longitude, find.lastConnected, resources, draw)
+                    }
+
+                }
+                //And zones
+                if (service != null && !service?.userState?.searchZoneResult!!.isEmpty()) {
+                    val foundedZ = service?.userState?.searchZoneResult!!.iterator()
+                    //var findZ: SearchZoneResult
+                    while (foundedZ.hasNext()) {
+                        val findZ = foundedZ.next()
+                        val draw = when {
+                            findZ.priority == 0 -> R.drawable.zone1
+                            findZ.priority == 1 -> R.drawable.zone2
+                            else -> R.drawable.zone3
+                        }
+                        addMarkerToMap(gMap, findZ.name, findZ.latitude, findZ.longitude, findZ.textForHuman, resources, draw)
+                        val drawColor = when {
+                            findZ.priority == 0 -> Color.GREEN
+                            findZ.priority == 1 -> Color.YELLOW
+                            else -> Color.RED
+                        }
+
+                        addCircleToMap(gMap, findZ.latitude, findZ.longitude, findZ.radius * 111900, drawColor)
+                    }
                 }
 
+                Log.i("TLC.view", "View map updated ok")
+            } catch (x: Exception) {
+                writeToLog("refreshMap FAIL.")
+                Log.e("TLC.view.refreshMap", x.toString())
             }
-            //And zones
-            if (service != null && !service?.userState?.searchZoneResult!!.isEmpty()) {
-                val foundedZ = service?.userState?.searchZoneResult!!.iterator()
-                //var findZ: SearchZoneResult
-                while (foundedZ.hasNext()) {
-                    val findZ = foundedZ.next()
-                    val draw = when {
-                        findZ.priority == 0 -> R.drawable.zone1
-                        findZ.priority == 1 -> R.drawable.zone2
-                        else -> R.drawable.zone3
-                    }
-                    addMarkerToMap(gMap, findZ.name, findZ.latitude, findZ.longitude, findZ.textForHuman, resources, draw)
-                    val drawColor = when {
-                        findZ.priority == 0 -> Color.GREEN
-                        findZ.priority == 1 -> Color.YELLOW
-                        else -> Color.RED
-                    }
-
-                    addCircleToMap(gMap, findZ.latitude, findZ.longitude, findZ.radius * 111900, drawColor)
-                }
-            }
-
-//            if (service != null) {
-//                synchronized(service!!.syncLock) {
-//                    service!!.syncLock.notify()
-//                }
-//            }
-
-            Log.i("TLC.view", "View map updated ok")
         })
     }).start()
 
@@ -184,6 +182,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         // try to touch View of UI thread
         this.runOnUiThread({
+            try {
             fabLock=false
             fab.setImageResource(R.drawable.ok)
             if (binded) {
@@ -231,13 +230,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 mailButton.visibility = View.GONE
                 currentStatus.visibility = View.GONE
                 vampireCallBar.visibility = View.GONE}
+        } catch (x: Exception) {
+                writeToLog("refreshSuperUser FAIL.")
+                Log.e("TLC.view.refreshSU", x.toString())
+            }
         })
     }).start()
-
 
     fun broadcastRefresh() = Thread(Runnable {
         // try to touch View of UI thread
         this.runOnUiThread({
+            try {
             fabLock=false
             fab.setImageResource(R.drawable.ok)
             if (binded) {
@@ -268,9 +271,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
                 //Mail bar
                 if (service != null && !service?.userState?.mail!!.isEmpty()) {
+                    val mails = service?.userState?.mail?.iterator()
                     mailTextView.text = ""
-                    for (txt in service?.userState?.mail!!)
-                        mailTextView.text = mailTextView.text.toString() + txt + "\n"
+                    while (mails!!.hasNext()) {
+                        val find = mails.next()
+                        mailTextView.text = mailTextView.text.toString() + find + "\n"
+                    }
                 }
 
                 if (!service?.userState?.vampireSend.equals("0")) vampireSendCallStatus.text =
@@ -284,12 +290,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     vampireCallBar.visibility = View.GONE
                 }
 
-                if (service != null) {
-                    synchronized(service!!.syncLock) {
-                        service!!.syncLock.notify()
-                    }
-                }
                 Log.i("TLC.view", "View updated ok")
+            }} catch (x: Exception) {
+                writeToLog("refreshCommon FAIL.")
+                Log.e("TLC.view.refreshCommon", x.toString())
             }})
     }).start()
 
@@ -699,9 +703,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         broadcastRefreshSuperUser()
 
         fun showHello(){
-            val dialogClickListener = DialogInterface.OnClickListener { dialog, which ->
-            }
-
+            val dialogClickListener = DialogInterface.OnClickListener { _, _ -> }
             val builder2 = AlertDialog.Builder(this)
             builder2.setMessage(getString(R.string.newVersion)).setPositiveButton("Понятно", dialogClickListener)
                     .show()
