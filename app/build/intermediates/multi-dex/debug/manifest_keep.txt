@@ -1,3 +1,0 @@
-# Referenced at /media/studenetsky/403E61A43E6193A6/Users/samsung/StudioProjects/TwilightClient2/app/build/intermediates/manifests/full/debug/AndroidManifest.xml:25
--keep class android.support.multidex.MultiDexApplication { <init>(...); }
-
