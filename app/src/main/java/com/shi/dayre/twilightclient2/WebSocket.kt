@@ -53,13 +53,13 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler) {
                     }
             }
 
-            override fun onClose(i: Int, s: String, b: Boolean) {
-                Log.i("TLC.connect", "Closed " + s)
+            override fun onClose(i: Int, s: String?, b: Boolean) {
+                Log.i("TLC.connect.onClose", "")
                 connected = false
             }
 
-            override fun onError(e: Exception) {
-                Log.e("TLC.connect", "Error " + e.message)
+            override fun onError(e: Exception?) {
+                Log.e("TLC.connect.onError", "")
                 connected = false
             }
         }
@@ -67,7 +67,7 @@ class WebSocket(val url: String, val commandHandler: CommandFromServerHandler) {
     }
 
     fun sendMessage(txt: String) {
-        Log.i("TLC.connect", "Message to server " + txt)
+        Log.i("TLC.connect.sendMessage",  txt)
         if (connected) mWebSocketClient?.send(txt)
     }
 }

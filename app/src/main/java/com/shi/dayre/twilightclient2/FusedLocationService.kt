@@ -24,19 +24,20 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     var userState = User()
     private var serviceStarted: Boolean = false
     var isMainActivityRunnig = false
+    var waitinForServerResponse = false
     private var notificationManager: NotificationManager? = null
 
     private var wsj: WebSocket? = null
-    private var  wifiLock:WifiManager.WifiLock? = null
-    private var  wakeLock: PowerManager.WakeLock? = null
+    private var wifiLock: WifiManager.WifiLock? = null
+    private var wakeLock: PowerManager.WakeLock? = null
     private val TAG = "TLC.fused"
     private var locationRequest: LocationRequest? = null
     private var googleApiClient: GoogleApiClient? = null
     private var fusedLocationProviderApi: FusedLocationProviderApi? = null
-    //var handler = Handler()
-    //val PERIOD_FAIL = 120000 //If cant create connection - try again after 2 minutes
 
     private val mBinder = MyLocalBinder()
+    private val TIME_TO_SAY_NETWORK_DOWN = 120*1000
+    private var lastConnectedTime:Long = 99999999999999
 
     inner class MyLocalBinder : Binder() {
         fun getService(): FusedLocationService {
@@ -48,9 +49,25 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         return mBinder
     }
 
-    private fun connect(needToReturn:Boolean) {
+    private fun reconnect() {
         var count = 0
-        val msg = "CONNECT(" + userState.login + COMMA + userState.password + COMMA + CLIENT_VERSION+")"
+
+        while (wsj?.connected == false) {
+            wsj = WebSocket(userState.url, CommandFromServerHandler(this, this))
+            wsj?.connectWebSocket()
+            count++
+            if (count > 20) {
+                writeToLog("Fail to connect to server, url = " + userState.url)
+                Log.i("TLC.connect","No connection, retry when location changed")
+                break
+            }
+            TimeUnit.SECONDS.sleep(1)
+        }
+    }
+
+    private fun connect(needToReturn: Boolean) {
+        var count = 0
+        val msg = "CONNECT(" + userState.login + COMMA + userState.password + COMMA + CLIENT_VERSION + ")"
 
         while (wsj?.connected == false) {
             wsj = WebSocket(userState.url, CommandFromServerHandler(this, this))
@@ -62,15 +79,14 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                     userState.superusered = -1
                     sendBroadcasting(BROADCAST_NEED_TO_REFRESH)
                 }
-                //Log.i(TAG, "No connection, retry after 2 minute")
-                //handler.postDelayed({connect(needToReturn)}, PERIOD_FAIL.toLong())
                 Toaster.toast(R.string.serverNotResponse)
-                writeToLog("Fail to connect to server, url = "+userState.url)
+                Log.i("TLC.connect","Fail to connect to server, url = " + userState.url)
+                writeToLog("Fail to connect to server, url = " + userState.url)
                 break
             }
         }
         if (wsj?.connected == true) {
-            writeToLog("Service send message - "+msg)
+            writeToLog("Service send message - " + msg)
             wsj?.sendMessage(msg)
         }
     }
@@ -82,15 +98,19 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
                 //Reconnect
                 Log.i("TLC.connect", "try to reconnect")
                 writeToLog("Service try to reconnect")
-                connect(false)
+                if (message.startsWith("CONNECT"))
+                    connect(false)
+                else reconnect()
             }
         } else {
             //Recreate?
             Log.i("TLC.connect", "socket null")
             writeToLog("Server socket null")
         }
-        writeToLog("Service send message - "+message)
-        wsj?.sendMessage(message)
+        if (wsj?.connected == true) {
+            writeToLog("Service send message - " + message)
+            wsj?.sendMessage(message)
+        }
     }
 
     private fun sendLocationToServer() {
@@ -102,7 +122,7 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
 
     fun sendBroadcasting(action: String) {
         val intentReceive = Intent(BROADCAST)
-        intentReceive.putExtra("action",action)
+        intentReceive.putExtra("action", action)
         LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(intentReceive)
     }
@@ -124,10 +144,10 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.i(TAG, "onStartService with command "+intent.action)
+        Log.i(TAG, "onStartService with command " + intent.action)
 
         val action: String? = intent.action
-        writeToLog("Service started with action = "+action)
+        writeToLog("Service started with action = " + action)
 
         when (action) {
             ACTION_SETUP_CONNECTION -> {
@@ -177,14 +197,14 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         wsj?.disconnectWebSocket()
         // release the WifiLock
         if (wifiLock != null) {
-            if (wifiLock?.isHeld()==true) {
+            if (wifiLock?.isHeld() == true) {
                 wifiLock?.release()
                 Log.i(TAG, "wifi unlocked")
                 writeToLog("WiFi lock unhelded")
             }
         }
         if (wakeLock != null) {
-            if (wakeLock?.isHeld()==true) {
+            if (wakeLock?.isHeld() == true) {
                 wakeLock?.release()
                 Log.i(TAG, "wake unlocked")
                 writeToLog("Wake lock unhelded")
@@ -210,8 +230,8 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
     fun startGettingLocation() {
         locationRequest = LocationRequest.create()
         locationRequest!!.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest!!.interval = CONNECT_EVERY_SECOND*1000
-        locationRequest!!.fastestInterval = CONNECT_EVERY_SECOND*1000
+        locationRequest!!.interval = CONNECT_EVERY_SECOND * 1000
+        locationRequest!!.fastestInterval = CONNECT_EVERY_SECOND * 1000
         fusedLocationProviderApi = LocationServices.FusedLocationApi
         googleApiClient = GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -238,10 +258,23 @@ class FusedLocationService : Service(), GoogleApiClient.ConnectionCallbacks, Goo
         writeToLog("Location changed")
         userState.latitude = location.latitude
         userState.longitude = location.longitude
-        sendLocationToServer()
+        //If server long time not response - may be network down or sever
+        val timeFromLastConnected = System.currentTimeMillis() - lastConnectedTime
+        Log.i("TLC.time",timeFromLastConnected.toString())
+        if (waitinForServerResponse && timeFromLastConnected>TIME_TO_SAY_NETWORK_DOWN) {
+            Log.i("TLC.connect","wait more TIME_TO_SAY_NETWORK_DOWN time")
+            waitinForServerResponse = false
+            wsj?.connected=false
+        }
+        //
+        if (!waitinForServerResponse) {
+            lastConnectedTime = System.currentTimeMillis()
+            waitinForServerResponse = true
+            sendLocationToServer()
+        }
     }
 
-    fun isForeground(myPackage: String="com.shi.dayre.twilightclient2"): Boolean {
+    fun isForeground(myPackage: String = "com.shi.dayre.twilightclient2"): Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val runningTaskInfo = manager.getRunningTasks(1)
         val componentInfo = runningTaskInfo[0].topActivity

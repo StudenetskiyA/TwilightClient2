@@ -33,7 +33,7 @@ import java.util.*
  */
 
 fun getStringResourceFromIdentifier(context: Context, name: String): String {
-    if (context.resources.getIdentifier(name, "string", context.packageName) != null) {
+    if (context.resources.getIdentifier(name, "string", context.packageName) != 0) {
         return context.getString(context.resources.getIdentifier(name, "string", context.packageName))
     }
     return name
@@ -41,39 +41,6 @@ fun getStringResourceFromIdentifier(context: Context, name: String): String {
 
 fun messageFromServerCode(context:Context,serverCode: String): String {
    return getStringResourceFromIdentifier(context,serverCode)
-
-//    return when (serverCode) {
-//        "#deletezonecorrect" ->  context.getString(R.string.deleteNewZoneCorrect)
-//        "#updatezonecorrect" ->  context.getString(R.string.updateNewZoneCorrect)
-//        "#newzonecorrect" ->  context.getString(R.string.addNewZoneCorrect)
-//        "#damage" ->  context.getString(R.string.serverBaseCantAccess)
-//       "#damageSQLUser" -> context.getString(R.string.damageSQLUser)
-//       "#damageSQLZone" -> context.getString(R.string.damageSQLZone)
-//       "#damageSQLLogs" -> context.getString(R.string.damageSQLLogs)
-//       "#damageSQLMail" -> context.getString(R.string.damageSQLMail)
-//       "#wrongLoginPass" -> context.getString(R.string.wrongLoginPass)
-//       "#wrongClientVersion" -> context.getString(R.string.wrongClientVersion)
-//
-//           "zonesNotFound"->context.getString(R.string.zonesNotFound)
-//               "playerAddCorrect"->context.getString(R.string.playerAddCorrect)
-//               "playerAlreadyAdded"->context.getString(R.string.playerAlreadyAdded)
-//               "playerDieCorrect"->context.getString(R.string.playerDieCorrect)
-//               "curseClear"->context.getString(R.string.curseClear)
-//               "curseMorePower"->context.getString(R.string.curseMorePower)
-//               "playerNotCurse"->context.getString(R.string.playerNotCurse)
-//               "vampirecallclear"->context.getString(R.string.vampirecallclear)
-//               "vampirecallnotcall"->context.getString(R.string.vampirecallnotcall)
-//               "castProtectOk"->context.getString(R.string.castProtectOk)
-//               "curseCastOk"->context.getString(R.string.curseCastOk)
-//               "playerOrCastNotFound"->context.getString(R.string.playerOrCastNotFound)
-//               "vampireCallAlreadyCall"->context.getString(R.string.vampireCallAlreadyCall)
-//               "vampireCallCastOk"->context.getString(R.string.vampireCallCastOk)
-//               "playerNotFound"->context.getString(R.string.Указанная зона не найдена
-//               "vampireCallOnlyOne"->context.getString(R.string.Указанная зона не найдена
-//               "vampireCallClearOk"->context.getString(R.string.Указанная зона не найдена
-//               "playerHided"->context.getString(R.string.Указанная зона не найдена
-//               "noFreeZoneError"->context.getString(R.string.Указанная зона не найдена
-//       else ->  serverCode
     }
 
 fun writeToLog(text: String) {

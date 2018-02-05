@@ -26,8 +26,9 @@ import android.content.ComponentName
 import android.content.ServiceConnection
 import android.support.v4.content.LocalBroadcastManager
 
-const val CLIENT_VERSION = "0.727"
-const val CONNECT_EVERY_SECOND: Long = 30
+const val CLIENT_VERSION = "0.729" //For server
+const val CLIENT_VERSION_CLIENT = "0.748" //For users
+const val CONNECT_EVERY_SECOND: Long = 10
 const val COMMA = "|"
 const val APP_PREFERENCES = "mysettings"
 const val APP_PREFERENCES_USERNAME = "username"
@@ -202,6 +203,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             if (superUserView!=-1) {
                 //TODO Add more superuser types
                 fab.hide()
+                //User success connect, save login/pass to settings.
+                editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString())
+                editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString())
+                editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString())
+                editor.apply()
                 connectBar.visibility = View.GONE
                 userbar.visibility = View.VISIBLE
                 netCoordinate.visibility = View.VISIBLE
@@ -237,6 +243,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         })
     }).start()
 
+    fun refreshMail() = Thread(Runnable {
+        // try to touch View of UI thread
+        this.runOnUiThread({
+            try {
+                //Mail bar
+                if (service != null && !service?.userState?.mail!!.isEmpty()) {
+                    val mails = service?.userState?.mail?.iterator()
+                    mailTextView.text = ""
+                    while (mails!!.hasNext()) {
+                        val find = mails.next()
+                        mailTextView.text = mailTextView.text.toString() + find + "\n"
+                    }
+                }
+            }
+            catch (x: Exception) {
+                    writeToLog("refreshMail FAIL.")
+                    Log.e("TLC.view.refreshMail", x.toString())
+                }})
+        }).start()
+
     fun broadcastRefresh() = Thread(Runnable {
         // try to touch View of UI thread
         this.runOnUiThread({
@@ -267,16 +293,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     superUserView = service?.userState?.superusered!!
                 } else {
                     fab.show()
-                }
-
-                //Mail bar
-                if (service != null && !service?.userState?.mail!!.isEmpty()) {
-                    val mails = service?.userState?.mail?.iterator()
-                    mailTextView.text = ""
-                    while (mails!!.hasNext()) {
-                        val find = mails.next()
-                        mailTextView.text = mailTextView.text.toString() + find + "\n"
-                    }
                 }
 
                 if (!service?.userState?.vampireSend.equals("0")) vampireSendCallStatus.text =
@@ -361,6 +377,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
         mailButton.setOnClickListener {
             addOnClickBarListener(mailBar)
+            refreshMail()
             fab.hide()
         }
         make1curseButton.setOnClickListener {
@@ -524,10 +541,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                         fabLock=true
                         fab.setImageResource(R.drawable.wait)
                         //save login and password
-                        editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString())
-                        editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString())
-                        editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString())
-                        editor.apply()
+//                        editor.putString(APP_PREFERENCES_USERNAME, newLogin.text.toString())
+//                        editor.putString(APP_PREFERENCES_PASSWORD, newPassword.text.toString())
+//                        editor.putString(APP_PREFERENCES_SERVER, newServer.text.toString())
+//                        editor.apply()
                         //start service
                         serviceSetup()
                         serviceConnect()
@@ -707,10 +724,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             val builder2 = AlertDialog.Builder(this)
             builder2.setMessage(getString(R.string.newVersion)).setPositiveButton("Понятно", dialogClickListener)
                     .show()
-            editor.putString(APP_PREFERENCES_ALREADY_VIEW_HELLO, CLIENT_VERSION)
+            editor.putString(APP_PREFERENCES_ALREADY_VIEW_HELLO, CLIENT_VERSION_CLIENT)
         }
         if (mSettings.contains(APP_PREFERENCES_ALREADY_VIEW_HELLO)) {
-            if (mSettings.getString(APP_PREFERENCES_ALREADY_VIEW_HELLO, "") != CLIENT_VERSION) {
+            if (mSettings.getString(APP_PREFERENCES_ALREADY_VIEW_HELLO, "") != CLIENT_VERSION_CLIENT) {
               showHello()
             }
         } else {
